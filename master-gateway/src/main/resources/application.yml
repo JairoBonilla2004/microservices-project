@@ -1,0 +1,56 @@
+spring:
+  application:
+    name: master-gateway
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/master_gateway}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres}
+  jpa:
+    hibernate:
+      ddl-auto: ${DDL_AUTO:update}
+    show-sql: ${SHOW_SQL:false}
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 25
+        order_inserts: true
+        order_updates: true
+    open-in-view: false
+
+jwt:
+  temp-token-expiration: 5m
+  access-token-expiration: 15m
+  refresh-token-expiration: 7d
+  secret: ${JWT_SECRET:}
+
+rate-limiting:
+  login:
+    max-attempts: 5
+    window-duration: 1m
+    key-type: ip_and_username
+  api:
+    max-requests: 100
+    window-duration: 1m
+
+password:
+  policy:
+    hash-algorithm: bcrypt
+    cost-factor: 12
+    min-length: 8
+    require-uppercase: true
+    require-digit: true
+    require-special: false
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+server:
+  port: ${PORT:8080}
+
+logging:
+  level:
+    root: ${LOG_LEVEL:INFO}
+    ec.edu.espe.master_gateway: DEBUG

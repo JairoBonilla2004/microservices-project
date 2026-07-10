@@ -1,0 +1,19 @@
+spring:
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 50
+
+logging:
+  level:
+    root: WARN
+    ec.edu.espe.master_gateway: INFO
+
+server:
+  compression:
+    enabled: true
+    mime-types: application/json,application/javascript,text/css
