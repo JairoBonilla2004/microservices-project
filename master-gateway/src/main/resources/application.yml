@@ -21,7 +21,7 @@ jwt:
   temp-token-expiration: 5m
   access-token-expiration: 15m
   refresh-token-expiration: 7d
-  secret: ${JWT_SECRET:}
+  secret: ${JWT_SECRET:dev-secret-key-at-least-32-characters-change-in-prod}
 
 rate-limiting:
   login:
@@ -49,6 +49,9 @@ springdoc:
 
 server:
   port: ${PORT:8080}
+  error:
+    whitelabel:
+      enabled: false
 
 logging:
   level:
