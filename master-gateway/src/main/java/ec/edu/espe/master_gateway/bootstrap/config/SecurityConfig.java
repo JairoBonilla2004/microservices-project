@@ -48,6 +48,7 @@ public class SecurityConfig {
      * Manejador personalizado para solicitudes rechazadas por falta de permisos.
      */
     private final ZeroTrustAccessDeniedHandler accessDeniedHandler;
+    private final ObjectMapper objectMapper;
 
     /**
      * Inicializa la configuración de seguridad con los componentes necesarios
@@ -57,11 +58,14 @@ public class SecurityConfig {
      *                                autenticaciones mediante JWT.
      * @param accessDeniedHandler manejador personalizado para errores de
      *                            autorización.
+     * @param objectMapper mapper JSON configurado por JacksonConfig.
      */
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
-                          ZeroTrustAccessDeniedHandler accessDeniedHandler) {
+                          ZeroTrustAccessDeniedHandler accessDeniedHandler,
+                          ObjectMapper objectMapper) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.accessDeniedHandler = accessDeniedHandler;
+        this.objectMapper = objectMapper;
     }
 
     /**
@@ -83,7 +87,10 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/login").permitAll()
+                        .requestMatchers("/api/auth/select-role").permitAll()
+                        .requestMatchers("/api/auth/logout").permitAll()
                         .requestMatchers("/api/auth/refresh-token").permitAll()
+                        .requestMatchers("/api/internals/validate-token").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/api-docs/**", "/swagger-ui/**").permitAll()
                         .anyRequest().authenticated()
@@ -95,12 +102,13 @@ public class SecurityConfig {
                         .authenticationEntryPoint((request, response, authException) -> {
                             response.setStatus(HttpStatus.UNAUTHORIZED.value());
                             response.setContentType("application/json");
-                            response.getWriter().write(
-                                    new ObjectMapper().writeValueAsString(
+                            response.getOutputStream().write(
+                                    objectMapper.writeValueAsBytes(
                                             ErrorResponse.of(HttpStatus.UNAUTHORIZED,
                                                     "Autenticación requerida")
                                     )
                             );
+                            response.getOutputStream().flush();
                         })
                 );
 

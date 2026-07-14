@@ -1,9 +1,9 @@
 package ec.edu.espe.master_gateway.shared.infrastructure.web;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.LocalDateTime;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
  * Respuesta de error estandarizada para toda la API.
