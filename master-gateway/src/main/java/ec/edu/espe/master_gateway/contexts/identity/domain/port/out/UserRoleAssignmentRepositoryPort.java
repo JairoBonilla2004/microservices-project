@@ -3,6 +3,7 @@ package ec.edu.espe.master_gateway.contexts.identity.domain.port.out;
 import ec.edu.espe.master_gateway.contexts.identity.domain.model.UserRoleAssignment;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Puerto de salida del dominio para la persistencia de asignaciones entre
@@ -20,13 +21,11 @@ import java.util.Optional;
  */
 public interface UserRoleAssignmentRepositoryPort {
 
-    List<UserRoleAssignment> findByUserId(Long userId);
+    List<UserRoleAssignment> findByUserId(UUID userId);
 
-    List<UserRoleAssignment> findByRoleId(Long roleId);
+    List<UserRoleAssignment> findByRoleId(UUID roleId);
 
-    Optional<UserRoleAssignment> findByUserIdAndRoleId(Long userId, Long roleId);
+    Optional<UserRoleAssignment> findByUserIdAndRoleId(UUID userId, UUID roleId);
 
     UserRoleAssignment save(UserRoleAssignment assignment);
-
-    void deleteByUserIdAndRoleId(Long userId, Long roleId);
 }

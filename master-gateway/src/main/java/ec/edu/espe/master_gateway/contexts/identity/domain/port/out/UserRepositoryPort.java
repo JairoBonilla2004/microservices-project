@@ -3,6 +3,7 @@ package ec.edu.espe.master_gateway.contexts.identity.domain.port.out;
 import ec.edu.espe.master_gateway.contexts.identity.domain.model.User;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Puerto de salida del dominio para la persistencia de usuarios.
@@ -20,11 +21,9 @@ import java.util.Optional;
  */
 public interface UserRepositoryPort {
 
-    Optional<User> findById(Long id);
+    Optional<User> findById(UUID id);
 
     Optional<User> findByUsername(String username);
-
-    Optional<User> findByEmail(String email);
 
     List<User> findAllActive();
 

@@ -3,15 +3,14 @@ package ec.edu.espe.master_gateway.contexts.identity.domain.model;
 import ec.edu.espe.master_gateway.shared.infrastructure.persistence.EstadoRegistro;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
- * Representa un rol dentro del dominio de identidad del sistema.
+ * Representa un rol dentro del dominio de identidad.
  *
- * <p>Un rol define un conjunto de responsabilidades y permisos que pueden ser
- * asignados a los usuarios para controlar el acceso a los diferentes módulos
- * y funcionalidades de la aplicación. Además de su información descriptiva,
- * mantiene su estado de activación y los datos de auditoría asociados a su
- * persistencia.</p>
+ * <p>Un rol define un conjunto de permisos y responsabilidades dentro del sistema.
+ * Permite su activación, desactivación y actualización de nombre y descripción,
+ * además de gestionar la información de auditoría generada durante su persistencia.</p>
  *
  * @author Jairo Bonilla
  * @author Reishel Tipan
@@ -19,9 +18,9 @@ import java.util.Objects;
  */
 public class Role {
 
-    private Long id;
-    private final String nombre;
-    private final String descripcion;
+    private UUID id;
+    private String nombre;
+    private String descripcion;
     private EstadoRegistro estado;
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaActualizacion;
@@ -41,23 +40,31 @@ public class Role {
         this.estado = EstadoRegistro.INACTIVO;
     }
 
-    public boolean isActive() {
-        return estado == EstadoRegistro.ACTIVO;
+    public void setEstado(EstadoRegistro estado) {
+        this.estado = estado;
     }
 
-    public void markAsPersisted(Long id, LocalDateTime fechaCreacion, LocalDateTime fechaActualizacion,
+    public void updateNombre(String nombre) {
+        if (nombre != null) this.nombre = nombre;
+    }
+
+    public void updateDescripcion(String descripcion) {
+        if (descripcion != null) this.descripcion = descripcion;
+    }
+
+    public void markAsPersisted(UUID id, LocalDateTime fechaCreacion, LocalDateTime fechaActualizacion,
                                 String creadoPor, String actualizadoPor) {
         if (this.id != null) {
             throw new IllegalStateException("El rol ya fue persistido");
         }
         this.id = Objects.requireNonNull(id);
-        this.fechaCreacion = Objects.requireNonNull(fechaCreacion);
-        this.fechaActualizacion = Objects.requireNonNull(fechaActualizacion);
+        this.fechaCreacion = fechaCreacion;
+        this.fechaActualizacion = fechaActualizacion;
         this.creadoPor = creadoPor;
         this.actualizadoPor = actualizadoPor;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
@@ -81,11 +88,4 @@ public class Role {
         return fechaActualizacion;
     }
 
-    public String getCreadoPor() {
-        return creadoPor;
-    }
-
-    public String getActualizadoPor() {
-        return actualizadoPor;
-    }
 }

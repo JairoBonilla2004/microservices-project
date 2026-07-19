@@ -3,6 +3,7 @@ package ec.edu.espe.master_gateway.contexts.identity.domain.model;
 import ec.edu.espe.master_gateway.shared.infrastructure.persistence.EstadoRegistro;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * Representa la asignación de un rol a un usuario dentro del dominio de identidad.
@@ -13,17 +14,17 @@ import java.util.Objects;
 
 public class UserRoleAssignment {
 
-    private Long id;
-    private final Long userId;
-    private final Long roleId;
+    private UUID id;
+    private final UUID userId;
+    private final UUID roleId;
     private final String assignedBy;
     private final LocalDateTime assignedAt;
     private EstadoRegistro estado;
 
-    public UserRoleAssignment(Long userId, Long roleId, String assignedBy) {
+    public UserRoleAssignment(UUID userId, UUID roleId, String assignedBy) {
         this.userId = Objects.requireNonNull(userId, "userId no puede ser null");
         this.roleId = Objects.requireNonNull(roleId, "roleId no puede ser null");
-        this.assignedBy = Objects.requireNonNull(assignedBy, "assignedBy no puede ser null");
+        this.assignedBy = assignedBy;
         this.assignedAt = LocalDateTime.now();
         this.estado = EstadoRegistro.ACTIVO;
     }
@@ -39,15 +40,23 @@ public class UserRoleAssignment {
         return estado == EstadoRegistro.ACTIVO;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public Long getUserId() {
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public void setEstado(EstadoRegistro estado) {
+        this.estado = estado;
+    }
+
+    public UUID getUserId() {
         return userId;
     }
 
-    public Long getRoleId() {
+    public UUID getRoleId() {
         return roleId;
     }
 

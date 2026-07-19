@@ -3,6 +3,7 @@ package ec.edu.espe.master_gateway.contexts.identity.domain.port.out;
 import ec.edu.espe.master_gateway.contexts.identity.domain.model.Role;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Puerto de salida del dominio para la persistencia de roles.
@@ -19,7 +20,7 @@ import java.util.Optional;
  */
 public interface RoleRepositoryPort {
 
-    Optional<Role> findById(Long id);
+    Optional<Role> findById(UUID id);
 
     List<Role> findAllActive();
 

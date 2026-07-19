@@ -3,6 +3,7 @@ package ec.edu.espe.master_gateway.contexts.identity.domain.model;
 import ec.edu.espe.master_gateway.shared.infrastructure.persistence.EstadoRegistro;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * Representa un usuario dentro del dominio de identidad.
@@ -19,11 +20,11 @@ import java.util.Objects;
 
 public class User {
 
-    private Long id;
+    private UUID id;
     private final String username;
-    private final String email;
+    private String email;
     private String passwordHash;
-    private final String nombreCompleto;
+    private String nombreCompleto;
     private EstadoRegistro estado;
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaActualizacion;
@@ -45,6 +46,10 @@ public class User {
         this.estado = EstadoRegistro.INACTIVO;
     }
 
+    public void setEstado(EstadoRegistro estado) {
+        this.estado = estado;
+    }
+
     public boolean isActive() {
         return estado == EstadoRegistro.ACTIVO;
     }
@@ -53,19 +58,27 @@ public class User {
         this.passwordHash = Objects.requireNonNull(newPasswordHash, "newPasswordHash no puede ser null");
     }
 
-    public void markAsPersisted(Long id, LocalDateTime fechaCreacion, LocalDateTime fechaActualizacion,
+    public void updateEmail(String newEmail) {
+        this.email = Objects.requireNonNull(newEmail, "email no puede ser null");
+    }
+
+    public void updateNombreCompleto(String newNombreCompleto) {
+        this.nombreCompleto = Objects.requireNonNull(newNombreCompleto, "nombreCompleto no puede ser null");
+    }
+
+    public void markAsPersisted(UUID id, LocalDateTime fechaCreacion, LocalDateTime fechaActualizacion,
                                 String creadoPor, String actualizadoPor) {
         if (this.id != null) {
             throw new IllegalStateException("El usuario ya fue persistido");
         }
         this.id = Objects.requireNonNull(id);
-        this.fechaCreacion = Objects.requireNonNull(fechaCreacion);
-        this.fechaActualizacion = Objects.requireNonNull(fechaActualizacion);
+        this.fechaCreacion = fechaCreacion;
+        this.fechaActualizacion = fechaActualizacion;
         this.creadoPor = creadoPor;
         this.actualizadoPor = actualizadoPor;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
@@ -97,11 +110,4 @@ public class User {
         return fechaActualizacion;
     }
 
-    public String getCreadoPor() {
-        return creadoPor;
-    }
-
-    public String getActualizadoPor() {
-        return actualizadoPor;
-    }
 }
