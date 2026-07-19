@@ -8,6 +8,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 import java.time.LocalDateTime;
+import java.util.UUID;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -27,13 +28,13 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
  * @author Reishel Tipan
  * @author Julio Viche
  */
-@MappedSuperclass
-@EntityListeners(AuditingEntityListener.class)
-public abstract class JpaAuditableEntity {
+@MappedSuperclass // Indica que esta clase es una superclase mapeada y que sus campos se heredarán en las entidades que la extiendan, pero no se creará una tabla para esta clase en la base de datos.
+@EntityListeners(AuditingEntityListener.class) // Indica que esta clase es una superclase mapeada y que se deben escuchar los eventos de auditoría, es decir, que se llenen automáticamente los campos de auditoría como fecha de creación, fecha de actualización, creado por y actualizado por.
+public abstract class JpaAuditableEntity { // es abstracta para que no se pueda instanciar directamente y solo se use como base para otras entidades
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @Enumerated(EnumType.STRING)
     private EstadoRegistro estado = EstadoRegistro.ACTIVO;
@@ -50,11 +51,11 @@ public abstract class JpaAuditableEntity {
     @LastModifiedBy
     private String actualizadoPor;
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

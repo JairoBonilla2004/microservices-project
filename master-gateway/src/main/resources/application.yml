@@ -7,7 +7,7 @@ spring:
     password: ${DB_PASSWORD:postgres}
   jpa:
     hibernate:
-      ddl-auto: ${DDL_AUTO:update}
+      ddl-auto: ${DDL_AUTO:create-drop}
     show-sql: ${SHOW_SQL:false}
     properties:
       hibernate:
@@ -18,24 +18,38 @@ spring:
     open-in-view: false
 
 jwt:
+  mode: direct
   temp-token-expiration: 5m
   access-token-expiration: 15m
   refresh-token-expiration: 7d
-  secret: ${JWT_SECRET:dev-secret-key-at-least-32-characters-change-in-prod}
+  secret: ${JWT_SECRET:abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890}
 
 rate-limiting:
   login:
     max-attempts: 5
     window-duration: 1m
     key-type: ip_and_username
+
+  register:
+    max-attempts: 5
+    window-duration: 1m
+
+  refresh-token:
+    max-attempts: 5
+    window-duration: 1m
+
+  select-role:
+    max-attempts: 10
+    window-duration: 1m
+
   api:
     max-requests: 100
     window-duration: 1m
 
 password:
   policy:
-    hash-algorithm: bcrypt
-    cost-factor: 12
+    hash-algorithm: argon2
+    cost-factor: 2
     min-length: 8
     require-uppercase: true
     require-digit: true

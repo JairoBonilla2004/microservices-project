@@ -18,7 +18,7 @@ import org.springframework.data.repository.NoRepositoryBean;
  * @author Reishel Tipan
  * @author Julio Viche
  */
-@NoRepositoryBean
+@NoRepositoryBean // Indica a Spring Data que esta interfaz no debe ser instanciada directamente como un bean de repositorio, es decir, no se creará un bean de Spring para esta interfaz, sino que se utilizará como base para otros repositorios.
 public interface SoftDeleteRepository<T extends JpaAuditableEntity, ID> extends JpaRepository<T, ID> {
 
     @Override

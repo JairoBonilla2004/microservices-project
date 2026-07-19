@@ -5,6 +5,8 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import ec.edu.espe.master_gateway.bootstrap.config.LoginRateLimitProperties;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 /**
@@ -22,13 +24,17 @@ import org.springframework.stereotype.Service;
 @Service
 public class LoginRateLimitingService {
 
+    private static final Logger log = LoggerFactory.getLogger(LoginRateLimitingService.class);
+
     private final Cache<String, AtomicInteger> attemptCache;
     private final int maxAttempts;
     private final Duration windowDuration;
+    private final String keyType;
 
     public LoginRateLimitingService(LoginRateLimitProperties properties) {
         this.maxAttempts = properties.getMaxAttempts();
         this.windowDuration = properties.getWindowDuration();
+        this.keyType = properties.getKeyType();
         this.attemptCache = Caffeine.newBuilder()
                 .expireAfterWrite(windowDuration)
                 .maximumSize(100_000)
@@ -38,7 +44,11 @@ public class LoginRateLimitingService {
     public boolean isLoginAllowed(String ip, String username) {
         String key = buildKey(ip, username);
         AtomicInteger counter = attemptCache.get(key, k -> new AtomicInteger(0));
-        return counter.incrementAndGet() <= maxAttempts;
+        int attempts = counter.incrementAndGet();
+        if (attempts > maxAttempts) {
+            log.warn("Rate limit hit for key={}, attempts={}/{}", key, attempts, maxAttempts);
+        }
+        return attempts <= maxAttempts;
     }
 
     public int getRemainingAttempts(String ip, String username) {
@@ -59,6 +69,11 @@ public class LoginRateLimitingService {
     }
 
     private String buildKey(String ip, String username) {
-        return ip + ":" + (username != null ? username.toLowerCase() : "");
+        String safeIp = ip != null ? ip : "unknown";
+        if ("ip_only".equals(keyType)) {
+            return "login:" + safeIp;
+        }
+        String safeUser = username != null ? username : "anonymous";
+        return "login:" + safeIp + ":" + safeUser;
     }
 }

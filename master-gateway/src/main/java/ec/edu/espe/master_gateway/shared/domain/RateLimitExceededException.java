@@ -15,14 +15,28 @@ package ec.edu.espe.master_gateway.shared.domain;
 public class RateLimitExceededException extends DomainException {
 
     private final int retryAfterSeconds;
+    private final int maxAttempts;
+    private final int remainingAttempts;
 
-    public RateLimitExceededException(String mensaje, int retryAfterSeconds) {
+    public RateLimitExceededException(String mensaje, int retryAfterSeconds, int maxAttempts, int remainingAttempts) {
         super(mensaje, "RATE_LIMIT_EXCEEDED");
         this.retryAfterSeconds = retryAfterSeconds;
+        this.maxAttempts = maxAttempts;
+        this.remainingAttempts = remainingAttempts;
         addDetalle("retryAfterSeconds", retryAfterSeconds);
+        addDetalle("maxAttempts", maxAttempts);
+        addDetalle("remainingAttempts", remainingAttempts);
     }
 
     public int getRetryAfterSeconds() {
         return retryAfterSeconds;
+    }
+
+    public int getMaxAttempts() {
+        return maxAttempts;
+    }
+
+    public int getRemainingAttempts() {
+        return remainingAttempts;
     }
 }
