@@ -3,6 +3,7 @@ package ec.edu.espe.master_gateway.contexts.service_registry.domain.model;
 import ec.edu.espe.master_gateway.shared.infrastructure.persistence.EstadoRegistro;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * Servicio registrado en el sistema de registro de microservicios.
@@ -19,16 +20,17 @@ import java.util.Objects;
 public class RegisteredService {
 
     public enum ValidationMode {
-        DIRECT,
-        ASYMMETRIC
+        NONE,
+        DELEGATE,
+        LOCAL
     }
 
-    private Long id;
+    private UUID id;
     private final String serviceCode;
-    private final String nombre;
+    private String nombre;
     private String baseUrl;
     private final ValidationMode validationMode;
-    private final String publicKey;
+    private String publicKey;
     private EstadoRegistro estado;
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaActualizacion;
@@ -52,16 +54,44 @@ public class RegisteredService {
         this.estado = EstadoRegistro.INACTIVO;
     }
 
-    public boolean isActive() {
-        return estado == EstadoRegistro.ACTIVO;
-    }
-
     public void updateBaseUrl(String newBaseUrl) {
         this.baseUrl = Objects.requireNonNull(newBaseUrl, "newBaseUrl no puede ser null");
     }
 
-    public Long getId() {
+    public void updateNombre(String newNombre) {
+        this.nombre = Objects.requireNonNull(newNombre, "nombre no puede ser null");
+    }
+
+    public void updatePublicKey(String newPublicKey) {
+        this.publicKey = newPublicKey;
+    }
+
+    public UUID getId() {
         return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public void setEstado(EstadoRegistro estado) {
+        this.estado = estado;
+    }
+
+    public void setFechaCreacion(LocalDateTime fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
+    }
+
+    public void setFechaActualizacion(LocalDateTime fechaActualizacion) {
+        this.fechaActualizacion = fechaActualizacion;
+    }
+
+    public void setCreadoPor(String creadoPor) {
+        this.creadoPor = creadoPor;
+    }
+
+    public void setActualizadoPor(String actualizadoPor) {
+        this.actualizadoPor = actualizadoPor;
     }
 
     public String getServiceCode() {
@@ -96,11 +126,4 @@ public class RegisteredService {
         return fechaActualizacion;
     }
 
-    public String getCreadoPor() {
-        return creadoPor;
-    }
-
-    public String getActualizadoPor() {
-        return actualizadoPor;
-    }
 }

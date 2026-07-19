@@ -24,6 +24,4 @@ public interface ServiceRegistryRepositoryPort {
     RegisteredService save(RegisteredService service);
 
     boolean existsByServiceCode(String serviceCode);
-
-    void deleteByServiceCode(String serviceCode);
 }
