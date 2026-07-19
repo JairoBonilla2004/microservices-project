@@ -3,6 +3,7 @@ package ec.edu.espe.master_gateway.contexts.menu.domain.model;
 import ec.edu.espe.master_gateway.shared.infrastructure.persistence.EstadoRegistro;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * Asignación de un nodo de menú a un rol del sistema.
@@ -17,14 +18,14 @@ import java.util.Objects;
  */
 public class RoleMenuAssignment {
 
-    private Long id;
-    private final Long roleId;
-    private final Long menuNodeId;
+    private UUID id;
+    private final UUID roleId;
+    private final UUID menuNodeId;
     private final String assignedBy;
     private final LocalDateTime assignedAt;
     private EstadoRegistro estado;
 
-    public RoleMenuAssignment(Long roleId, Long menuNodeId, String assignedBy) {
+    public RoleMenuAssignment(UUID roleId, UUID menuNodeId, String assignedBy) {
         this.roleId = Objects.requireNonNull(roleId, "roleId no puede ser null");
         this.menuNodeId = Objects.requireNonNull(menuNodeId, "menuNodeId no puede ser null");
         this.assignedBy = Objects.requireNonNull(assignedBy, "assignedBy no puede ser null");
@@ -39,19 +40,23 @@ public class RoleMenuAssignment {
         this.estado = EstadoRegistro.INACTIVO;
     }
 
-    public boolean isActive() {
-        return estado == EstadoRegistro.ACTIVO;
-    }
-
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public Long getRoleId() {
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public void setEstado(EstadoRegistro estado) {
+        this.estado = estado;
+    }
+
+    public UUID getRoleId() {
         return roleId;
     }
 
-    public Long getMenuNodeId() {
+    public UUID getMenuNodeId() {
         return menuNodeId;
     }
 

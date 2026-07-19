@@ -3,6 +3,7 @@ package ec.edu.espe.master_gateway.contexts.menu.domain.port.out;
 import ec.edu.espe.master_gateway.contexts.menu.domain.model.MenuNode;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Puerto de repositorio para la entidad {@link MenuNode}.
@@ -17,11 +18,11 @@ import java.util.Optional;
  */
 public interface MenuRepositoryPort {
 
-    Optional<MenuNode> findById(Long id);
+    Optional<MenuNode> findById(UUID id);
 
-    List<MenuNode> findRootNodesByModuleIds(List<Long> moduleIds);
+    List<MenuNode> findRootNodesByModuleIds(List<UUID> moduleIds);
 
-    List<MenuNode> findChildrenByParentId(Long parentId);
+    List<MenuNode> findChildrenByParentId(UUID parentId);
 
     MenuNode save(MenuNode menuNode);
 }

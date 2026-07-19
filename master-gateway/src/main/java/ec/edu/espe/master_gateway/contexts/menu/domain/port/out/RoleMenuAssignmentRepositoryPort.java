@@ -3,6 +3,7 @@ package ec.edu.espe.master_gateway.contexts.menu.domain.port.out;
 import ec.edu.espe.master_gateway.contexts.menu.domain.model.RoleMenuAssignment;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Puerto de repositorio para la entidad {@link RoleMenuAssignment}.
@@ -17,13 +18,11 @@ import java.util.Optional;
  */
 public interface RoleMenuAssignmentRepositoryPort {
 
-    List<RoleMenuAssignment> findByRoleId(Long roleId);
+    List<RoleMenuAssignment> findByRoleId(UUID roleId);
 
-    List<Long> findMenuNodeIdsByRoleId(Long roleId);
+    List<UUID> findMenuNodeIdsByRoleId(UUID roleId);
 
-    Optional<RoleMenuAssignment> findByRoleIdAndMenuNodeId(Long roleId, Long menuNodeId);
+    Optional<RoleMenuAssignment> findByRoleIdAndMenuNodeId(UUID roleId, UUID menuNodeId);
 
     RoleMenuAssignment save(RoleMenuAssignment assignment);
-
-    void deleteByRoleIdAndMenuNodeId(Long roleId, Long menuNodeId);
 }

@@ -1,5 +1,7 @@
 package ec.edu.espe.master_gateway.contexts.menu.domain.port.out;
 
+import java.util.UUID;
+
 /**
  * Puerto para la detección de ciclos en estructuras jerárquicas.
  *
@@ -13,5 +15,5 @@ package ec.edu.espe.master_gateway.contexts.menu.domain.port.out;
  */
 public interface CycleDetectionPort {
 
-    boolean wouldCreateCycle(Long nodeId, Long newParentId);
+    boolean wouldCreateCycle(UUID nodeId, UUID newParentId);
 }
