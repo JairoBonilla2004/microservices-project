@@ -3,6 +3,7 @@ package ec.edu.espe.master_gateway.contexts.module.domain.model;
 import ec.edu.espe.master_gateway.shared.infrastructure.persistence.EstadoRegistro;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * Asignación de un módulo a un rol del sistema.
@@ -17,14 +18,14 @@ import java.util.Objects;
  */
 public class RoleModuleAssignment {
 
-    private Long id;
-    private final Long roleId;
-    private final Long moduleId;
+    private UUID id;
+    private final UUID roleId;
+    private final UUID moduleId;
     private final String assignedBy;
     private final LocalDateTime assignedAt;
     private EstadoRegistro estado;
 
-    public RoleModuleAssignment(Long roleId, Long moduleId, String assignedBy) {
+    public RoleModuleAssignment(UUID roleId, UUID moduleId, String assignedBy) {
         this.roleId = Objects.requireNonNull(roleId, "roleId no puede ser null");
         this.moduleId = Objects.requireNonNull(moduleId, "moduleId no puede ser null");
         this.assignedBy = Objects.requireNonNull(assignedBy, "assignedBy no puede ser null");
@@ -39,19 +40,23 @@ public class RoleModuleAssignment {
         this.estado = EstadoRegistro.INACTIVO;
     }
 
-    public boolean isActive() {
-        return estado == EstadoRegistro.ACTIVO;
-    }
-
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public Long getRoleId() {
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public void setEstado(EstadoRegistro estado) {
+        this.estado = estado;
+    }
+
+    public UUID getRoleId() {
         return roleId;
     }
 
-    public Long getModuleId() {
+    public UUID getModuleId() {
         return moduleId;
     }
 

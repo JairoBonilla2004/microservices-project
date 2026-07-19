@@ -3,6 +3,7 @@ package ec.edu.espe.master_gateway.contexts.module.domain.model;
 import ec.edu.espe.master_gateway.shared.infrastructure.persistence.EstadoRegistro;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * Módulo funcional del sistema de autorización.
@@ -18,11 +19,11 @@ import java.util.Objects;
  */
 public class Module {
 
-    private Long id;
-    private final String nombre;
-    private final String descripcion;
-    private final String icono;
-    private final int orden;
+    private UUID id;
+    private String nombre;
+    private String descripcion;
+    private String icono;
+    private int orden;
     private EstadoRegistro estado;
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaActualizacion;
@@ -32,7 +33,7 @@ public class Module {
     public Module(String nombre, String descripcion, String icono, int orden) {
         this.nombre = Objects.requireNonNull(nombre, "nombre no puede ser null");
         this.descripcion = Objects.requireNonNull(descripcion, "descripcion no puede ser null");
-        this.icono = Objects.requireNonNull(icono, "icono no puede ser null");
+        this.icono = icono != null ? icono : "default";
         this.orden = orden;
         this.estado = EstadoRegistro.ACTIVO;
     }
@@ -44,12 +45,55 @@ public class Module {
         this.estado = EstadoRegistro.INACTIVO;
     }
 
-    public boolean isActive() {
-        return estado == EstadoRegistro.ACTIVO;
+    public void reactivate() {
+        if (this.estado == EstadoRegistro.ACTIVO) {
+            throw new IllegalStateException("El módulo ya está activo");
+        }
+        this.estado = EstadoRegistro.ACTIVO;
     }
 
-    public Long getId() {
+    public void updateNombre(String nombre) {
+        if (nombre != null) this.nombre = nombre;
+    }
+
+    public void updateDescripcion(String descripcion) {
+        if (descripcion != null) this.descripcion = descripcion;
+    }
+
+    public void updateIcono(String icono) {
+        if (icono != null) this.icono = icono;
+    }
+
+    public void updateOrden(int orden) {
+        this.orden = orden;
+    }
+
+    public UUID getId() {
         return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public void setEstado(EstadoRegistro estado) {
+        this.estado = estado;
+    }
+
+    public void setFechaCreacion(LocalDateTime fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
+    }
+
+    public void setFechaActualizacion(LocalDateTime fechaActualizacion) {
+        this.fechaActualizacion = fechaActualizacion;
+    }
+
+    public void setCreadoPor(String creadoPor) {
+        this.creadoPor = creadoPor;
+    }
+
+    public void setActualizadoPor(String actualizadoPor) {
+        this.actualizadoPor = actualizadoPor;
     }
 
     public String getNombre() {
@@ -80,11 +124,4 @@ public class Module {
         return fechaActualizacion;
     }
 
-    public String getCreadoPor() {
-        return creadoPor;
-    }
-
-    public String getActualizadoPor() {
-        return actualizadoPor;
-    }
 }

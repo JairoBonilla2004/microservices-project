@@ -3,6 +3,7 @@ package ec.edu.espe.master_gateway.contexts.module.domain.port.out;
 import ec.edu.espe.master_gateway.contexts.module.domain.model.Module;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Puerto de repositorio para la entidad {@link Module}.
@@ -18,7 +19,9 @@ import java.util.Optional;
  */
 public interface ModuleRepositoryPort {
 
-    Optional<Module> findById(Long id);
+    Optional<Module> findById(UUID id);
+
+    List<Module> findAll();
 
     List<Module> findAllActive();
 

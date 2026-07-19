@@ -3,6 +3,7 @@ package ec.edu.espe.master_gateway.contexts.module.domain.port.out;
 import ec.edu.espe.master_gateway.contexts.module.domain.model.RoleModuleAssignment;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Puerto de repositorio para la entidad {@link RoleModuleAssignment}.
@@ -17,15 +18,13 @@ import java.util.Optional;
  */
 public interface RoleModuleAssignmentRepositoryPort {
 
-    List<RoleModuleAssignment> findByRoleId(Long roleId);
+    List<RoleModuleAssignment> findByRoleId(UUID roleId);
 
-    List<RoleModuleAssignment> findByModuleId(Long moduleId);
+    List<RoleModuleAssignment> findByModuleId(UUID moduleId);
 
-    Optional<RoleModuleAssignment> findByRoleIdAndModuleId(Long roleId, Long moduleId);
+    Optional<RoleModuleAssignment> findByRoleIdAndModuleId(UUID roleId, UUID moduleId);
 
-    List<Long> findModuleIdsByRoleId(Long roleId);
+    List<UUID> findModuleIdsByRoleId(UUID roleId);
 
     RoleModuleAssignment save(RoleModuleAssignment assignment);
-
-    void deleteByRoleIdAndModuleId(Long roleId, Long moduleId);
 }
