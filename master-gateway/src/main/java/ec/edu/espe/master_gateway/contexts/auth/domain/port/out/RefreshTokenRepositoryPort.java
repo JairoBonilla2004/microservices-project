@@ -2,6 +2,7 @@ package ec.edu.espe.master_gateway.contexts.auth.domain.port.out;
 
 import ec.edu.espe.master_gateway.contexts.auth.domain.model.RefreshToken;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Puerto de salida del dominio para la persistencia de refresh tokens.
@@ -22,5 +23,5 @@ public interface RefreshTokenRepositoryPort {
 
     Optional<RefreshToken> findByToken(String token);
 
-    void revokeByUserId(Long userId);
+    void revokeByUserId(UUID userId);
 }

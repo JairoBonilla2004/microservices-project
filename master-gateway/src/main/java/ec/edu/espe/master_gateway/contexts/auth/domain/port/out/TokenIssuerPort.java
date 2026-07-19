@@ -1,5 +1,8 @@
 package ec.edu.espe.master_gateway.contexts.auth.domain.port.out;
 
+import java.util.Set;
+import java.util.UUID;
+
 /**
  * Puerto de salida del dominio para la emisión de tokens de autenticación.
  *
@@ -19,9 +22,9 @@ package ec.edu.espe.master_gateway.contexts.auth.domain.port.out;
  */
 public interface TokenIssuerPort {
 
-    String issueTempToken(Long userId);
+    String issueTempToken(UUID userId);
 
-    String issueAccessToken(Long userId, Long roleId);
+    String issueAccessToken(UUID userId, UUID roleId, Set<String> permissions, String roleName);
 
-    String issueRefreshToken(Long userId, Long roleId);
+    String issueRefreshToken(UUID userId, UUID roleId, String roleName);
 }

@@ -24,4 +24,6 @@ public interface TokenValidationPort {
     TokenClaims validateTempToken(String token);
 
     void invalidateTempToken(String token);
+
+    void revokeAccessToken(String token);
 }

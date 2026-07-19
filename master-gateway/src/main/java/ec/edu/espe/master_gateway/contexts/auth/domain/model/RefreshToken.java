@@ -2,6 +2,7 @@ package ec.edu.espe.master_gateway.contexts.auth.domain.model;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * Representa un token de actualización (Refresh Token) asociado a un usuario.
@@ -24,22 +25,13 @@ public class RefreshToken {
     /**
      * Identificador único del refresh token.
      */
-    private Long id;
+    private UUID id;
 
-    /**
-     * Valor del refresh token.
-     */
     private final String token;
 
-    /**
-     * Identificador del usuario propietario del token.
-     */
-    private final Long userId;
+    private final UUID userId;
 
-    /**
-     * Identificador del rol con el que fue emitido el token.
-     */
-    private final Long roleId;
+    private final UUID roleId;
 
     /**
      * Fecha y hora de expiración del token.
@@ -54,7 +46,7 @@ public class RefreshToken {
     /**
      * Fecha y hora de creación del token.
      */
-    private final LocalDateTime createdAt;
+    private LocalDateTime createdAt;
 
     /**
      * Crea un nuevo refresh token.
@@ -66,7 +58,7 @@ public class RefreshToken {
      * @throws NullPointerException si alguno de los parámetros obligatorios es
      *                              nulo.
      */
-    public RefreshToken(String token, Long userId, Long roleId, LocalDateTime expiresAt) {
+    public RefreshToken(String token, UUID userId, UUID roleId, LocalDateTime expiresAt) {
         this.token = Objects.requireNonNull(token, "token no puede ser null");
         this.userId = Objects.requireNonNull(userId, "userId no puede ser null");
         this.roleId = Objects.requireNonNull(roleId, "roleId no puede ser null");
@@ -112,8 +104,20 @@ public class RefreshToken {
      *
      * @return identificador del refresh token.
      */
-    public Long getId() {
+    public UUID getId() {
         return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public void setRevoked(boolean revoked) {
+        this.revoked = revoked;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     /**
@@ -130,16 +134,11 @@ public class RefreshToken {
      *
      * @return identificador del usuario.
      */
-    public Long getUserId() {
+    public UUID getUserId() {
         return userId;
     }
 
-    /**
-     * Obtiene el identificador del rol asociado al token.
-     *
-     * @return identificador del rol.
-     */
-    public Long getRoleId() {
+    public UUID getRoleId() {
         return roleId;
     }
 

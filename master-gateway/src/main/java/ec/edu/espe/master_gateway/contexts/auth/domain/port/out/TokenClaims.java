@@ -1,7 +1,10 @@
 package ec.edu.espe.master_gateway.contexts.auth.domain.port.out;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * Representa la información contenida en las reclamaciones (Claims) de un
@@ -19,29 +22,42 @@ import java.util.Objects;
  */
 public class TokenClaims {
 
-    private final Long userId;
-    private final Long roleId;
+    private final UUID userId;
+    private final UUID roleId;
+    private final String roleName;
     private final String tokenType;
     private final Instant issuedAt;
     private final Instant expiresAt;
     private final String issuer;
+    private final Set<String> permissions;
 
-    public TokenClaims(Long userId, Long roleId, String tokenType,
-                       Instant issuedAt, Instant expiresAt, String issuer) {
+    public TokenClaims(UUID userId, UUID roleId, String roleName, String tokenType,
+                       Instant issuedAt, Instant expiresAt, String issuer,
+                       Set<String> permissions) {
         this.userId = Objects.requireNonNull(userId, "userId no puede ser null");
-        this.roleId = Objects.requireNonNull(roleId, "roleId no puede ser null");
+        this.roleId = roleId;
+        this.roleName = roleName;
         this.tokenType = Objects.requireNonNull(tokenType, "tokenType no puede ser null");
         this.issuedAt = Objects.requireNonNull(issuedAt, "issuedAt no puede ser null");
         this.expiresAt = Objects.requireNonNull(expiresAt, "expiresAt no puede ser null");
         this.issuer = issuer;
+        this.permissions = permissions != null ? Collections.unmodifiableSet(permissions) : Collections.emptySet();
     }
 
-    public Long getUserId() {
+    public UUID getUserId() {
         return userId;
     }
 
-    public Long getRoleId() {
+    public UUID getRoleId() {
         return roleId;
+    }
+
+    public String getRoleName() {
+        return roleName;
+    }
+
+    public Set<String> getPermissions() {
+        return permissions;
     }
 
     public String getTokenType() {
