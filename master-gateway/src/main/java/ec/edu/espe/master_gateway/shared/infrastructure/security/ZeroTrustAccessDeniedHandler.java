@@ -25,6 +25,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class ZeroTrustAccessDeniedHandler implements AccessDeniedHandler {
 
+    private final ObjectMapper objectMapper;
+
+    public ZeroTrustAccessDeniedHandler(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
+
     @Override
     public void handle(HttpServletRequest request,
                        HttpServletResponse response,
@@ -33,11 +39,12 @@ public class ZeroTrustAccessDeniedHandler implements AccessDeniedHandler {
 
         response.setStatus(HttpStatus.FORBIDDEN.value());
         response.setContentType("application/json");
-        response.getWriter().write(
-                new ObjectMapper().writeValueAsString(
+        response.getOutputStream().write(
+                objectMapper.writeValueAsBytes(
                         ErrorResponse.of(HttpStatus.FORBIDDEN,
                                 "Acceso denegado: no tienes permisos para este recurso")
                 )
         );
+        response.getOutputStream().flush();
     }
 }

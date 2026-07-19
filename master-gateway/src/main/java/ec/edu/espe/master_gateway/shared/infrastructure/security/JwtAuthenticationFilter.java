@@ -3,13 +3,14 @@ package ec.edu.espe.master_gateway.shared.infrastructure.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ec.edu.espe.master_gateway.contexts.auth.domain.port.out.TokenClaims;
 import ec.edu.espe.master_gateway.contexts.auth.domain.port.out.TokenValidationPort;
+import ec.edu.espe.master_gateway.contexts.identity.domain.port.out.UserRepositoryPort;
 import ec.edu.espe.master_gateway.shared.infrastructure.web.ErrorResponse;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
+import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -17,29 +18,24 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-/**
- * Filtro de autenticación JWT que procesa cada solicitud HTTP.
- *
- * <p>Extrae el token JWT del encabezado {@code Authorization}, lo valida
- * mediante {@link TokenValidationPort} y establece el contexto de seguridad
- * de Spring Security con los datos del usuario autenticado. Si el token es
- * inválido o ha expirado, responde con un error 401 sin interrumpir la
- * cadena de filtros.</p>
- *
- * @author Jairo Bonilla
- * @author Reishel Tipan
- * @author Julio Viche
- */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     public static final String AUTHORIZATION_HEADER = "Authorization";
-    public static final String BEARER_PREFIX = "Bearer ";
 
     private final TokenValidationPort tokenValidationPort;
+    private final ObjectMapper objectMapper;
+    private final BearerTokenExtractor tokenExtractor;
+    private final UserRepositoryPort userRepositoryPort;
 
-    public JwtAuthenticationFilter(TokenValidationPort tokenValidationPort) {
+    public JwtAuthenticationFilter(TokenValidationPort tokenValidationPort,
+                                   ObjectMapper objectMapper,
+                                   BearerTokenExtractor tokenExtractor,
+                                   UserRepositoryPort userRepositoryPort) {
         this.tokenValidationPort = tokenValidationPort;
+        this.objectMapper = objectMapper;
+        this.tokenExtractor = tokenExtractor;
+        this.userRepositoryPort = userRepositoryPort;
     }
 
     @Override
@@ -49,34 +45,64 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String header = request.getHeader(AUTHORIZATION_HEADER);
+        var tokenOpt = tokenExtractor.extract(header);
 
-        if (header == null || !header.startsWith(BEARER_PREFIX)) {
+        if (tokenOpt.isEmpty()) {
             filterChain.doFilter(request, response);
             return;
         }
 
+        String token = tokenOpt.get();
+        TokenClaims claims;
         try {
-            String token = header.substring(BEARER_PREFIX.length());
-            TokenClaims claims = tokenValidationPort.validate(token);
-
-            UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(
-                            claims.getUserId().toString(), null,
-                            List.of(new SimpleGrantedAuthority("ROLE_" + claims.getRoleId()))
-                    );
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-
+            claims = tokenValidationPort.validate(token);
         } catch (Exception e) {
             SecurityContextHolder.clearContext();
+            response.resetBuffer();
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
             response.setContentType("application/json");
-            response.getWriter().write(
-                    new ObjectMapper().writeValueAsString(
+            response.getOutputStream().write(
+                    objectMapper.writeValueAsBytes(
                             ErrorResponse.of(HttpStatus.UNAUTHORIZED, "Token inválido o expirado")
                     )
             );
+            response.getOutputStream().flush();
             return;
         }
+
+        UUID userId = claims.getUserId();
+        var userOpt = userRepositoryPort.findById(userId);
+        if (userOpt.isEmpty() || !userOpt.get().isActive()) {
+            SecurityContextHolder.clearContext();
+            response.resetBuffer();
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            response.setContentType("application/json");
+            response.getOutputStream().write(
+                    objectMapper.writeValueAsBytes(
+                            ErrorResponse.of(HttpStatus.UNAUTHORIZED, "Usuario inactivo o eliminado")
+                    )
+            );
+            response.getOutputStream().flush();
+            return;
+        }
+
+        String principal = userId.toString();
+
+        var authorities = new java.util.ArrayList<org.springframework.security.core.GrantedAuthority>();
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + claims.getRoleId()));
+        for (String permission : claims.getPermissions()) {
+            authorities.add(new SimpleGrantedAuthority(
+                    SpringSecurityAuthorizationAdapter.PERMISSION_PREFIX + permission
+            ));
+        }
+
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(
+                        principal, null,
+                        authorities
+                );
+        authentication.setDetails(claims.getPermissions());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         filterChain.doFilter(request, response);
     }
