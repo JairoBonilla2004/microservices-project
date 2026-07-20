@@ -30,7 +30,20 @@ export interface MoveMenuItemRequest {
   newParentId?: string | null
 }
 
+export interface MenuItemResponse {
+  id: string
+  nombre: string
+  url: string | null
+  moduleId: string
+  parentId: string | null
+  orden: number
+  estado: string
+}
+
 export const menusApi = {
+  /** GET /api/menus — catálogo completo de ítems activos, sin filtrar por rol */
+  listAll: () => client.get<MenuItemResponse[]>('/menus').then(r => r.data),
+
   /** GET /api/menus/tree?roleId={roleId} */
   getTree: (roleId: string) =>
     client.get<MenuNodeResponse[]>('/menus/tree', { params: { roleId } }).then(r => r.data),
