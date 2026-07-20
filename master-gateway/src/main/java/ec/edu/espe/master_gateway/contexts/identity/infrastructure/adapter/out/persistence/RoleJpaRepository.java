@@ -21,6 +21,8 @@ public interface RoleJpaRepository extends SoftDeleteRepository<RoleJpaEntity, U
 
     List<RoleJpaEntity> findByEstado(EstadoRegistro estado);
 
+    List<RoleJpaEntity> findTop50ByEstadoOrderByFechaActualizacionDesc(EstadoRegistro estado);
+
     boolean existsByNombre(String nombre);
 
     boolean existsByNombreAndEstado(String nombre, EstadoRegistro estado);

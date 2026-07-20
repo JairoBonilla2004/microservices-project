@@ -25,6 +25,8 @@ public interface RegisteredServiceJpaRepository extends SoftDeleteRepository<Reg
 
     List<RegisteredServiceJpaEntity> findByEstado(EstadoRegistro estado);
 
+    List<RegisteredServiceJpaEntity> findTop50ByEstadoOrderByFechaActualizacionDesc(EstadoRegistro estado);
+
     boolean existsByServiceCode(String serviceCode);
 
     boolean existsByServiceCodeAndEstado(String serviceCode, EstadoRegistro estado);

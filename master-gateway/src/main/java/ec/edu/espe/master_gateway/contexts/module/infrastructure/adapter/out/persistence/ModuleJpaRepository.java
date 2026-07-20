@@ -27,5 +27,7 @@ public interface ModuleJpaRepository extends SoftDeleteRepository<ModuleJpaEntit
 
     List<ModuleJpaEntity> findByEstado(EstadoRegistro estado);
 
+    List<ModuleJpaEntity> findTop50ByEstadoOrderByFechaActualizacionDesc(EstadoRegistro estado);
+
     boolean existsByNombreAndEstado(String nombre, EstadoRegistro estado);
 }
