@@ -9,7 +9,9 @@ import ec.edu.espe.master_gateway.contexts.auth.domain.port.out.RefreshTokenRepo
 import ec.edu.espe.master_gateway.contexts.auth.domain.port.out.TokenClaims;
 import ec.edu.espe.master_gateway.contexts.auth.domain.port.out.TokenIssuerPort;
 import ec.edu.espe.master_gateway.contexts.auth.domain.port.out.TokenValidationPort;
+import ec.edu.espe.master_gateway.contexts.identity.domain.model.User;
 import ec.edu.espe.master_gateway.contexts.identity.domain.port.out.RoleRepositoryPort;
+import ec.edu.espe.master_gateway.contexts.identity.domain.port.out.UserRepositoryPort;
 import ec.edu.espe.master_gateway.contexts.identity.domain.port.out.UserRoleAssignmentRepositoryPort;
 import ec.edu.espe.master_gateway.shared.domain.AuthenticationException;
 import ec.edu.espe.master_gateway.shared.domain.AuthorizationException;
@@ -49,6 +51,7 @@ public class SelectRoleService implements SelectRoleUseCase {
     private final RefreshTokenRepositoryPort refreshTokenRepositoryPort;
     private final RoleRepositoryPort roleRepositoryPort;
     private final PermissionResolverPort permissionResolverPort;
+    private final UserRepositoryPort userRepositoryPort;
     private final Duration refreshTokenExpiration;
 
     public SelectRoleService(TokenValidationPort tokenValidationPort,
@@ -57,6 +60,7 @@ public class SelectRoleService implements SelectRoleUseCase {
                              RefreshTokenRepositoryPort refreshTokenRepositoryPort,
                              RoleRepositoryPort roleRepositoryPort,
                              PermissionResolverPort permissionResolverPort,
+                             UserRepositoryPort userRepositoryPort,
                              JwtProperties jwtProperties) {
         this.tokenValidationPort = Objects.requireNonNull(tokenValidationPort);
         this.userRoleAssignmentRepositoryPort = Objects.requireNonNull(userRoleAssignmentRepositoryPort);
@@ -64,6 +68,7 @@ public class SelectRoleService implements SelectRoleUseCase {
         this.refreshTokenRepositoryPort = Objects.requireNonNull(refreshTokenRepositoryPort);
         this.roleRepositoryPort = Objects.requireNonNull(roleRepositoryPort);
         this.permissionResolverPort = Objects.requireNonNull(permissionResolverPort);
+        this.userRepositoryPort = Objects.requireNonNull(userRepositoryPort);
         this.refreshTokenExpiration = Objects.requireNonNull(jwtProperties.getRefreshTokenExpiration());
     }
 
@@ -99,7 +104,11 @@ public class SelectRoleService implements SelectRoleUseCase {
                 .map(Enum::name)
                 .collect(Collectors.toSet());
 
-        var accessToken = tokenIssuerPort.issueAccessToken(userId, request.roleId(), permissionStrings, role.getNombre());
+        var username = userRepositoryPort.findById(userId)
+                .map(User::getUsername)
+                .orElseThrow(() -> new AuthenticationException("Usuario no encontrado"));
+
+        var accessToken = tokenIssuerPort.issueAccessToken(userId, request.roleId(), permissionStrings, role.getNombre(), username);
         var refreshTokenValue = tokenIssuerPort.issueRefreshToken(userId, request.roleId(), role.getNombre());
 
         var refreshToken = new RefreshToken(

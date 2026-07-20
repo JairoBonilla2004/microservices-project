@@ -7,7 +7,9 @@ import ec.edu.espe.master_gateway.contexts.auth.application.port.in.dto.RefreshT
 import ec.edu.espe.master_gateway.contexts.auth.domain.model.RefreshToken;
 import ec.edu.espe.master_gateway.contexts.auth.domain.port.out.RefreshTokenRepositoryPort;
 import ec.edu.espe.master_gateway.contexts.auth.domain.port.out.TokenIssuerPort;
+import ec.edu.espe.master_gateway.contexts.identity.domain.model.User;
 import ec.edu.espe.master_gateway.contexts.identity.domain.port.out.RoleRepositoryPort;
+import ec.edu.espe.master_gateway.contexts.identity.domain.port.out.UserRepositoryPort;
 import ec.edu.espe.master_gateway.shared.domain.AuthenticationException;
 import ec.edu.espe.master_gateway.shared.domain.port.out.PermissionResolverPort;
 import java.time.Duration;
@@ -41,17 +43,20 @@ public class RefreshTokenService implements RefreshTokenUseCase {
     private final TokenIssuerPort tokenIssuerPort;
     private final RoleRepositoryPort roleRepositoryPort;
     private final PermissionResolverPort permissionResolverPort;
+    private final UserRepositoryPort userRepositoryPort;
     private final Duration refreshTokenExpiration;
 
     public RefreshTokenService(RefreshTokenRepositoryPort refreshTokenRepositoryPort,
                                 TokenIssuerPort tokenIssuerPort,
                                 RoleRepositoryPort roleRepositoryPort,
                                 PermissionResolverPort permissionResolverPort,
+                                UserRepositoryPort userRepositoryPort,
                                 JwtProperties jwtProperties) {
         this.refreshTokenRepositoryPort = Objects.requireNonNull(refreshTokenRepositoryPort);
         this.tokenIssuerPort = Objects.requireNonNull(tokenIssuerPort);
         this.roleRepositoryPort = Objects.requireNonNull(roleRepositoryPort);
         this.permissionResolverPort = Objects.requireNonNull(permissionResolverPort);
+        this.userRepositoryPort = Objects.requireNonNull(userRepositoryPort);
         this.refreshTokenExpiration = Objects.requireNonNull(jwtProperties.getRefreshTokenExpiration());
     }
 
@@ -83,7 +88,11 @@ public class RefreshTokenService implements RefreshTokenUseCase {
                 .map(Enum::name)
                 .collect(Collectors.toSet());
 
-        var accessToken = tokenIssuerPort.issueAccessToken(existing.getUserId(), existing.getRoleId(), permissionStrings, role.getNombre());
+        var username = userRepositoryPort.findById(existing.getUserId())
+                .map(User::getUsername)
+                .orElseThrow(() -> new AuthenticationException("Usuario no encontrado"));
+
+        var accessToken = tokenIssuerPort.issueAccessToken(existing.getUserId(), existing.getRoleId(), permissionStrings, role.getNombre(), username);
         var newRefreshTokenValue = tokenIssuerPort.issueRefreshToken(existing.getUserId(), existing.getRoleId(), role.getNombre());
 
         var newRefreshToken = new RefreshToken(
