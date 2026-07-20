@@ -16,6 +16,7 @@ package ec.edu.espe.master_gateway.contexts.menu.infrastructure.adapter.in.web;
 import ec.edu.espe.master_gateway.contexts.menu.application.port.in.AssignMenuToRoleUseCase;
 import ec.edu.espe.master_gateway.contexts.menu.application.port.in.CreateMenuItemUseCase;
 import ec.edu.espe.master_gateway.contexts.menu.application.port.in.DeactivateMenuItemUseCase;
+import ec.edu.espe.master_gateway.contexts.menu.application.port.in.GetAllMenuItemsUseCase;
 import ec.edu.espe.master_gateway.contexts.menu.application.port.in.GetMenuTreeUseCase;
 import ec.edu.espe.master_gateway.contexts.menu.application.port.in.MoveMenuItemUseCase;
 import ec.edu.espe.master_gateway.contexts.menu.application.port.in.RemoveMenuFromRoleUseCase;
@@ -47,6 +48,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class MenuController {
 
     private final GetMenuTreeUseCase getMenuTreeUseCase;
+    private final GetAllMenuItemsUseCase getAllMenuItemsUseCase;
     private final CreateMenuItemUseCase createMenuItemUseCase;
     private final UpdateMenuItemUseCase updateMenuItemUseCase;
     private final DeactivateMenuItemUseCase deactivateMenuItemUseCase;
@@ -55,6 +57,7 @@ public class MenuController {
     private final RemoveMenuFromRoleUseCase removeMenuFromRoleUseCase;
 
     public MenuController(GetMenuTreeUseCase getMenuTreeUseCase,
+                          GetAllMenuItemsUseCase getAllMenuItemsUseCase,
                           CreateMenuItemUseCase createMenuItemUseCase,
                           UpdateMenuItemUseCase updateMenuItemUseCase,
                           DeactivateMenuItemUseCase deactivateMenuItemUseCase,
@@ -62,12 +65,18 @@ public class MenuController {
                           AssignMenuToRoleUseCase assignMenuToRoleUseCase,
                           RemoveMenuFromRoleUseCase removeMenuFromRoleUseCase) {
         this.getMenuTreeUseCase = getMenuTreeUseCase;
+        this.getAllMenuItemsUseCase = getAllMenuItemsUseCase;
         this.createMenuItemUseCase = createMenuItemUseCase;
         this.updateMenuItemUseCase = updateMenuItemUseCase;
         this.deactivateMenuItemUseCase = deactivateMenuItemUseCase;
         this.moveMenuItemUseCase = moveMenuItemUseCase;
         this.assignMenuToRoleUseCase = assignMenuToRoleUseCase;
         this.removeMenuFromRoleUseCase = removeMenuFromRoleUseCase;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<MenuItemResponse>> getAllMenuItems() {
+        return ResponseEntity.ok(getAllMenuItemsUseCase.execute());
     }
 
     @GetMapping("/tree")
