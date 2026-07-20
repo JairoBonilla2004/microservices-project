@@ -48,6 +48,12 @@ public class RolePermissionAssignmentRepositoryAdapter implements RolePermission
     }
 
     @Override
+    public Optional<RolePermissionAssignment> findByRoleIdAndPermissionIncludingInactive(UUID roleId, Permission permission) {
+        return jpaRepository.findByRoleIdAndPermission(roleId, permission)
+                .map(mapper::toDomainEntity);
+    }
+
+    @Override
     public List<Permission> findPermissionsByRoleId(UUID roleId) {
         return jpaRepository.findPermissionsByRoleId(roleId);
     }

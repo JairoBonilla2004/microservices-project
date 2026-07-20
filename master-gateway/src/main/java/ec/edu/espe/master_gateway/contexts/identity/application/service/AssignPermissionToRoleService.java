@@ -59,11 +59,22 @@ public class AssignPermissionToRoleService implements AssignPermissionToRoleUseC
         roleRepository.findById(roleId)
                 .orElseThrow(() -> new NotFoundException("Rol", roleId));
 
-        var existing = assignmentRepository.findByRoleIdAndPermission(roleId, request.permission());
-        if (existing.isPresent()) {
+        var existingActive = assignmentRepository.findByRoleIdAndPermission(roleId, request.permission());
+        if (existingActive.isPresent()) {
             throw new DuplicateException("RolePermissionAssignment",
                 "roleId and permission",
                 roleId + " - " + request.permission());
+        }
+
+        // Si la asignación existía y fue revocada previamente (soft delete), se reactiva
+        // en lugar de insertar un nuevo registro, ya que (role_id, permission) es único.
+        var existingInactive = assignmentRepository.findByRoleIdAndPermissionIncludingInactive(roleId, request.permission());
+        if (existingInactive.isPresent()) {
+            var assignment = existingInactive.get();
+            assignment.reactivate();
+            assignmentRepository.save(assignment);
+            log.info("Permission {} reactivated for role {}", request.permission(), roleId);
+            return;
         }
 
         RolePermissionAssignment assignment = new RolePermissionAssignment(

@@ -42,6 +42,13 @@ public class RolePermissionAssignment {
         this.estado = EstadoRegistro.INACTIVO;
     }
 
+    public void reactivate() {
+        if (this.estado == EstadoRegistro.ACTIVO) {
+            throw new IllegalStateException("La asignación ya está activa");
+        }
+        this.estado = EstadoRegistro.ACTIVO;
+    }
+
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
     public void setEstado(EstadoRegistro estado) { this.estado = estado; }
