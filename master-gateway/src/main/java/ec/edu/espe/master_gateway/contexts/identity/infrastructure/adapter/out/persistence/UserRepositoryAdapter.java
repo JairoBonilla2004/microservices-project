@@ -4,9 +4,12 @@ import ec.edu.espe.master_gateway.contexts.identity.domain.model.User;
 import ec.edu.espe.master_gateway.contexts.identity.domain.port.out.UserRepositoryPort;
 import ec.edu.espe.master_gateway.contexts.identity.infrastructure.mapper.IdentityMapper;
 import ec.edu.espe.master_gateway.shared.domain.DuplicateException;
+import ec.edu.espe.master_gateway.shared.domain.PageResult;
 import ec.edu.espe.master_gateway.shared.domain.PersistenceException;
 import ec.edu.espe.master_gateway.shared.infrastructure.persistence.EstadoRegistro;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -51,6 +54,14 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
         return jpaRepository.findByEstado(EstadoRegistro.ACTIVO).stream()
                 .map(mapper::toDomainEntity)
                 .toList();
+    }
+
+    @Override
+    public PageResult<User> findActivePage(int page, int size) {
+        var pageable = PageRequest.of(page, size, Sort.by("fechaCreacion").descending());
+        var result = jpaRepository.findByEstado(EstadoRegistro.ACTIVO, pageable);
+        var content = result.getContent().stream().map(mapper::toDomainEntity).toList();
+        return new PageResult<>(content, result.getTotalElements(), page, size);
     }
 
     @Override

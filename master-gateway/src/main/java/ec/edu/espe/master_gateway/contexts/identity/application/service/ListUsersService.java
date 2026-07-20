@@ -5,12 +5,10 @@ import org.slf4j.LoggerFactory;
 import ec.edu.espe.master_gateway.contexts.identity.application.port.in.ListUsersUseCase;
 import ec.edu.espe.master_gateway.contexts.identity.application.port.in.dto.UserResponse;
 import ec.edu.espe.master_gateway.contexts.identity.domain.port.out.UserRepositoryPort;
+import ec.edu.espe.master_gateway.shared.domain.PageResult;
 import ec.edu.espe.master_gateway.shared.domain.permission.Permission;
 import ec.edu.espe.master_gateway.shared.domain.port.out.AuthorizationPort;
-import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
-import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ListUsersService implements ListUsersUseCase {
 
     private static final Logger log = LoggerFactory.getLogger(ListUsersService.class);
+    private static final int MAX_PAGE_SIZE = 100;
 
     private final UserRepositoryPort userRepository;
     private final AuthorizationPort authorizationPort;
@@ -30,18 +29,23 @@ public class ListUsersService implements ListUsersUseCase {
     }
 
     /**
-     * Obtiene todos los usuarios activos del sistema.
+     * Obtiene una página de usuarios activos del sistema.
      *
-     * <p>Recupera la lista de usuarios activos desde el repositorio y
-     * los transforma en objetos {@link UserResponse}.</p>
-     *
-     * @return lista de respuestas con la información de los usuarios activos
+     * @param page número de página (0-indexado, se normaliza a 0 si es negativo).
+     * @param size tamaño de página (se acota entre 1 y {@value #MAX_PAGE_SIZE}).
+     * @return página de respuestas con la información de los usuarios activos.
      */
     @Override
-    public List<UserResponse> execute() {
+    public PageResult<UserResponse> execute(int page, int size) {
         authorizationPort.requirePermission(Permission.USERS_READ);
-        log.debug("Listing all active users");
-        return userRepository.findAllActive().stream()
+
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.min(Math.max(size, 1), MAX_PAGE_SIZE);
+
+        log.debug("Listing active users, page={}, size={}", safePage, safeSize);
+        var result = userRepository.findActivePage(safePage, safeSize);
+
+        var content = result.content().stream()
             .map(user -> new UserResponse(
                 user.getId(),
                 user.getUsername(),
@@ -51,6 +55,8 @@ public class ListUsersService implements ListUsersUseCase {
                 user.getFechaCreacion(),
                 user.getFechaActualizacion()
             ))
-            .collect(Collectors.toList());
+            .toList();
+
+        return new PageResult<>(content, result.totalElements(), safePage, safeSize);
     }
 }
