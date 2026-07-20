@@ -22,9 +22,11 @@ import ec.edu.espe.master_gateway.contexts.identity.domain.port.out.RoleReposito
 import ec.edu.espe.master_gateway.contexts.identity.domain.port.out.UserRepositoryPort;
 import ec.edu.espe.master_gateway.contexts.identity.domain.port.out.UserRoleAssignmentRepositoryPort;
 import ec.edu.espe.master_gateway.shared.domain.permission.Permission;
+import java.security.SecureRandom;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -34,6 +36,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class DataInitializer {
 
     private static final Logger log = LoggerFactory.getLogger(DataInitializer.class);
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+    private static final String PASSWORD_ALPHABET =
+            "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%";
 
     private static final String ADMIN_USERNAME = "boss_admin";
 
@@ -42,17 +47,20 @@ public class DataInitializer {
     private final UserRoleAssignmentRepositoryPort assignmentRepository;
     private final RolePermissionAssignmentRepositoryPort permissionAssignmentRepository;
     private final PasswordHasherPort passwordHasher;
+    private final String adminSeedPassword;
 
     public DataInitializer(RoleRepositoryPort roleRepository,
                            UserRepositoryPort userRepository,
                            UserRoleAssignmentRepositoryPort assignmentRepository,
                            RolePermissionAssignmentRepositoryPort permissionAssignmentRepository,
-                           PasswordHasherPort passwordHasher) {
+                           PasswordHasherPort passwordHasher,
+                           @Value("${admin.seed-password:}") String adminSeedPassword) {
         this.roleRepository = roleRepository;
         this.userRepository = userRepository;
         this.assignmentRepository = assignmentRepository;
         this.permissionAssignmentRepository = permissionAssignmentRepository;
         this.passwordHasher = passwordHasher;
+        this.adminSeedPassword = adminSeedPassword;
     }
 
     @EventListener(ApplicationReadyEvent.class)
@@ -104,14 +112,30 @@ public class DataInitializer {
         }
 
         if (userRepository.findByUsername(ADMIN_USERNAME).isEmpty()) {
+            boolean generated = adminSeedPassword == null || adminSeedPassword.isBlank();
+            String rawPassword = generated ? generateSecureRandomPassword() : adminSeedPassword;
+
             var adminUser = new User(ADMIN_USERNAME, "admin@sistema.com",
-                    passwordHasher.hash("Admin1234"), "Administrador del Sistema");
+                    passwordHasher.hash(rawPassword), "Administrador del Sistema");
             var savedUser = userRepository.save(adminUser);
             assignmentRepository.save(
                     new UserRoleAssignment(savedUser.getId(), adminRoleId, "SYSTEM"));
             log.info("Usuario '{}' creado con rol ADMIN", ADMIN_USERNAME);
+            if (generated) {
+                log.warn("No se definió ADMIN_SEED_PASSWORD: se generó una contraseña aleatoria "
+                        + "para '{}'. Cámbiala tras el primer login. Contraseña temporal: {}",
+                        ADMIN_USERNAME, rawPassword);
+            }
         } else {
             log.info("Usuario '{}' ya existe", ADMIN_USERNAME);
         }
+    }
+
+    private String generateSecureRandomPassword() {
+        var sb = new StringBuilder(16);
+        for (int i = 0; i < 16; i++) {
+            sb.append(PASSWORD_ALPHABET.charAt(SECURE_RANDOM.nextInt(PASSWORD_ALPHABET.length())));
+        }
+        return sb.toString();
     }
 }
