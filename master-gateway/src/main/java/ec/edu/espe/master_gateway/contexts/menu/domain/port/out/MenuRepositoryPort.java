@@ -20,7 +20,21 @@ public interface MenuRepositoryPort {
 
     Optional<MenuNode> findById(UUID id);
 
+    List<MenuNode> findAllActive();
+
     List<MenuNode> findRootNodesByModuleIds(List<UUID> moduleIds);
+
+    /**
+     * Recupera, en una sola consulta, el árbol de menú completo (nodos raíz por
+     * módulo + todos sus descendientes activos), sin incurrir en N+1.
+     */
+    List<MenuNode> findTreeByModuleIds(List<UUID> moduleIds);
+
+    /**
+     * Recupera, en una sola consulta, los nodos indicados junto con todos sus
+     * descendientes activos, sin incurrir en N+1.
+     */
+    List<MenuNode> findSubtreesByNodeIds(List<UUID> nodeIds);
 
     List<MenuNode> findChildrenByParentId(UUID parentId);
 

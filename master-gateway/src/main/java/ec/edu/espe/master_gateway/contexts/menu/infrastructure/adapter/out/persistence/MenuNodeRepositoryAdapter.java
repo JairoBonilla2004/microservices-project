@@ -40,9 +40,30 @@ public class MenuNodeRepositoryAdapter implements MenuRepositoryPort {
     }
 
     @Override
+    public List<MenuNode> findAllActive() {
+        return jpaRepository.findByEstadoOrderByOrden(EstadoRegistro.ACTIVO).stream()
+                .map(mapper::toDomainEntity)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<MenuNode> findRootNodesByModuleIds(List<UUID> moduleIds) {
         return jpaRepository.findTreeByModuleIds(moduleIds).stream()
                 .filter(e -> e.getParentId() == null)
+                .map(mapper::toDomainEntity)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MenuNode> findTreeByModuleIds(List<UUID> moduleIds) {
+        return jpaRepository.findTreeByModuleIds(moduleIds).stream()
+                .map(mapper::toDomainEntity)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MenuNode> findSubtreesByNodeIds(List<UUID> nodeIds) {
+        return jpaRepository.findSubtreesByNodeIds(nodeIds).stream()
                 .map(mapper::toDomainEntity)
                 .collect(Collectors.toList());
     }
