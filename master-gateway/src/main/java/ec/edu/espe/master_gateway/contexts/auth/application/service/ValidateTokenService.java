@@ -75,6 +75,6 @@ public class ValidateTokenService implements ValidateTokenUseCase {
         var service = serviceRegistryRepositoryPort.findByServiceCode(serviceCode)
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Servicio no registrado: " + serviceCode));
-        return tokenIssuerFactory.getValidator(service.getValidationMode(), service.getPublicKey());
+        return tokenIssuerFactory.getValidator(service.getValidationMode());
     }
 }

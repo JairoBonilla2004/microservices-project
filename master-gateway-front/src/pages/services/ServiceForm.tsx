@@ -13,7 +13,6 @@ export function ServiceForm() {
     nombre: '',
     baseUrl: '',
     validationMode: 'DELEGATE' as 'NONE' | 'DELEGATE' | 'LOCAL',
-    publicKey: '',
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -30,7 +29,6 @@ export function ServiceForm() {
             nombre: s.nombre,
             baseUrl: s.baseUrl,
             validationMode: s.validationMode,
-            publicKey: s.publicKey || '',
           })
         } else {
           navigate('/services')
@@ -49,20 +47,12 @@ export function ServiceForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-
-    // Validación: si es LOCAL, la clave pública del microservicio es obligatoria
-    if (form.validationMode === 'LOCAL' && !form.publicKey.trim()) {
-      setError('Para validación LOCAL debes proporcionar la clave pública del microservicio (PEM).')
-      return
-    }
-
     setLoading(true)
     try {
       if (isEdit && code) {
         await servicesApi.update(code, {
           nombre: form.nombre,
           baseUrl: form.baseUrl,
-          publicKey: form.validationMode === 'LOCAL' ? form.publicKey : undefined,
         })
       } else {
         await servicesApi.create({
@@ -70,7 +60,6 @@ export function ServiceForm() {
           nombre: form.nombre,
           baseUrl: form.baseUrl,
           validationMode: form.validationMode,
-          publicKey: form.validationMode === 'LOCAL' ? form.publicKey : undefined,
         })
       }
       navigate('/services')
@@ -152,30 +141,9 @@ export function ServiceForm() {
           <div className="mt-2 text-xs text-gray-500 bg-gray-50 p-2 rounded">
             {form.validationMode === 'NONE' && '⚠️ Sin validación: el servicio no verificará tokens. Solo para uso interno.'}
             {form.validationMode === 'DELEGATE' && '📡 Delegado: cada request del servicio consultará al Gateway para validar el token.'}
-            {form.validationMode === 'LOCAL' && '🔑 Local: el servicio obtiene la clave pública del Gateway y valida JWT localmente. Zero Trust sin latencia extra.'}
+            {form.validationMode === 'LOCAL' && '🔑 Local: el microservicio obtiene la clave pública del Gateway al iniciar y valida JWT localmente. Zero Trust sin latencia extra.'}
           </div>
         </div>
-
-        {/* Clave pública solo para modo LOCAL */}
-        {form.validationMode === 'LOCAL' && (
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Clave pública RSA (PEM) *
-            </label>
-            <textarea
-              name="publicKey"
-              value={form.publicKey}
-              onChange={handleChange}
-              rows={5}
-              placeholder="-----BEGIN PUBLIC KEY-----&#10;MIIBIjAN...&#10;-----END PUBLIC KEY-----"
-              className="w-full border rounded px-3 py-2 text-xs font-mono"
-            />
-            <p className="text-xs text-gray-400 mt-1">
-              Pega aquí la clave pública RSA del microservicio en formato PEM.
-              Se usará en el futuro para autenticación entre microservicios.
-            </p>
-          </div>
-        )}
 
         <div className="flex gap-2 pt-2">
           <button

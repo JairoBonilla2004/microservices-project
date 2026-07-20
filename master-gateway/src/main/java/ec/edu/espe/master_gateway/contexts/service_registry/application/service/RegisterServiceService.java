@@ -67,8 +67,7 @@ public class RegisterServiceService implements RegisterServiceUseCase {
             request.serviceCode(),
             request.nombre(),
             request.baseUrl(),
-            validationMode,
-            request.publicKey()
+            validationMode
         );
 
         var saved = repository.save(service);

@@ -33,9 +33,6 @@ public class RegisteredServiceJpaEntity extends JpaAuditableEntity {
     @Column(name = "modo_validacion", nullable = false, length = 20)
     private String validationMode;
 
-    @Column(name = "clave_publica", columnDefinition = "TEXT")
-    private String publicKey;
-
     public RegisteredServiceJpaEntity() {}
 
     public String getServiceCode() { return serviceCode; }
@@ -46,6 +43,5 @@ public class RegisteredServiceJpaEntity extends JpaAuditableEntity {
     public void setBaseUrl(String baseUrl) { this.baseUrl = baseUrl; }
     public String getValidationMode() { return validationMode; }
     public void setValidationMode(String validationMode) { this.validationMode = validationMode; }
-    public String getPublicKey() { return publicKey; }
-    public void setPublicKey(String publicKey) { this.publicKey = publicKey; }
+
 }

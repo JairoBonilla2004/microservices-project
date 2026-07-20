@@ -34,7 +34,7 @@ public class TokenIssuerFactory {
         this.defaultValidator = defaultValidator;
     }
 
-    public TokenValidationPort getValidator(ValidationMode mode, String publicKey) {
+    public TokenValidationPort getValidator(ValidationMode mode) {
         return switch (mode) {
             case LOCAL, DELEGATE, NONE -> defaultValidator;
         };

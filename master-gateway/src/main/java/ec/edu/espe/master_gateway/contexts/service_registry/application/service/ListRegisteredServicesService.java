@@ -47,7 +47,6 @@ public class ListRegisteredServicesService implements ListRegisteredServicesUseC
                 s.getNombre(),
                 s.getBaseUrl(),
                 s.getValidationMode().name(),
-                s.getPublicKey(),
                 s.getEstado().name(),
                 s.getFechaCreacion(),
                 s.getFechaActualizacion()

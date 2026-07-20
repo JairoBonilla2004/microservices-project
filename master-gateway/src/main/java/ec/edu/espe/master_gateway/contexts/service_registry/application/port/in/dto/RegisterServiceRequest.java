@@ -8,14 +8,13 @@ import jakarta.validation.constraints.Size;
  * Solicitud para registrar un nuevo servicio en el registro de servicios.
  *
  * <p>Contiene los datos necesarios para crear un microservicio dentro del
- * sistema, incluyendo su identificador &uacute;nico, nombre, URL base, modo de
- * validaci&oacute;n y clave p&uacute;blica opcional.</p>
+ * sistema, incluyendo su identificador &uacute;nico, nombre, URL base y modo de
+ * validaci&oacute;n.</p>
  *
  * @param serviceCode    C&oacute;digo &uacute;nico del servicio (2-50 caracteres).
  * @param nombre         Nombre descriptivo del servicio (2-100 caracteres).
  * @param baseUrl        URL base del servicio, debe comenzar con http:// o https://.
- * @param validationMode Modo de validaci&oacute;n del servicio (ej. NONE, PUBLIC_KEY).
- * @param publicKey      Clave p&uacute;blica opcional para el modo de validaci&oacute;n.
+ * @param validationMode Modo de validaci&oacute;n del servicio (NONE, DELEGATE, LOCAL).
  *
  * @author Jairo Bonilla
  * @author Reishel Tipan
@@ -25,6 +24,5 @@ public record RegisterServiceRequest(
     @NotBlank @Size(min = 2, max = 50) String serviceCode,
     @NotBlank @Size(min = 2, max = 100) String nombre,
     @NotBlank @Pattern(regexp = "^https?://.+") String baseUrl,
-    @NotBlank String validationMode,
-    String publicKey
+    @NotBlank String validationMode
 ) {}

@@ -1,14 +1,13 @@
 import { client } from './client'
 
 // ─── Tipos alineados al contrato real del backend ────────────────────────────
-// Backend: { id, serviceCode, nombre, baseUrl, validationMode, publicKey, estado, fechaCreacion }
+// Backend: { id, serviceCode, nombre, baseUrl, validationMode, estado, fechaCreacion }
 export interface ServiceResponse {
   id: string
   serviceCode: string
   nombre: string
   baseUrl: string
   validationMode: 'NONE' | 'DELEGATE' | 'LOCAL'
-  publicKey: string | null
   estado: string
   fechaCreacion: string
   fechaActualizacion?: string
@@ -19,13 +18,11 @@ export interface CreateServiceRequest {
   nombre: string
   baseUrl: string
   validationMode?: 'NONE' | 'DELEGATE' | 'LOCAL'
-  publicKey?: string
 }
 
 export interface UpdateServiceRequest {
   nombre?: string
   baseUrl?: string
-  publicKey?: string
 }
 
 export const servicesApi = {

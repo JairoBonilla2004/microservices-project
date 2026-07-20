@@ -54,10 +54,6 @@ public class UpdateServiceService implements UpdateServiceUseCase {
         if (request.baseUrl() != null) {
             service.updateBaseUrl(request.baseUrl());
         }
-        if (request.publicKey() != null) {
-            service.updatePublicKey(request.publicKey());
-        }
-
         var saved = repository.save(service);
 
         log.info("Service updated: code={}, name={}", serviceCode, saved.getNombre());
@@ -68,7 +64,6 @@ public class UpdateServiceService implements UpdateServiceUseCase {
             saved.getNombre(),
             saved.getBaseUrl(),
             saved.getValidationMode().name(),
-            saved.getPublicKey(),
             saved.getEstado().name(),
             saved.getFechaCreacion(),
             saved.getFechaActualizacion()

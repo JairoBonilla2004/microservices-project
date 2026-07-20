@@ -32,8 +32,8 @@ export function ServiceList() {
   }
 
   const validationModeLabel = (mode: string) => {
-    if (mode === 'ASYMMETRIC') return { label: 'Asimétrico', cls: 'bg-purple-100 text-purple-700' }
-    if (mode === 'DIRECT') return { label: 'Directo', cls: 'bg-blue-100 text-blue-700' }
+    if (mode === 'LOCAL') return { label: 'Local', cls: 'bg-purple-100 text-purple-700' }
+    if (mode === 'DELEGATE') return { label: 'Delegado', cls: 'bg-blue-100 text-blue-700' }
     return { label: 'Ninguno', cls: 'bg-gray-100 text-gray-600' }
   }
 

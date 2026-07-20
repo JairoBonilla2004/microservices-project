@@ -30,7 +30,6 @@ public class RegisteredService {
     private String nombre;
     private String baseUrl;
     private final ValidationMode validationMode;
-    private String publicKey;
     private EstadoRegistro estado;
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaActualizacion;
@@ -38,12 +37,11 @@ public class RegisteredService {
     private String actualizadoPor;
 
     public RegisteredService(String serviceCode, String nombre, String baseUrl,
-                             ValidationMode validationMode, String publicKey) {
+                             ValidationMode validationMode) {
         this.serviceCode = Objects.requireNonNull(serviceCode, "serviceCode no puede ser null");
         this.nombre = Objects.requireNonNull(nombre, "nombre no puede ser null");
         this.baseUrl = Objects.requireNonNull(baseUrl, "baseUrl no puede ser null");
         this.validationMode = Objects.requireNonNull(validationMode, "validationMode no puede ser null");
-        this.publicKey = publicKey;
         this.estado = EstadoRegistro.ACTIVO;
     }
 
@@ -60,10 +58,6 @@ public class RegisteredService {
 
     public void updateNombre(String newNombre) {
         this.nombre = Objects.requireNonNull(newNombre, "nombre no puede ser null");
-    }
-
-    public void updatePublicKey(String newPublicKey) {
-        this.publicKey = newPublicKey;
     }
 
     public UUID getId() {
@@ -108,10 +102,6 @@ public class RegisteredService {
 
     public ValidationMode getValidationMode() {
         return validationMode;
-    }
-
-    public String getPublicKey() {
-        return publicKey;
     }
 
     public EstadoRegistro getEstado() {
