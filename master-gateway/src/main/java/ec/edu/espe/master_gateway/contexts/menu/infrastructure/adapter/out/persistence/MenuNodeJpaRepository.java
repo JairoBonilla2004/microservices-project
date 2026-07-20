@@ -24,6 +24,10 @@ public interface MenuNodeJpaRepository extends SoftDeleteRepository<MenuNodeJpaE
 
     List<MenuNodeJpaEntity> findByParentIdAndEstado(UUID parentId, EstadoRegistro estado);
 
+    List<MenuNodeJpaEntity> findByEstadoOrderByOrden(EstadoRegistro estado);
+
+    List<MenuNodeJpaEntity> findTop50ByEstadoOrderByFechaActualizacionDesc(EstadoRegistro estado);
+
     @Query(value = """
         WITH RECURSIVE menu_tree AS (
             SELECT id, nombre, url, modulo_id, parent_id, orden, estado,
@@ -43,6 +47,31 @@ public interface MenuNodeJpaRepository extends SoftDeleteRepository<MenuNodeJpaE
         ORDER BY orden
         """, nativeQuery = true)
     List<MenuNodeJpaEntity> findTreeByModuleIds(@Param("moduleIds") List<UUID> moduleIds);
+
+    /**
+     * Recupera, en una sola consulta CTE, los nodos indicados junto con todos
+     * sus descendientes activos. Usado cuando el rol tiene ítems de menú
+     * asignados directamente (en vez de por módulo completo), evitando N+1
+     * al construir el subárbol de cada nodo raíz.
+     */
+    @Query(value = """
+        WITH RECURSIVE menu_subtree AS (
+            SELECT id, nombre, url, modulo_id, parent_id, orden, estado,
+                   creado_por, fecha_creacion, actualizado_por, fecha_actualizacion
+            FROM menus
+            WHERE id IN (:nodeIds)
+              AND estado = 'ACTIVO'
+            UNION ALL
+            SELECT m.id, m.nombre, m.url, m.modulo_id, m.parent_id, m.orden, m.estado,
+                   m.creado_por, m.fecha_creacion, m.actualizado_por, m.fecha_actualizacion
+            FROM menus m
+            INNER JOIN menu_subtree mt ON m.parent_id = mt.id
+            WHERE m.estado = 'ACTIVO'
+        )
+        SELECT * FROM menu_subtree
+        ORDER BY orden
+        """, nativeQuery = true)
+    List<MenuNodeJpaEntity> findSubtreesByNodeIds(@Param("nodeIds") List<UUID> nodeIds);
 
     @Query(value = """
         WITH RECURSIVE ancestors AS (

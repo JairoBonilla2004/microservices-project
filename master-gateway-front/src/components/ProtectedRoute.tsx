@@ -33,7 +33,7 @@ export function ProtectedRoute({ children, requireAnyPermission }: ProtectedRout
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <h2 className="text-xl font-bold text-gray-800 mb-2">Acceso restringido</h2>
         <p className="text-gray-500 max-w-sm">
-          No tienes los permisos necesarios para ver esta secci&oacute;n.
+          No tienes los permisos necesarios para ver esta sección.
           Contacta al administrador del sistema.
         </p>
       </div>

@@ -1,5 +1,12 @@
 import { client } from './client'
 
+export interface PageResult<T> {
+  content: T[]
+  totalElements: number
+  page: number
+  size: number
+}
+
 export interface UserResponse {
   id: string
   username: string
@@ -34,8 +41,9 @@ export interface UserRoleResponse {
 }
 
 export const usersApi = {
-  /** GET /api/users */
-  list: () => client.get<UserResponse[]>('/users').then(r => r.data),
+  /** GET /api/users?page=&size= */
+  list: (page = 0, size = 20) =>
+    client.get<PageResult<UserResponse>>('/users', { params: { page, size } }).then(r => r.data),
 
   /** GET /api/users/{id} */
   get: (id: string) => client.get<UserResponse>(`/users/${id}`).then(r => r.data),

@@ -18,7 +18,11 @@ export function clearTokens() {
   localStorage.removeItem(STORAGE_KEY)
 }
 
-export const client = axios.create({ baseURL: '/api', headers: { 'Content-Type': 'application/json' } })
+// En desarrollo usa el proxy de Vite ('/api'); en producción requiere VITE_API_URL
+// apuntando directamente al Master Gateway (ej. https://master-gateway.up.railway.app/api).
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
+
+export const client = axios.create({ baseURL: API_BASE_URL, headers: { 'Content-Type': 'application/json' } })
 
 // ─── Request interceptor: inyecta el Bearer token ───────────────────────────
 client.interceptors.request.use((config: InternalAxiosRequestConfig) => {
@@ -61,7 +65,7 @@ client.interceptors.response.use(
       originalRequest._retry = true
       isRefreshing = true
       try {
-        const res = await axios.post('/api/auth/refresh-token', { refreshToken: tokens.refreshToken })
+        const res = await axios.post(`${API_BASE_URL}/auth/refresh-token`, { refreshToken: tokens.refreshToken })
         const { accessToken, refreshToken } = res.data
         storeTokens(accessToken, refreshToken)
         processQueue(null)

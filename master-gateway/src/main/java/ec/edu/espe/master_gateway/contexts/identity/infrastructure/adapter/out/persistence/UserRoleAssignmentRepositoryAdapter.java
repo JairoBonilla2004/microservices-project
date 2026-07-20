@@ -71,4 +71,8 @@ public class UserRoleAssignmentRepositoryAdapter implements UserRoleAssignmentRe
         }
     }
 
+    @Override
+    public void hardDeleteByUserIdAndRoleId(UUID userId, UUID roleId) {
+        jpaRepository.hardDeleteByUserIdAndRoleId(userId, roleId);
+    }
 }

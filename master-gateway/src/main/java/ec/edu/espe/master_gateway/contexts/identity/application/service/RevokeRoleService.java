@@ -49,10 +49,12 @@ public class RevokeRoleService implements RevokeRoleUseCase {
             throw new IllegalArgumentException("No puedes revocarte tu propio rol");
         }
 
-        var assignment = assignmentRepository.findByUserIdAndRoleId(userId, roleId)
+        assignmentRepository.findByUserIdAndRoleId(userId, roleId)
                 .orElseThrow(() -> new NotFoundException("UserRoleAssignment", userId + " - " + roleId));
-        assignment.revoke();
-        assignmentRepository.save(assignment);
-        log.info("Role {} revoked from user {}", roleId, userId);
+
+        // Eliminación física en la tabla pivote (no soft delete): la relación
+        // usuario-rol se rompe por completo, sin conservar histórico revocado.
+        assignmentRepository.hardDeleteByUserIdAndRoleId(userId, roleId);
+        log.info("Role {} revoked (hard delete) from user {}", roleId, userId);
     }
 }

@@ -10,9 +10,10 @@ import ec.edu.espe.master_gateway.contexts.module.domain.port.out.RoleModuleAssi
 import ec.edu.espe.master_gateway.shared.domain.AuthorizationException;
 import ec.edu.espe.master_gateway.shared.domain.permission.Permission;
 import ec.edu.espe.master_gateway.shared.domain.port.out.AuthorizationPort;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import org.slf4j.Logger;
@@ -57,13 +58,11 @@ public class GetMenuTreeService implements GetMenuTreeUseCase {
         var assignedNodeIds = roleMenuAssignmentRepositoryPort.findMenuNodeIdsByRoleId(roleId);
 
         if (!assignedNodeIds.isEmpty()) {
-            List<MenuNodeResponse> result = new ArrayList<>();
-            for (UUID nodeId : assignedNodeIds) {
-                menuRepositoryPort.findById(nodeId)
-                        .ifPresent(node -> result.add(buildNodeWithChildren(node)));
-            }
-            log.debug("Menu tree retrieved for roleId={} with {} assigned nodes", roleId, result.size());
-            return result;
+            // Una sola consulta CTE trae los nodos asignados y todo su subárbol.
+            var flatNodes = menuRepositoryPort.findSubtreesByNodeIds(assignedNodeIds);
+            var response = buildForest(flatNodes, assignedNodeIds);
+            log.debug("Menu tree retrieved for roleId={} with {} assigned nodes", roleId, response.size());
+            return response;
         }
 
         var moduleIds = roleModuleAssignmentRepositoryPort.findModuleIdsByRoleId(roleId);
@@ -72,29 +71,43 @@ public class GetMenuTreeService implements GetMenuTreeUseCase {
             return Collections.emptyList();
         }
 
-        var rootNodes = menuRepositoryPort.findRootNodesByModuleIds(moduleIds);
-        var response = rootNodes.stream()
-                .map(this::buildNodeWithChildren)
+        // Una sola consulta CTE trae todo el árbol (raíces + descendientes) de los módulos.
+        var flatNodes = menuRepositoryPort.findTreeByModuleIds(moduleIds);
+        var rootIds = flatNodes.stream()
+                .filter(n -> n.getParentId() == null)
+                .map(MenuNode::getId)
                 .toList();
+        var response = buildForest(flatNodes, rootIds);
 
         log.debug("Menu tree retrieved for roleId={} from {} modules", roleId, moduleIds.size());
         return response;
     }
 
     /**
-     * Construye recursivamente un {@link MenuNodeResponse} con todos sus hijos.
+     * Construye el bosque de {@link MenuNodeResponse} a partir de una lista plana de
+     * nodos (ya recuperada en una única consulta CTE) y los ids de las raíces deseadas.
      *
-     * <p>Para el nodo dado, obtiene sus hijos directos del repositorio y
-     * los transforma invocando este mismo método, generando así la
-     * estructura jerárquica completa.</p>
-     *
-     * @param node nodo de dominio a transformar.
-     * @return respuesta del nodo con su subárbol de hijos.
+     * <p>Evita el problema N+1: el árbol se arma en memoria indexando los nodos por su
+     * {@code parentId}, sin volver a consultar la base de datos por cada nivel.</p>
      */
-    private MenuNodeResponse buildNodeWithChildren(MenuNode node) {
-        var children = menuRepositoryPort.findChildrenByParentId(node.getId());
-        var childResponses = children.stream()
-                .map(this::buildNodeWithChildren)
+    private List<MenuNodeResponse> buildForest(List<MenuNode> flatNodes, List<UUID> rootIds) {
+        Map<UUID, List<MenuNode>> childrenByParent = new LinkedHashMap<>();
+        Map<UUID, MenuNode> nodesById = new LinkedHashMap<>();
+        for (MenuNode node : flatNodes) {
+            nodesById.put(node.getId(), node);
+            childrenByParent.computeIfAbsent(node.getParentId(), k -> new java.util.ArrayList<>()).add(node);
+        }
+
+        return rootIds.stream()
+                .map(nodesById::get)
+                .filter(Objects::nonNull)
+                .map(root -> toResponse(root, childrenByParent))
+                .toList();
+    }
+
+    private MenuNodeResponse toResponse(MenuNode node, Map<UUID, List<MenuNode>> childrenByParent) {
+        var children = childrenByParent.getOrDefault(node.getId(), List.of()).stream()
+                .map(child -> toResponse(child, childrenByParent))
                 .toList();
         return new MenuNodeResponse(
             node.getId(),
@@ -103,7 +116,7 @@ public class GetMenuTreeService implements GetMenuTreeUseCase {
             node.getModuleId(),
             node.getParentId(),
             node.getOrden(),
-            childResponses
+            children
         );
     }
 }

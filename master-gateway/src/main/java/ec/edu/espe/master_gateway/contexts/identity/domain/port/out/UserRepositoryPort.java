@@ -1,6 +1,7 @@
 package ec.edu.espe.master_gateway.contexts.identity.domain.port.out;
 
 import ec.edu.espe.master_gateway.contexts.identity.domain.model.User;
+import ec.edu.espe.master_gateway.shared.domain.PageResult;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -26,6 +27,14 @@ public interface UserRepositoryPort {
     Optional<User> findByUsername(String username);
 
     List<User> findAllActive();
+
+    /**
+     * Recupera una página de usuarios activos.
+     *
+     * @param page número de página (0-indexado).
+     * @param size tamaño de página.
+     */
+    PageResult<User> findActivePage(int page, int size);
 
     User save(User user);
 

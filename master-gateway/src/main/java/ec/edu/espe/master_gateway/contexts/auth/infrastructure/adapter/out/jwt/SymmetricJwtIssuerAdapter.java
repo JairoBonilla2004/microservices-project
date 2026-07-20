@@ -51,13 +51,14 @@ public class SymmetricJwtIssuerAdapter implements TokenIssuerPort {
     }
 
     @Override
-    public String issueAccessToken(UUID userId, UUID roleId, Set<String> permissions, String roleName) {
+    public String issueAccessToken(UUID userId, UUID roleId, Set<String> permissions, String roleName, String username) {
         var now = Instant.now();
         var builder = Jwts.builder()
                 .id(UUID.randomUUID().toString())
                 .subject(userId.toString())
                 .claim("type", "ACCESS_TOKEN")
                 .claim("roleName", roleName)
+                .claim("username", username)
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plus(jwtProperties.getAccessTokenExpiration())))
                 .issuer("master-gateway")

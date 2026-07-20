@@ -28,4 +28,9 @@ public interface UserRoleAssignmentRepositoryPort {
     Optional<UserRoleAssignment> findByUserIdAndRoleId(UUID userId, UUID roleId);
 
     UserRoleAssignment save(UserRoleAssignment assignment);
+
+    /**
+     * Elimina físicamente la asignación usuario-rol de la tabla pivote (hard delete).
+     */
+    void hardDeleteByUserIdAndRoleId(UUID userId, UUID roleId);
 }

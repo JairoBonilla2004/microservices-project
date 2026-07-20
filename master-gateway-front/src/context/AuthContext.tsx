@@ -1,15 +1,10 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react'
 import { authApi, type LoginRequest, type SelectRoleRequest, type RegisterRequest } from '../api/auth'
+import { menusApi, type MenuNodeResponse } from '../api/menus'
 import { storeTokens, clearTokens, getStoredTokens } from '../api/client'
+import type { Permission } from '../constants/permissions'
 
-// ─── Los 25 permisos reales del sistema ─────────────────────────────────────
-export type Permission =
-  | 'USERS_CREATE' | 'USERS_READ' | 'USERS_UPDATE' | 'USERS_DELETE'
-  | 'USERS_ASSIGN_ROLE' | 'USERS_REVOKE_ROLE'
-  | 'ROLES_CREATE' | 'ROLES_READ' | 'ROLES_UPDATE' | 'ROLES_DELETE' | 'ROLES_ASSIGN_USERS'
-  | 'MODULES_CREATE' | 'MODULES_READ' | 'MODULES_UPDATE' | 'MODULES_DELETE' | 'MODULES_ASSIGN'
-  | 'MENUS_CREATE' | 'MENUS_READ' | 'MENUS_UPDATE' | 'MENUS_DELETE' | 'MENUS_ASSIGN'
-  | 'SERVICES_CREATE' | 'SERVICES_READ' | 'SERVICES_UPDATE' | 'SERVICES_DELETE'
+export type { Permission }
 
 export interface UserInfo {
   userId: string
@@ -32,6 +27,9 @@ interface AuthContextType {
   hasPermission: (permission: Permission) => boolean
   /** Verifica si el usuario tiene AL MENOS uno de los permisos indicados */
   hasAnyPermission: (...perms: Permission[]) => boolean
+  /** Árbol de navegación del rol activo, devuelto por /api/menus/tree. Base del enrutamiento dinámico. */
+  menuTree: MenuNodeResponse[]
+  menuTreeLoading: boolean
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
@@ -39,7 +37,7 @@ const AuthContext = createContext<AuthContextType | null>(null)
 /**
  * Decodifica el payload del JWT.
  * El ACCESS_TOKEN del backend incluye:
- * { sub (userId), roleName, role (roleId), permissions (string separado por comas), type }
+ * { sub (userId), username, roleName, role (roleId), permissions (string separado por comas), type }
  */
 function decodeJwtPayload(token: string): Record<string, unknown> | null {
   try {
@@ -61,7 +59,7 @@ function buildUserFromToken(accessToken: string): UserInfo | null {
 
   return {
     userId: (payload.sub as string) || '',
-    username: (payload.sub as string) || '',
+    username: (payload.username as string) || (payload.sub as string) || '',
     roleId: (payload.role as string) || '',
     roleName: (payload.roleName as string) || '',
     permissions,
@@ -72,17 +70,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserInfo | null>(null)
   const [tokens, setTokens] = useState<{ accessToken: string; refreshToken: string } | null>(getStoredTokens)
   const [loading, setLoading] = useState(true)
+  const [menuTree, setMenuTree] = useState<MenuNodeResponse[]>([])
+  const [menuTreeLoading, setMenuTreeLoading] = useState(false)
 
-  // Al montar, reconstruye el usuario desde el token almacenado
+  const loadMenuTree = useCallback(async (roleId: string) => {
+    setMenuTreeLoading(true)
+    try {
+      const tree = await menusApi.getTree(roleId)
+      setMenuTree(tree)
+    } catch {
+      setMenuTree([])
+    } finally {
+      setMenuTreeLoading(false)
+    }
+  }, [])
+
+  // Al montar, reconstruye el usuario y su árbol de navegación desde el token almacenado
   useEffect(() => {
     const stored = getStoredTokens()
     if (stored?.accessToken) {
       const userInfo = buildUserFromToken(stored.accessToken)
-      if (userInfo) setUser(userInfo)
+      if (userInfo) {
+        setUser(userInfo)
+        if (userInfo.roleId) loadMenuTree(userInfo.roleId)
+      }
       setTokens(stored)
     }
     setLoading(false)
-  }, [])
+  }, [loadMenuTree])
 
   const login = useCallback(async (data: LoginRequest) => {
     const res = await authApi.login(data)
@@ -94,8 +109,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     storeTokens(res.accessToken, res.refreshToken)
     setTokens({ accessToken: res.accessToken, refreshToken: res.refreshToken })
     const userInfo = buildUserFromToken(res.accessToken)
-    if (userInfo) setUser(userInfo)
-  }, [])
+    if (userInfo) {
+      setUser(userInfo)
+      if (userInfo.roleId) await loadMenuTree(userInfo.roleId)
+    }
+  }, [loadMenuTree])
 
   const register = useCallback(async (data: RegisterRequest) => {
     await authApi.register(data)
@@ -111,6 +129,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     clearTokens()
     setTokens(null)
     setUser(null)
+    setMenuTree([])
   }, [])
 
   const hasPermission = useCallback((permission: Permission): boolean => {
@@ -134,6 +153,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         loading,
         hasPermission,
         hasAnyPermission,
+        menuTree,
+        menuTreeLoading,
       }}
     >
       {children}

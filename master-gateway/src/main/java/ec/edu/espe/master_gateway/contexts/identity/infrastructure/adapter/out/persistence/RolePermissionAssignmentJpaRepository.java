@@ -28,6 +28,8 @@ public interface RolePermissionAssignmentJpaRepository
     Optional<RolePermissionAssignmentJpaEntity> findByRoleIdAndPermissionAndEstado(
             UUID roleId, Permission permission, EstadoRegistro estado);
 
+    Optional<RolePermissionAssignmentJpaEntity> findByRoleIdAndPermission(UUID roleId, Permission permission);
+
     @Query("SELECT a.permission FROM RolePermissionAssignmentJpaEntity a WHERE a.roleId = :roleId AND a.estado = 'ACTIVO'")
     List<Permission> findPermissionsByRoleId(@Param("roleId") UUID roleId);
 }

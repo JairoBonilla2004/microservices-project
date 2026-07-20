@@ -24,7 +24,7 @@ public interface TokenIssuerPort {
 
     String issueTempToken(UUID userId);
 
-    String issueAccessToken(UUID userId, UUID roleId, Set<String> permissions, String roleName);
+    String issueAccessToken(UUID userId, UUID roleId, Set<String> permissions, String roleName, String username);
 
     String issueRefreshToken(UUID userId, UUID roleId, String roleName);
 }

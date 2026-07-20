@@ -26,6 +26,8 @@ public interface RolePermissionAssignmentRepositoryPort {
 
     Optional<RolePermissionAssignment> findByRoleIdAndPermission(UUID roleId, Permission permission);
 
+    Optional<RolePermissionAssignment> findByRoleIdAndPermissionIncludingInactive(UUID roleId, Permission permission);
+
     List<Permission> findPermissionsByRoleId(UUID roleId);
 
     RolePermissionAssignment save(RolePermissionAssignment assignment);

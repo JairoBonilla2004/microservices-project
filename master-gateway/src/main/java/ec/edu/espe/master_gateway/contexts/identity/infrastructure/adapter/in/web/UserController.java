@@ -27,6 +27,7 @@ import ec.edu.espe.master_gateway.contexts.identity.application.port.in.dto.Role
 import ec.edu.espe.master_gateway.contexts.identity.application.port.in.dto.UpdateUserRequest;
 import ec.edu.espe.master_gateway.contexts.identity.application.port.in.dto.UpdateUserResponse;
 import ec.edu.espe.master_gateway.contexts.identity.application.port.in.dto.UserResponse;
+import ec.edu.espe.master_gateway.shared.domain.PageResult;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -39,6 +40,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -73,8 +75,10 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<UserResponse>> listUsers() {
-        return ResponseEntity.ok(listUsersUseCase.execute());
+    public ResponseEntity<PageResult<UserResponse>> listUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return ResponseEntity.ok(listUsersUseCase.execute(page, size));
     }
 
     @GetMapping("/{id}")
