@@ -1,12 +1,19 @@
 import { useState, useEffect } from 'react'
 import { extractError } from '../../api/error'
-import { Link } from 'react-router-dom'
-import { menusApi, type MenuNodeResponse } from '../../api/menus'
+import { Plus, ChevronDown, ChevronRight, Folder, FolderOpen, File, Pencil, Trash2, UserMinus, SendHorizonal, ListTree } from 'lucide-react'
+import { menusApi, type MenuNodeResponse, type MenuItemResponse } from '../../api/menus'
 import { rolesApi, type RoleResponse } from '../../api/roles'
 import { useAuth } from '../../context/AuthContext'
+import { Button, LinkButton } from '../../components/ui/Button'
+import { Card, CardHeader, CardBody } from '../../components/ui/Card'
+import { EmptyState } from '../../components/ui/EmptyState'
+import { Skeleton } from '../../components/ui/Skeleton'
+import { useToast } from '../../components/ui/ToastProvider'
+import { useConfirm } from '../../components/ui/ConfirmDialog'
 
 function TreeNode({
   node,
+  depth = 0,
   onDelete,
   onRemoveFromRole,
   canEdit,
@@ -15,6 +22,7 @@ function TreeNode({
   roleId,
 }: {
   node: MenuNodeResponse
+  depth?: number
   onDelete: (id: string) => void
   onRemoveFromRole: (roleId: string, menuId: string) => void
   canEdit: boolean
@@ -26,37 +34,46 @@ function TreeNode({
   const hasChildren = node.children?.length > 0
 
   return (
-    <li className="ml-4 border-l border-gray-200 pl-3">
-      <div className="flex items-center gap-2 py-1.5">
+    <li className="border-l border-slate-200" style={{ paddingLeft: `${depth === 0 ? 0 : 12}px` }}>
+      <div className="flex items-center gap-2 py-1.5 pl-2">
         {hasChildren ? (
           <button
             onClick={() => setExpanded(!expanded)}
-            className="text-xs text-gray-400 w-4 hover:text-gray-700"
+            className="text-slate-400 hover:text-slate-700 shrink-0"
           >
-            {expanded ? '▼' : '▶'}
+            {expanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
           </button>
         ) : (
-          <span className="w-4 text-gray-300 text-xs">─</span>
+          <span className="shrink-0 w-4" />
         )}
-        <span className="text-sm font-medium">{node.nombre}</span>
+        {hasChildren ? (
+          expanded ? (
+            <FolderOpen size={16} className="text-brand-500 shrink-0" />
+          ) : (
+            <Folder size={16} className="text-brand-500 shrink-0" />
+          )
+        ) : (
+          <File size={16} className="text-slate-400 shrink-0" />
+        )}
+        <span className="text-sm font-medium text-slate-800">{node.nombre}</span>
         {node.url && (
-          <span className="text-xs text-gray-400 font-mono">{node.url}</span>
+          <span className="text-xs text-slate-400 font-mono">{node.url}</span>
         )}
-        <div className="ml-auto flex gap-2">
+        <div className="ml-auto flex gap-1.5">
           {canEdit && (
-            <Link to={`/menus/${node.id}/edit`} className="text-xs text-green-600 hover:underline">
+            <LinkButton to={`/menus/${node.id}/edit`} variant="ghost" icon={<Pencil size={13} />} className="px-2 py-1 text-xs">
               Editar
-            </Link>
+            </LinkButton>
           )}
           {canDelete && (
-            <button onClick={() => onDelete(node.id)} className="text-xs text-red-600 hover:underline">
+            <Button variant="ghost" onClick={() => onDelete(node.id)} icon={<Trash2 size={13} />} className="px-2 py-1 text-xs text-red-600 hover:bg-red-50">
               Eliminar
-            </button>
+            </Button>
           )}
           {canAssign && roleId && (
-            <button onClick={() => onRemoveFromRole(roleId, node.id)} className="text-xs text-orange-600 hover:underline">
+            <Button variant="ghost" onClick={() => onRemoveFromRole(roleId, node.id)} icon={<UserMinus size={13} />} className="px-2 py-1 text-xs text-amber-600 hover:bg-amber-50">
               Quitar del rol
-            </button>
+            </Button>
           )}
         </div>
       </div>
@@ -66,6 +83,7 @@ function TreeNode({
             <TreeNode
               key={child.id}
               node={child}
+              depth={depth + 1}
               onDelete={onDelete}
               onRemoveFromRole={onRemoveFromRole}
               canEdit={canEdit}
@@ -80,17 +98,10 @@ function TreeNode({
   )
 }
 
-function flattenTree(nodes: MenuNodeResponse[]): MenuNodeResponse[] {
-  const result: MenuNodeResponse[] = []
-  for (const n of nodes) {
-    result.push(n)
-    if (n.children?.length) result.push(...flattenTree(n.children))
-  }
-  return result
-}
-
 export function MenuTree() {
   const { hasPermission } = useAuth()
+  const { showToast } = useToast()
+  const confirm = useConfirm()
   const [tree, setTree] = useState<MenuNodeResponse[]>([])
   const [roles, setRoles] = useState<RoleResponse[]>([])
   const [selectedRoleId, setSelectedRoleId] = useState('')
@@ -100,7 +111,7 @@ export function MenuTree() {
 
   const [assignRoleId, setAssignRoleId] = useState('')
   const [assignMenuNodeId, setAssignMenuNodeId] = useState('')
-  const [allMenuNodes, setAllMenuNodes] = useState<MenuNodeResponse[]>([])
+  const [allMenuItems, setAllMenuItems] = useState<MenuItemResponse[]>([])
   const [assignMessage, setAssignMessage] = useState('')
 
   const canCreate = hasPermission('MENUS_CREATE')
@@ -113,6 +124,8 @@ export function MenuTree() {
       .then(setRoles)
       .catch(() => {})
       .finally(() => setRolesLoading(false))
+
+    menusApi.listAll().then(setAllMenuItems).catch(() => {})
   }, [])
 
   const loadTree = (roleId: string) => {
@@ -120,8 +133,8 @@ export function MenuTree() {
     setLoading(true)
     setError('')
     menusApi.getTree(roleId)
-      .then(data => { setTree(data); setAllMenuNodes(flattenTree(data)) })
-      .catch(e => setError(extractError(e, 'No se pudo cargar el &aacute;rbol de men&uacute;s')))
+      .then(setTree)
+      .catch(e => setError(extractError(e, 'No se pudo cargar el árbol de menús')))
       .finally(() => setLoading(false))
   }
 
@@ -130,30 +143,36 @@ export function MenuTree() {
     loadTree(roleId)
   }
 
-  useEffect(() => {
-    if (!assignRoleId) { setAllMenuNodes([]); return }
-    menusApi.getTree(assignRoleId)
-      .then(data => setAllMenuNodes(flattenTree(data)))
-      .catch(() => {})
-  }, [assignRoleId])
-
   const handleDelete = async (menuId: string) => {
-    if (!confirm('&iquest;Eliminar este &iacute;tem de men&uacute;?')) return
+    const ok = await confirm({
+      title: '¿Eliminar este ítem de menú?',
+      variant: 'danger',
+      confirmLabel: 'Eliminar',
+    })
+    if (!ok) return
     try {
       await menusApi.delete(menuId)
       if (selectedRoleId) loadTree(selectedRoleId)
+      showToast('Ítem de menú eliminado correctamente.', 'success')
     } catch (e) {
-      alert(extractError(e, 'No se pudo eliminar el &iacute;tem de men&uacute;'))
+      showToast(extractError(e, 'No se pudo eliminar el ítem de menú'), 'error')
     }
   }
 
   const handleRemoveFromRole = async (roleId: string, menuId: string) => {
-    if (!confirm('&iquest;Quitar este men&uacute; del rol? El &iacute;tem no se eliminar&aacute; del sistema.')) return
+    const ok = await confirm({
+      title: '¿Quitar este menú del rol?',
+      description: 'El ítem no se eliminará del sistema.',
+      variant: 'danger',
+      confirmLabel: 'Quitar',
+    })
+    if (!ok) return
     try {
       await menusApi.removeFromRole(roleId, menuId)
       loadTree(roleId)
+      showToast('Menú quitado del rol correctamente.', 'success')
     } catch (e) {
-      alert(extractError(e, 'No se pudo quitar el men&uacute; del rol'))
+      showToast(extractError(e, 'No se pudo quitar el menú del rol'), 'error')
     }
   }
 
@@ -162,104 +181,115 @@ export function MenuTree() {
     setAssignMessage('')
     try {
       await menusApi.assignToRole(assignRoleId, assignMenuNodeId)
-      setAssignMessage('Men&uacute; asignado al rol correctamente.')
+      setAssignMessage('Menú asignado al rol correctamente.')
       setAssignMenuNodeId('')
+      if (selectedRoleId === assignRoleId) loadTree(assignRoleId)
+      showToast('Menú asignado al rol correctamente.', 'success')
     } catch (e) {
-      setAssignMessage(extractError(e, 'No se pudo asignar el men&uacute;'))
+      setAssignMessage(extractError(e, 'No se pudo asignar el menú'))
     }
   }
 
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">&Aacute;rbol de Men&uacute;s</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Árbol de Menús</h1>
         {canCreate && (
-          <Link to="/menus/new" className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-sm">
-            + Crear &iacute;tem
-          </Link>
+          <LinkButton to="/menus/new" icon={<Plus size={16} />}>
+            Crear ítem
+          </LinkButton>
         )}
       </div>
 
       {canAssign && (
-        <div className="bg-white p-4 rounded shadow mb-4">
-          <h2 className="text-sm font-semibold text-gray-700 mb-2">Asignar &iacute;tem de men&uacute; a rol</h2>
-          {assignMessage && (
-            <p className="text-sm mb-2 text-blue-700">{assignMessage}</p>
-          )}
-          <div className="flex gap-2 flex-wrap">
-            <select
-              value={assignRoleId}
-              onChange={e => setAssignRoleId(e.target.value)}
-              className="border rounded px-2 py-1.5 text-sm"
-            >
-              <option value="">-- Rol --</option>
-              {roles.map(r => <option key={r.id} value={r.id}>{r.nombre}</option>)}
-            </select>
-            <select
-              value={assignMenuNodeId}
-              onChange={e => setAssignMenuNodeId(e.target.value)}
-              className="border rounded px-2 py-1.5 text-sm"
-              disabled={!assignRoleId}
-            >
-              <option value="">-- Nodo de men&uacute; --</option>
-              {allMenuNodes.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
-            </select>
-            <button
-              onClick={handleAssign}
-              disabled={!assignRoleId || !assignMenuNodeId}
-              className="px-3 py-1.5 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition disabled:opacity-50"
-            >
-              Asignar
-            </button>
-          </div>
-        </div>
+        <Card className="mb-4">
+          <CardHeader title="Asignar ítem de menú a rol" />
+          <CardBody>
+            {assignMessage && <p className="text-sm mb-3 text-brand-700">{assignMessage}</p>}
+            <div className="flex gap-2 flex-wrap">
+              <select
+                value={assignRoleId}
+                onChange={e => setAssignRoleId(e.target.value)}
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-400"
+              >
+                <option value="">-- Rol --</option>
+                {roles.map(r => <option key={r.id} value={r.id}>{r.nombre}</option>)}
+              </select>
+              <select
+                value={assignMenuNodeId}
+                onChange={e => setAssignMenuNodeId(e.target.value)}
+                disabled={!assignRoleId}
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-400 disabled:bg-slate-50 disabled:text-slate-400"
+              >
+                <option value="">-- Nodo de menú --</option>
+                {allMenuItems.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
+              </select>
+              <Button
+                onClick={handleAssign}
+                disabled={!assignRoleId || !assignMenuNodeId}
+                icon={<SendHorizonal size={16} />}
+              >
+                Asignar
+              </Button>
+            </div>
+          </CardBody>
+        </Card>
       )}
 
-      <div className="bg-white p-4 rounded shadow">
-        <div className="flex items-center gap-3 mb-4">
-          <label className="text-sm font-medium text-gray-700">Ver &aacute;rbol del rol:</label>
-          {rolesLoading ? (
-            <span className="text-sm text-gray-400">Cargando roles...</span>
-          ) : (
-            <select
-              value={selectedRoleId}
-              onChange={e => handleRoleChange(e.target.value)}
-              className="border rounded px-2 py-1.5 text-sm"
-            >
-              <option value="">-- Seleccionar rol --</option>
-              {roles.map(r => <option key={r.id} value={r.id}>{r.nombre}</option>)}
-            </select>
+      <Card>
+        <CardBody>
+          <div className="flex items-center gap-3 mb-4">
+            <label className="text-sm font-medium text-slate-700">Ver árbol del rol:</label>
+            {rolesLoading ? (
+              <Skeleton className="h-8 w-48" />
+            ) : (
+              <select
+                value={selectedRoleId}
+                onChange={e => handleRoleChange(e.target.value)}
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-400"
+              >
+                <option value="">-- Seleccionar rol --</option>
+                {roles.map(r => <option key={r.id} value={r.id}>{r.nombre}</option>)}
+              </select>
+            )}
+          </div>
+
+          {loading && (
+            <div className="space-y-2">
+              <Skeleton className="h-6 w-full" />
+              <Skeleton className="h-6 w-5/6 ml-4" />
+              <Skeleton className="h-6 w-4/6 ml-4" />
+              <Skeleton className="h-6 w-full" />
+            </div>
           )}
-        </div>
+          {error && <div className="bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg text-sm">{error}</div>}
 
-        {loading && <p className="text-gray-400 text-sm">Cargando &aacute;rbol...</p>}
-        {error && <div className="bg-red-50 border border-red-200 text-red-700 p-3 rounded text-sm">{error}</div>}
+          {!loading && !error && selectedRoleId && (
+            tree.length === 0 ? (
+              <EmptyState icon={<ListTree size={22} />} title="Este rol no tiene menús asignados." />
+            ) : (
+              <ul className="mt-2">
+                {tree.map(node => (
+                  <TreeNode
+                    key={node.id}
+                    node={node}
+                    onDelete={handleDelete}
+                    onRemoveFromRole={handleRemoveFromRole}
+                    canEdit={canEdit}
+                    canDelete={canDelete}
+                    canAssign={canAssign}
+                    roleId={selectedRoleId}
+                  />
+                ))}
+              </ul>
+            )
+          )}
 
-        {!loading && !error && selectedRoleId && (
-          tree.length === 0 ? (
-            <p className="text-gray-400 text-sm">Este rol no tiene men&uacute;s asignados.</p>
-          ) : (
-            <ul className="mt-2">
-              {tree.map(node => (
-                <TreeNode
-                  key={node.id}
-                  node={node}
-                  onDelete={handleDelete}
-                  onRemoveFromRole={handleRemoveFromRole}
-                  canEdit={canEdit}
-                  canDelete={canDelete}
-                  canAssign={canAssign}
-                  roleId={selectedRoleId}
-                />
-              ))}
-            </ul>
-          )
-        )}
-
-        {!selectedRoleId && !loading && (
-          <p className="text-gray-400 text-sm">Selecciona un rol para ver su &aacute;rbol de men&uacute;s.</p>
-        )}
-      </div>
+          {!selectedRoleId && !loading && (
+            <EmptyState icon={<ListTree size={22} />} title="Selecciona un rol para ver su árbol de menús." />
+          )}
+        </CardBody>
+      </Card>
     </div>
   )
 }

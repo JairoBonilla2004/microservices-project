@@ -1,12 +1,20 @@
 import { useState, useEffect } from 'react'
 import { extractError } from '../../api/error'
-import { Link } from 'react-router-dom'
+import { Plus, Boxes, Pencil, Power, RotateCcw, SendHorizonal } from 'lucide-react'
 import { modulesApi, type ModuleResponse } from '../../api/modules'
 import { rolesApi, type RoleResponse } from '../../api/roles'
 import { useAuth } from '../../context/AuthContext'
+import { Button, LinkButton } from '../../components/ui/Button'
+import { Card, CardHeader, CardBody } from '../../components/ui/Card'
+import { EmptyState } from '../../components/ui/EmptyState'
+import { TableSkeleton } from '../../components/ui/Skeleton'
+import { useToast } from '../../components/ui/ToastProvider'
+import { useConfirm } from '../../components/ui/ConfirmDialog'
 
 export function ModuleList() {
   const { hasPermission } = useAuth()
+  const { showToast } = useToast()
+  const confirm = useConfirm()
   const [modules, setModules] = useState<ModuleResponse[]>([])
   const [roles, setRoles] = useState<RoleResponse[]>([])
   const [loading, setLoading] = useState(true)
@@ -25,22 +33,41 @@ export function ModuleList() {
     setError('')
     Promise.all([modulesApi.list(), rolesApi.list()])
       .then(([m, r]) => { setModules(m); setRoles(r) })
-      .catch(e => setError(extractError(e, 'Error al cargar m&oacute;dulos')))
+      .catch(e => setError(extractError(e, 'Error al cargar módulos')))
       .finally(() => setLoading(false))
   }
 
   useEffect(load, [])
 
   const handleDelete = async (id: string, nombre: string) => {
-    if (!confirm(`&iquest;Desactivar el m&oacute;dulo "${nombre}"?`)) return
-    try { await modulesApi.delete(id); load() }
-    catch (e) { alert(extractError(e, 'No se pudo desactivar el m&oacute;dulo')) }
+    const ok = await confirm({
+      title: `¿Desactivar el módulo "${nombre}"?`,
+      variant: 'danger',
+      confirmLabel: 'Desactivar',
+    })
+    if (!ok) return
+    try {
+      await modulesApi.delete(id)
+      load()
+      showToast('Módulo desactivado correctamente.', 'success')
+    } catch (e) {
+      showToast(extractError(e, 'No se pudo desactivar el módulo'), 'error')
+    }
   }
 
   const handleReactivate = async (id: string, nombre: string) => {
-    if (!confirm(`&iquest;Reactivar el m&oacute;dulo "${nombre}"?`)) return
-    try { await modulesApi.reactivate(id); load() }
-    catch (e) { alert(extractError(e, 'No se pudo reactivar el m&oacute;dulo')) }
+    const ok = await confirm({
+      title: `¿Reactivar el módulo "${nombre}"?`,
+      confirmLabel: 'Reactivar',
+    })
+    if (!ok) return
+    try {
+      await modulesApi.reactivate(id)
+      load()
+      showToast('Módulo reactivado correctamente.', 'success')
+    } catch (e) {
+      showToast(extractError(e, 'No se pudo reactivar el módulo'), 'error')
+    }
   }
 
   const handleAssign = async () => {
@@ -48,86 +75,109 @@ export function ModuleList() {
     setAssignMessage('')
     try {
       await modulesApi.assignToRole(assignRoleId, assignModuleId)
-      setAssignMessage('M&oacute;dulo asignado al rol correctamente.')
+      setAssignMessage('Módulo asignado al rol correctamente.')
       setAssignModuleId('')
+      showToast('Módulo asignado al rol correctamente.', 'success')
     } catch (e) {
-      setAssignMessage(extractError(e, 'No se pudo asignar el m&oacute;dulo'))
+      setAssignMessage(extractError(e, 'No se pudo asignar el módulo'))
     }
   }
 
-  if (loading) return <p className="text-gray-400">Cargando m&oacute;dulos...</p>
-  if (error) return <p className="text-red-600">{error}</p>
+  if (error) return <p className="text-red-600 text-sm">{error}</p>
 
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">M&oacute;dulos</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Módulos</h1>
         {canCreate && (
-          <Link to="/modules/new" className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-sm">
-            + Crear m&oacute;dulo
-          </Link>
+          <LinkButton to="/modules/new" icon={<Plus size={16} />}>
+            Crear módulo
+          </LinkButton>
         )}
       </div>
 
       {canAssign && (
-        <div className="bg-white p-4 rounded shadow mb-6">
-          <h2 className="text-sm font-bold mb-2">Asignar m&oacute;dulo a rol</h2>
-          {assignMessage && (
-            <p className="text-sm mb-2 text-blue-700">{assignMessage}</p>
-          )}
-          <div className="flex gap-2">
-            <select value={assignModuleId} onChange={e => setAssignModuleId(e.target.value)} className="border rounded px-2 py-1 text-sm flex-1">
-              <option value="">-- M&oacute;dulo --</option>
-              {modules.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
-            </select>
-            <select value={assignRoleId} onChange={e => setAssignRoleId(e.target.value)} className="border rounded px-2 py-1 text-sm flex-1">
-              <option value="">-- Rol --</option>
-              {roles.map(r => <option key={r.id} value={r.id}>{r.nombre}</option>)}
-            </select>
-            <button onClick={handleAssign} className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition">Asignar</button>
-          </div>
-        </div>
+        <Card className="mb-6">
+          <CardHeader title="Asignar módulo a rol" />
+          <CardBody>
+            {assignMessage && <p className="text-sm mb-3 text-brand-700">{assignMessage}</p>}
+            <div className="flex gap-2 flex-wrap">
+              <select
+                value={assignModuleId}
+                onChange={e => setAssignModuleId(e.target.value)}
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm flex-1 focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-400"
+              >
+                <option value="">-- Módulo --</option>
+                {modules.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
+              </select>
+              <select
+                value={assignRoleId}
+                onChange={e => setAssignRoleId(e.target.value)}
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm flex-1 focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-400"
+              >
+                <option value="">-- Rol --</option>
+                {roles.map(r => <option key={r.id} value={r.id}>{r.nombre}</option>)}
+              </select>
+              <Button onClick={handleAssign} icon={<SendHorizonal size={16} />}>Asignar</Button>
+            </div>
+          </CardBody>
+        </Card>
       )}
 
-      <div className="bg-white rounded shadow overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="text-left px-4 py-3">Nombre</th>
-              <th className="text-left px-4 py-3">Descripci&oacute;n</th>
-              <th className="text-left px-4 py-3">Orden</th>
-              <th className="text-left px-4 py-3">Estado</th>
-              <th className="text-right px-4 py-3">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {modules.map(m => (
-              <tr key={m.id} className="border-t hover:bg-gray-50">
-                <td className="px-4 py-3 font-medium">{m.nombre}</td>
-                <td className="px-4 py-3 text-gray-600">{m.descripcion}</td>
-                <td className="px-4 py-3">{m.orden}</td>
-                <td className="px-4 py-3">
-                  <span className={`text-xs px-2 py-0.5 rounded font-medium ${
-                    m.estado === 'ACTIVO' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
-                  }`}>
-                    {m.estado}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-right space-x-2">
-                  {canEdit && m.estado === 'ACTIVO' && <Link to={`/modules/${m.id}/edit`} className="text-green-600 hover:underline">Editar</Link>}
-                  {canDelete && m.estado === 'ACTIVO' && (
-                    <button onClick={() => handleDelete(m.id, m.nombre)} className="text-red-600 hover:underline">Desactivar</button>
-                  )}
-                  {canDelete && m.estado === 'INACTIVO' && (
-                    <button onClick={() => handleReactivate(m.id, m.nombre)} className="text-blue-600 hover:underline">Reactivar</button>
-                  )}
-                </td>
+      <Card className="overflow-x-auto">
+        {loading ? (
+          <TableSkeleton rows={5} cols={5} />
+        ) : modules.length === 0 ? (
+          <EmptyState icon={<Boxes size={22} />} title="No hay módulos registrados" />
+        ) : (
+          <table className="w-full text-sm">
+            <thead className="bg-slate-50">
+              <tr>
+                <th className="text-left px-4 py-3 text-slate-600 font-medium">Nombre</th>
+                <th className="text-left px-4 py-3 text-slate-600 font-medium">Descripción</th>
+                <th className="text-left px-4 py-3 text-slate-600 font-medium">Orden</th>
+                <th className="text-left px-4 py-3 text-slate-600 font-medium">Estado</th>
+                <th className="text-right px-4 py-3 text-slate-600 font-medium">Acciones</th>
               </tr>
-            ))}
-            {modules.length === 0 && <tr><td colSpan={5} className="text-center py-8 text-gray-500">No hay m&oacute;dulos registrados</td></tr>}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {modules.map(m => (
+                <tr key={m.id} className="border-t border-slate-100 hover:bg-slate-50">
+                  <td className="px-4 py-3 font-medium text-slate-800">{m.nombre}</td>
+                  <td className="px-4 py-3 text-slate-500">{m.descripcion}</td>
+                  <td className="px-4 py-3 text-slate-600">{m.orden}</td>
+                  <td className="px-4 py-3">
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                      m.estado === 'ACTIVO' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'
+                    }`}>
+                      {m.estado}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex justify-end gap-1.5">
+                      {canEdit && m.estado === 'ACTIVO' && (
+                        <LinkButton to={`/modules/${m.id}/edit`} variant="ghost" icon={<Pencil size={14} />}>
+                          Editar
+                        </LinkButton>
+                      )}
+                      {canDelete && m.estado === 'ACTIVO' && (
+                        <Button variant="danger" onClick={() => handleDelete(m.id, m.nombre)} icon={<Power size={14} />}>
+                          Desactivar
+                        </Button>
+                      )}
+                      {canDelete && m.estado === 'INACTIVO' && (
+                        <Button variant="secondary" onClick={() => handleReactivate(m.id, m.nombre)} icon={<RotateCcw size={14} />}>
+                          Reactivar
+                        </Button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </Card>
     </div>
   )
 }

@@ -3,11 +3,18 @@ import { extractError } from '../../api/error'
 import { useParams, useNavigate } from 'react-router-dom'
 import { modulesApi } from '../../api/modules'
 import { useAuth } from '../../context/AuthContext'
+import { Button } from '../../components/ui/Button'
+import { Card, CardBody } from '../../components/ui/Card'
+import { useToast } from '../../components/ui/ToastProvider'
+
+const inputClass =
+  'w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-400'
 
 export function ModuleForm() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { hasPermission } = useAuth()
+  const { showToast } = useToast()
   const isEdit = !!id
   const [form, setForm] = useState({ nombre: '', descripcion: '', icono: '', orden: 0 })
   const [error, setError] = useState('')
@@ -39,41 +46,46 @@ export function ModuleForm() {
     try {
       if (isEdit) await modulesApi.update(id!, form)
       else await modulesApi.create(form)
+      showToast(isEdit ? 'Módulo actualizado correctamente.' : 'Módulo creado correctamente.', 'success')
       navigate('/modules')
     } catch (err: unknown) {
-      setError(extractError(err, 'Error al guardar el m&oacute;dulo'))
+      setError(extractError(err, 'Error al guardar el módulo'))
     } finally { setLoading(false) }
   }
 
   return (
     <div className="max-w-lg">
-      <h1 className="text-2xl font-bold mb-4">{isEdit ? 'Editar m&oacute;dulo' : 'Crear m&oacute;dulo'}</h1>
-      {error && <p className="bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded mb-4 text-sm">{error}</p>}
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow space-y-3">
-        <div>
-          <label className="block text-sm font-medium mb-1">Nombre</label>
-          <input name="nombre" value={form.nombre} onChange={handleChange} required className="w-full border rounded px-3 py-2 text-sm" />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Descripci&oacute;n</label>
-          <textarea name="descripcion" value={form.descripcion} onChange={handleChange} required rows={3} className="w-full border rounded px-3 py-2 text-sm" />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Icono (opcional)</label>
-          <input name="icono" value={form.icono} onChange={handleChange} className="w-full border rounded px-3 py-2 text-sm" />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Orden</label>
-          <input name="orden" type="number" value={form.orden} onChange={handleChange} className="w-full border rounded px-3 py-2 text-sm" />
-          <p className="text-xs text-gray-400 mt-1">Define la posici&oacute;n de visualizaci&oacute;n (menor n&uacute;mero = aparece primero en la lista).</p>
-        </div>
-        <div className="flex gap-2 pt-2">
-          <button type="submit" disabled={loading} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition disabled:opacity-50 text-sm">
-            {loading ? 'Guardando...' : (isEdit ? 'Actualizar' : 'Crear')}
-          </button>
-          <button type="button" onClick={() => navigate('/modules')} className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition text-sm">Cancelar</button>
-        </div>
-      </form>
+      <h1 className="text-2xl font-bold text-slate-900 mb-4">{isEdit ? 'Editar módulo' : 'Crear módulo'}</h1>
+      {error && <p className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-lg mb-4 text-sm">{error}</p>}
+      <Card>
+        <CardBody>
+          <form onSubmit={handleSubmit} className="space-y-3">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Nombre</label>
+              <input name="nombre" value={form.nombre} onChange={handleChange} required className={inputClass} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Descripción</label>
+              <textarea name="descripcion" value={form.descripcion} onChange={handleChange} required rows={3} className={inputClass} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Icono (opcional)</label>
+              <input name="icono" value={form.icono} onChange={handleChange} className={inputClass} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Orden</label>
+              <input name="orden" type="number" value={form.orden} onChange={handleChange} className={inputClass} />
+              <p className="text-xs text-slate-400 mt-1">Define la posición de visualización (menor número = aparece primero en la lista).</p>
+            </div>
+            <div className="flex gap-2 pt-2">
+              <Button type="submit" loading={loading}>
+                {isEdit ? 'Actualizar' : 'Crear'}
+              </Button>
+              <Button type="button" variant="secondary" onClick={() => navigate('/modules')}>Cancelar</Button>
+            </div>
+          </form>
+        </CardBody>
+      </Card>
     </div>
   )
 }
