@@ -145,7 +145,7 @@ export function ServiceForm() {
                 value={form.baseUrl}
                 onChange={handleChange}
                 required
-                placeholder="http://ventas-ms:8081"
+                placeholder="ej: ventas-ms:8081"
                 className={`${INPUT_CLASSES} font-mono text-xs`}
               />
             </div>

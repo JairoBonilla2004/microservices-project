@@ -37,7 +37,7 @@ public class DataInitializer {
 
     private static final Logger log = LoggerFactory.getLogger(DataInitializer.class);
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
-    private static final String PASSWORD_ALPHABET =
+    private static final String ALPHABET =
             "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%";
 
     private static final String ADMIN_USERNAME = "boss_admin";
@@ -134,7 +134,7 @@ public class DataInitializer {
     private String generateSecureRandomPassword() {
         var sb = new StringBuilder(16);
         for (int i = 0; i < 16; i++) {
-            sb.append(PASSWORD_ALPHABET.charAt(SECURE_RANDOM.nextInt(PASSWORD_ALPHABET.length())));
+            sb.append(ALPHABET.charAt(SECURE_RANDOM.nextInt(ALPHABET.length())));
         }
         return sb.toString();
     }
