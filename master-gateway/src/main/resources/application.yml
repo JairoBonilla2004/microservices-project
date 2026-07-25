@@ -1,12 +1,44 @@
+# =============================================================================
+#  Configuración principal — master-gateway
+#
+#  Perfiles disponibles:
+#    - dev   : Desarrollo (SQL visible, DDL update, logs DEBUG)
+#    - prod  : Producción  (SQL oculto, DDL validate, logs WARN, compresión)
+#
+#  Las variables de entorno con defaults permiten ejecución sin
+#  configuración adicional en entornos locales.
+#
+#  Autores:
+#    - Jairo Bonilla
+#    - Julio Viche
+#    - Reishel Tipán
+# =============================================================================
+
+# ---------------------------------------------------------------------------
+#  Spring Boot — Core
+# ---------------------------------------------------------------------------
 spring:
   application:
     name: master-gateway
+
+  # --- Base de datos (PostgreSQL) ---
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/master_gateway}
     username: ${DB_USER:postgres}
     password: ${DB_PASSWORD:postgres}
+    hikari:
+      maximum-pool-size: ${DB_POOL_SIZE:10}
+      minimum-idle: ${DB_MIN_IDLE:5}
+      idle-timeout: ${HIKARI_IDLE_TIMEOUT:300000}
+      connection-timeout: ${HIKARI_CONNECTION_TIMEOUT:20000}
+      max-lifetime: ${HIKARI_MAX_LIFETIME:1200000}
+
+  # --- JPA / Hibernate ---
   jpa:
     hibernate:
+      # create-drop  : Solo para desarrollo local (recrea esquema cada vez)
+      # update       : Recomendado para desarrollo continuo
+      # validate     : Obligatorio en producción (no modifica la BD)
       ddl-auto: ${DDL_AUTO:create-drop}
     show-sql: ${SHOW_SQL:false}
     properties:
@@ -15,59 +47,100 @@ spring:
           batch_size: 25
         order_inserts: true
         order_updates: true
+        query:
+          in_clause_parameter_padding: true
     open-in-view: false
 
+# ---------------------------------------------------------------------------
+#  JWT — Autenticación
+#
+#  Modos:
+#    - "direct"     : Firma simétrica HMAC-SHA256 (requiere JWT_SECRET)
+#    - "asymmetric" : Firma asimétrica RSA-2048 (para microservicios hijos)
+# ---------------------------------------------------------------------------
 jwt:
-  mode: direct
-  temp-token-expiration: 5m
-  access-token-expiration: 15m
-  refresh-token-expiration: 7d
-  secret: ${JWT_SECRET:TuClaveSecretaSuperSeguraQueTengaAlMenos32Caracteres123}
-
+  mode: ${JWT_MODE:direct}
+  temp-token-expiration: ${JWT_TEMP_EXPIRATION:5m}
+  access-token-expiration: ${JWT_ACCESS_EXPIRATION:15m}
+  refresh-token-expiration: ${JWT_REFRESH_EXPIRATION:7d}
+  secret: "${JWT_SECRET:es_obligatorio_genera_uno_con_openssl}"
+# ---------------------------------------------------------------------------
+#  Rate Limiting — Prevención de abusos
+# ---------------------------------------------------------------------------
 rate-limiting:
   login:
     max-attempts: 5
     window-duration: 1m
     key-type: ip_and_username
-
   register:
     max-attempts: 5
     window-duration: 1m
-
   refresh-token:
     max-attempts: 5
     window-duration: 1m
-
   select-role:
     max-attempts: 10
     window-duration: 1m
-
   api:
     max-requests: 100
     window-duration: 1m
 
+# ---------------------------------------------------------------------------
+#  Admin Seed — Contraseña inicial del usuario boss_admin
+#  @Value("${admin.seed-password}") en DataInitializer.java
+# ---------------------------------------------------------------------------
+admin:
+  seed-password: ${ADMIN_SEED_PASSWORD:}
+
+# ---------------------------------------------------------------------------
+#  Password Policy — Política de contraseñas
+# ---------------------------------------------------------------------------
 password:
   policy:
-    hash-algorithm: argon2
-    cost-factor: 2
-    min-length: 8
-    require-uppercase: true
-    require-digit: true
-    require-special: false
+    hash-algorithm: ${HASH_ALGORITHM:argon2}
+    cost-factor: ${ARGON2_COST_FACTOR:3}
+    min-length: ${PASSWORD_MIN_LENGTH:8}
+    require-uppercase: ${PASSWORD_REQUIRE_UPPER:true}
+    require-digit: ${PASSWORD_REQUIRE_DIGIT:true}
+    require-special: ${PASSWORD_REQUIRE_SPECIAL:false}
 
+# ---------------------------------------------------------------------------
+#  SpringDoc / Swagger UI
+# ---------------------------------------------------------------------------
 springdoc:
   api-docs:
     path: /api-docs
   swagger-ui:
     path: /swagger-ui.html
+    try-it-out-enabled: false
+    display-request-duration: true
 
+# ---------------------------------------------------------------------------
+#  Server — Configuración HTTP
+# ---------------------------------------------------------------------------
 server:
   port: ${PORT:8080}
   error:
     whitelabel:
       enabled: false
 
+# ---------------------------------------------------------------------------
+#  Actuator — Healthchecks y métricas
+# ---------------------------------------------------------------------------
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when-authorized
+      show-components: when-authorized
+
+# ---------------------------------------------------------------------------
+#  Logging
+# ---------------------------------------------------------------------------
 logging:
   level:
     root: ${LOG_LEVEL:INFO}
-    ec.edu.espe.master_gateway: DEBUG
+    ec.edu.espe.master_gateway: ${GATEWAY_LOG_LEVEL:DEBUG}
