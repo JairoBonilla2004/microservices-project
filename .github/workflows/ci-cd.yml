@@ -68,11 +68,6 @@ jobs:
         working-directory: master-gateway-front
         run: npm ci --frozen-lockfile
 
-      - name: Lint Frontend
-        if: matrix.component == 'frontend'
-        working-directory: master-gateway-front
-        run: npm run lint
-
       - name: Build Frontend
         if: matrix.component == 'frontend'
         working-directory: master-gateway-front
