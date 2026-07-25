@@ -18,7 +18,7 @@ on:
 
 env:
   DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-  SONAR_ORG: ${{ vars.SONAR_ORG || 'jairoboni2004' }}
+  SONAR_ORG: ${{ vars.SONAR_ORG || 'jairobonilla2004' }}
 
 permissions:
   contents: read
