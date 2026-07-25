@@ -7,7 +7,7 @@ import ec.edu.espe.master_gateway.shared.infrastructure.persistence.EstadoRegist
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Component;
 
 /**
@@ -37,7 +37,7 @@ public class RoleMenuAssignmentRepositoryAdapter implements RoleMenuAssignmentRe
     public List<RoleMenuAssignment> findByRoleId(UUID roleId) {
         return jpaRepository.findByRoleIdAndEstado(roleId, EstadoRegistro.ACTIVO).stream()
                 .map(mapper::toDomainEntity)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

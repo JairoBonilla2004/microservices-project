@@ -88,4 +88,12 @@ public class Role {
         return fechaActualizacion;
     }
 
+    public String getCreadoPor() {
+        return creadoPor;
+    }
+
+    public String getActualizadoPor() {
+        return actualizadoPor;
+    }
+
 }

@@ -28,7 +28,9 @@ public class RoleJpaEntity extends JpaAuditableEntity {
     @Column(length = 255)
     private String descripcion;
 
-    public RoleJpaEntity() {}
+    public RoleJpaEntity() {
+        // Required by JPA
+    }
 
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }

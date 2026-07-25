@@ -45,7 +45,7 @@ public class GatewayPublicKeyController {
      *         400 si está en modo direct (HMAC).
      */
     @GetMapping("/gateway-public-key")
-    public ResponseEntity<?> getGatewayPublicKey() {
+    public ResponseEntity<Object> getGatewayPublicKey() {
         if (asymmetricIssuer == null) {
             return ResponseEntity.badRequest().body(
                 ErrorResponse.of(HttpStatus.BAD_REQUEST,

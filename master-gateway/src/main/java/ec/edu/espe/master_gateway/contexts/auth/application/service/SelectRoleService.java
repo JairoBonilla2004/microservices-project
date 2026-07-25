@@ -92,7 +92,7 @@ public class SelectRoleService implements SelectRoleUseCase {
         }
         var userId = claims.getUserId();
 
-        var assignment = userRoleAssignmentRepositoryPort
+        userRoleAssignmentRepositoryPort
                 .findByUserIdAndRoleId(userId, request.roleId())
                 .orElseThrow(() -> new AuthorizationException("El usuario no tiene el rol solicitado"));
 

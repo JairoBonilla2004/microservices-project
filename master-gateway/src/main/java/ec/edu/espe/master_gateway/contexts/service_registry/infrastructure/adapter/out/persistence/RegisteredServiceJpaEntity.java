@@ -33,7 +33,9 @@ public class RegisteredServiceJpaEntity extends JpaAuditableEntity {
     @Column(name = "modo_validacion", nullable = false, length = 20)
     private String validationMode;
 
-    public RegisteredServiceJpaEntity() {}
+    public RegisteredServiceJpaEntity() {
+        // Required by JPA
+    }
 
     public String getServiceCode() { return serviceCode; }
     public void setServiceCode(String serviceCode) { this.serviceCode = serviceCode; }

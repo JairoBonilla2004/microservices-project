@@ -36,6 +36,7 @@ public class ModuleJpaEntity extends JpaAuditableEntity {
     private int orden;
 
     public ModuleJpaEntity() {
+        // Required by JPA
     }
 
     public String getNombre() {

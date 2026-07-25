@@ -66,16 +66,16 @@ public class GetRecentActivityService implements GetRecentActivityUseCase {
     }
 
     private Function<ActivityRecord, ActivityEntryResponse> toResponse(String entityType) {
-        return record -> {
-            LocalDateTime created = record.createdAt();
-            LocalDateTime updated = record.updatedAt();
+        return entry -> {
+            LocalDateTime created = entry.createdAt();
+            LocalDateTime updated = entry.updatedAt();
             LocalDateTime timestamp = updated != null ? updated : created;
             String action = (created != null && created.equals(updated)) ? "creado" : "actualizado";
             return new ActivityEntryResponse(
                     entityType,
-                    record.name(),
+                    entry.name(),
                     action,
-                    record.actor(),
+                    entry.actor(),
                     timestamp);
         };
     }

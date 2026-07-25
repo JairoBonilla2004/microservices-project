@@ -44,7 +44,9 @@ public class RefreshTokenJpaEntity extends JpaAuditableEntity {
     @Column(nullable = false)
     private boolean revoked;
 
-    public RefreshTokenJpaEntity() {}
+    public RefreshTokenJpaEntity() {
+        // Required by JPA
+    }
 
     public String getToken() { return token; }
     public void setToken(String token) { this.token = token; }
