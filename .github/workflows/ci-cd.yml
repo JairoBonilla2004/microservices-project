@@ -113,8 +113,6 @@ jobs:
             -Dsonar.projectKey=master-gateway_backend \
             -Dsonar.organization=${{ env.SONAR_ORG }} \
             -Dsonar.exclusions=**/ci/**,**/modelo/** \
-            -Dsonar.visibility=public
-
       # --- Frontend: SonarCloud vía sonar-scanner CLI ---
       - name: Setup Node 22
         uses: actions/setup-node@v4
@@ -134,7 +132,6 @@ jobs:
           args: >
             -Dsonar.organization=${{ env.SONAR_ORG }}
             -Dsonar.exclusions=**/ci/**,**/modelo/**
-            -Dsonar.visibility=public
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
