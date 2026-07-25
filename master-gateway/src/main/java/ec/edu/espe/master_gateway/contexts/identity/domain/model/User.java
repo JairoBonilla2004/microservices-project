@@ -110,4 +110,12 @@ public class User {
         return fechaActualizacion;
     }
 
+    public String getCreadoPor() {
+        return creadoPor;
+    }
+
+    public String getActualizadoPor() {
+        return actualizadoPor;
+    }
+
 }

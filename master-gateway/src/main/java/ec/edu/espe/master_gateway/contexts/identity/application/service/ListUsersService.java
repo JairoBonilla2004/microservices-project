@@ -40,7 +40,7 @@ public class ListUsersService implements ListUsersUseCase {
         authorizationPort.requirePermission(Permission.USERS_READ);
 
         int safePage = Math.max(page, 0);
-        int safeSize = Math.min(Math.max(size, 1), MAX_PAGE_SIZE);
+        int safeSize = Math.clamp(size, 1, MAX_PAGE_SIZE);
 
         log.debug("Listing active users, page={}, size={}", safePage, safeSize);
         var result = userRepository.findActivePage(safePage, safeSize);

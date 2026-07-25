@@ -7,7 +7,7 @@ import ec.edu.espe.master_gateway.shared.infrastructure.persistence.EstadoRegist
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Component;
 
 /**
@@ -43,7 +43,7 @@ public class MenuNodeRepositoryAdapter implements MenuRepositoryPort {
     public List<MenuNode> findAllActive() {
         return jpaRepository.findByEstadoOrderByOrden(EstadoRegistro.ACTIVO).stream()
                 .map(mapper::toDomainEntity)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -51,28 +51,28 @@ public class MenuNodeRepositoryAdapter implements MenuRepositoryPort {
         return jpaRepository.findTreeByModuleIds(moduleIds).stream()
                 .filter(e -> e.getParentId() == null)
                 .map(mapper::toDomainEntity)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
     public List<MenuNode> findTreeByModuleIds(List<UUID> moduleIds) {
         return jpaRepository.findTreeByModuleIds(moduleIds).stream()
                 .map(mapper::toDomainEntity)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
     public List<MenuNode> findSubtreesByNodeIds(List<UUID> nodeIds) {
         return jpaRepository.findSubtreesByNodeIds(nodeIds).stream()
                 .map(mapper::toDomainEntity)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
     public List<MenuNode> findChildrenByParentId(UUID parentId) {
         return jpaRepository.findByParentIdAndEstado(parentId, EstadoRegistro.ACTIVO).stream()
                 .map(mapper::toDomainEntity)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

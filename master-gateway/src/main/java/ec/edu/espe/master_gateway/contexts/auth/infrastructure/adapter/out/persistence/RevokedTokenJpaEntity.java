@@ -31,7 +31,9 @@ public class RevokedTokenJpaEntity extends JpaAuditableEntity {
     @Column(name = "revoked_at", nullable = false)
     private LocalDateTime revokedAt;
 
-    public RevokedTokenJpaEntity() {}
+    public RevokedTokenJpaEntity() {
+        // Required by JPA
+    }
 
     public String getToken() { return token; }
     public void setToken(String token) { this.token = token; }

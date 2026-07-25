@@ -29,10 +29,14 @@ public class SpringSecurityAuthorizationAdapter implements AuthorizationPort {
     @Override
     public UUID getCurrentUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
+        if (auth == null || !auth.isAuthenticated()) {
             throw new AuthorizationException("Usuario no autenticado");
         }
-        return UUID.fromString(auth.getPrincipal().toString());
+        Object principal = auth.getPrincipal();
+        if (principal == null || "anonymousUser".equals(principal)) {
+            throw new AuthorizationException("Usuario no autenticado");
+        }
+        return UUID.fromString(principal.toString());
     }
 
     @Override

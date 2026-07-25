@@ -15,7 +15,7 @@ import ec.edu.espe.master_gateway.shared.domain.port.out.AuthorizationPort;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -70,6 +70,6 @@ public class GetUserRolesService implements GetUserRolesUseCase {
                 role.getEstado().name(),
                 role.getFechaCreacion()
             ))
-            .collect(Collectors.toList());
+            .toList();
     }
 }

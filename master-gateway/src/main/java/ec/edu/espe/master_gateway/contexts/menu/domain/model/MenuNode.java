@@ -133,4 +133,12 @@ public class MenuNode {
         return fechaActualizacion;
     }
 
+    public String getCreadoPor() {
+        return creadoPor;
+    }
+
+    public String getActualizadoPor() {
+        return actualizadoPor;
+    }
+
 }

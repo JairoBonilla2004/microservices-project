@@ -43,7 +43,9 @@ public class RoleModuleAssignmentJpaEntity extends JpaAuditableEntity {
     @Column(name = "fecha_asignacion", nullable = false)
     private LocalDateTime assignedAt;
 
-    public RoleModuleAssignmentJpaEntity() {}
+    public RoleModuleAssignmentJpaEntity() {
+        // Required by JPA
+    }
 
     public UUID getRoleId() { return roleId; }
     public void setRoleId(UUID roleId) { this.roleId = roleId; }
