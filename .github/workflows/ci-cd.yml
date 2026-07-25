@@ -79,9 +79,6 @@ jobs:
   #  Ejecuta SonarCloud sobre ambos proyectos. Requiere que el Quality Gate
   #  pase exitosamente. El análisis solo se realiza si la fase anterior
   #  (build-and-test) fue exitosa.
-  #
-  #  NOTA: Asegúrate de haber configurado los proyectos en SonarCloud con
-  #  los projectKey indicados. El SONAR_TOKEN debe estar en GitHub Secrets.
   # ===========================================================================
   sonarcloud-scan:
     name: SonarCloud Quality Gate
