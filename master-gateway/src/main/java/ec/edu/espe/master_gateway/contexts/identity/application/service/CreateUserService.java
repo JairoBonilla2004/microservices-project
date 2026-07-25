@@ -11,7 +11,6 @@ import ec.edu.espe.master_gateway.contexts.identity.domain.port.out.UserReposito
 import ec.edu.espe.master_gateway.shared.domain.DuplicateException;
 import ec.edu.espe.master_gateway.shared.domain.InvalidInputException;
 import java.util.Objects;
-import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
