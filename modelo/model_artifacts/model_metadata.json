@@ -1,0 +1,17 @@
+{
+  "nombre_modelo": "Juliet_Java_VulnerabilityClassifier_v2",
+  "version": "2.0.0",
+  "fecha_entrenamiento": "2026-06-16T21:32:52.709383",
+  "dataset": "Juliet Test Suite for Java v1.3",
+  "tipo_modelo": "Ensemble (RandomForest + XGBoost, VotingSoft)",
+  "total_muestras": 17612,
+  "balanceo": "SMOTE via ImbPipeline (sin leakage)",
+  "validacion_cruzada": {
+    "cv_folds": 5,
+    "umbral_requerido": 0.82,
+    "accuracy_mean": 0.9999,
+    "f1_mean": 0.9999,
+    "roc_auc_mean": 1.0,
+    "cumple_umbral": true
+  }
+}
