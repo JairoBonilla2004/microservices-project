@@ -41,8 +41,8 @@ import org.springframework.stereotype.Component;
 public class SymmetricJwtValidatorAdapter implements TokenValidationPort {
 
     private final SecretKey secretKey;
-    private final Set<String> invalidatedTempTokens = ConcurrentHashMap.newKeySet();
-    private final Set<String> revokedAccessTokens = ConcurrentHashMap.newKeySet();
+    private final Set<String> invalidatedTempTokens = ConcurrentHashMap.newKeySet(); // CurrentHashMap para almacenar tokens temporales invalidados con el objetivo de evitar que se vuelvan a usar
+    private final Set<String> revokedAccessTokens = ConcurrentHashMap.newKeySet(); // CurrentHashMap para almacenar tokens de acceso revocados con el objetivo de evitar que se vuelvan a usar
     private final RevokedTokenRepositoryPort revokedTokenRepositoryPort;
 
     public SymmetricJwtValidatorAdapter(JwtProperties jwtProperties,

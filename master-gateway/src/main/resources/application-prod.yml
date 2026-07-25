@@ -1,19 +1,48 @@
+# =============================================================================
+#  Perfil: prod — Producción
+#
+#  Usar con: --spring.profiles.active=prod (o env SPRING_PROFILES_ACTIVE=prod)
+#
+#  Características:
+#    - DDL: validate  → Hibernate valida el esquema sin modificarlo
+#    - SQL oculto     → show-sql = false (seguridad y rendimiento)
+#    - Batch size 50  → Optimizado para inserts/updates masivos
+#    - Logs WARN/INFO → Solo errores y eventos importantes
+#    - Compresión HTTP→ GZip en respuestas JSON/JS/CSS
+#    - Pool de conexiones Hikari optimizado para producción
+#
+#  Autores:
+#    - Jairo Bonilla
+#    - Julio Viche
+#    - Reishel Tipán
+# =============================================================================
+
 spring:
   jpa:
-    show-sql: false
+    show-sql: ${SHOW_SQL:false}
     hibernate:
-      ddl-auto: validate
+      ddl-auto: ${DDL_AUTO:validate}
     properties:
       hibernate:
         jdbc:
-          batch_size: 50
+          batch_size: ${HIBERNATE_BATCH_SIZE:50}
+        generate_statistics: ${HIBERNATE_STATISTICS:false}
+
+  datasource:
+    hikari:
+      maximum-pool-size: ${DB_POOL_SIZE:20}
+      minimum-idle: ${DB_MIN_IDLE:10}
+      idle-timeout: ${HIKARI_IDLE_TIMEOUT:600000}
+      max-lifetime: ${HIKARI_MAX_LIFETIME:1800000}
 
 logging:
   level:
-    root: WARN
-    ec.edu.espe.master_gateway: INFO
+    root: ${LOG_LEVEL:WARN}
+    ec.edu.espe.master_gateway: ${GATEWAY_LOG_LEVEL:INFO}
+    org.hibernate.SQL: ${HIBERNATE_SQL_LOG_LEVEL:WARN}
 
 server:
   compression:
-    enabled: true
-    mime-types: application/json,application/javascript,text/css
+    enabled: ${COMPRESSION_ENABLED:true}
+    mime-types: ${COMPRESSION_MIME_TYPES:application/json,application/javascript,text/css,text/html,text/plain}
+    min-response-size: ${COMPRESSION_MIN_SIZE:2048}
