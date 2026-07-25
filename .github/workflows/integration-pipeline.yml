@@ -1,0 +1,204 @@
+# =============================================================================
+#  Integration Pipeline — Gate obligatorio de Pull Request
+#
+#  Corre SOLO en pull_request hacia dev o main. Estos son los jobs que se
+#  debe marcar como "Required status checks" en Settings → Branches para
+#  cada una de esas dos ramas (build-and-test, sonarcloud-scan, sast-ml-scan).
+#
+#  No despliega nada — ese paso vive en deploy-pipeline.yml, que corre
+#  después del merge (evento push), nunca desde un PR sin aprobar.
+#
+#  El job build-and-test se salta mientras el PR esté en Draft: así puedes
+#  iterar libremente sin gastar CI, y el pipeline corre en serio recién
+#  cuando marcas "Ready for review".
+# =============================================================================
+
+name: Integration Pipeline
+
+on:
+  pull_request:
+    branches: [dev, main]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+env:
+  SONAR_ORG: ${{ vars.SONAR_ORG || 'jairobonilla2004' }}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: integration-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  # ===========================================================================
+  #  FASE 1 — Build & Test
+  # ===========================================================================
+  build-and-test:
+    name: Build & Test
+    if: github.event.pull_request.draft == false
+    strategy:
+      matrix:
+        component: [backend, frontend]
+      fail-fast: false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # --- Backend: Java 21 + Maven ---
+      - name: Setup Java 21 (Temurin)
+        if: matrix.component == 'backend'
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: temurin
+          cache: maven
+
+      - name: Build & Test Backend
+        if: matrix.component == 'backend'
+        working-directory: master-gateway
+        run: mvn -B clean verify
+
+      # Se sube target/ (clases compiladas, reportes de test) para que
+      # sonarcloud-scan lo reutilice y no tenga que recompilar el backend.
+      - name: Upload Backend Build Output
+        if: matrix.component == 'backend'
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-target
+          path: master-gateway/target
+          retention-days: 1
+
+      # --- Frontend: Node 22 + npm ---
+      - name: Setup Node 22
+        if: matrix.component == 'frontend'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: master-gateway-front/package-lock.json
+
+      - name: Install Frontend Dependencies
+        if: matrix.component == 'frontend'
+        working-directory: master-gateway-front
+        run: npm ci --frozen-lockfile
+
+      - name: Build Frontend
+        if: matrix.component == 'frontend'
+        working-directory: master-gateway-front
+        run: npm run build
+
+  # ===========================================================================
+  #  FASE 2 — SonarCloud Quality Gate
+  #
+  #  OPTIMIZACIÓN: en vez de volver a compilar el backend (mvn compile),
+  #  se descarga el target/ ya generado en build-and-test. Sonar analiza
+  #  bytecode + reportes de test ya existentes, sin recompilar.
+  # ===========================================================================
+  sonarcloud-scan:
+    name: SonarCloud Quality Gate
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download Backend Build Output
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-target
+          path: master-gateway/target
+
+      # --- Backend: SonarCloud vía Maven ---
+      - name: Setup Java 21 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: temurin
+          cache: maven
+
+      - name: SonarCloud Backend
+        working-directory: master-gateway
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          mvn -B \
+            org.sonarsource.scanner.maven:sonar-maven-plugin:4.0.0.4121:sonar \
+            -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.projectKey=master-gateway_backend \
+            -Dsonar.organization=${{ env.SONAR_ORG }} \
+            -Dsonar.exclusions=**/ci/**,**/modelo/** \
+            -Dsonar.qualitygate.wait=true
+
+      # --- Frontend: SonarCloud vía sonar-scanner CLI ---
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: master-gateway-front/package-lock.json
+
+      - name: Install Frontend Dependencies
+        working-directory: master-gateway-front
+        run: npm ci --frozen-lockfile
+
+      - name: SonarCloud Frontend
+        uses: SonarSource/sonarcloud-github-action@v3
+        with:
+          projectBaseDir: master-gateway-front
+          args: >
+            -Dsonar.organization=${{ env.SONAR_ORG }}
+            -Dsonar.exclusions=**/ci/**,**/modelo/**
+            -Dsonar.qualitygate.wait=true
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  # ===========================================================================
+  #  FASE 3 — SAST Avanzado con ML
+  #
+  #  BASE_BRANCH se resuelve contra el commit base del PR (fetch-depth: 0
+  #  para tener el historial completo disponible).
+  # ===========================================================================
+  sast-ml-scan:
+    name: SAST ML Security Scan
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: ci/requirements.txt
+
+      - name: Install Python Dependencies
+        run: pip install -r ci/requirements.txt
+
+      - name: Run Pipeline Unit Tests
+        working-directory: ci
+        run: python tests.py
+
+      - name: Run ML Security Pipeline
+        env:
+          BASE_BRANCH: ${{ github.event.pull_request.base.sha }}
+          HEAD_BRANCH: ${{ github.event.pull_request.head.sha }}
+          GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          MODEL_PATH: modelo/model_artifacts
+          REPORT_PATH: reports/security_report.json
+        run: python ci/security_pipeline.py
+
+      - name: Upload Security Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-report
+          path: reports/security_report.json
+          retention-days: 30

@@ -1,0 +1,73 @@
+# =============================================================================
+#  Feature Pipeline — Feedback rápido
+#
+#  Corre en cada push a una rama feature/*, bugfix/*, hotfix/*.
+#  Objetivo: que el desarrollador sepa en minutos si el build/tests rompen,
+#  ANTES de siquiera abrir el Pull Request.
+#
+#  IMPORTANTE: este workflow NO es un status check obligatorio en ninguna
+#  rama protegida (dev/test/main). Es solo feedback personal — el gate real
+#  que bloquea el merge vive en integration-pipeline.yml. No corre SonarCloud
+#  ni el SAST ML aquí a propósito: son más lentos y ya se validan de forma
+#  obligatoria en el PR hacia dev/test/main.
+# =============================================================================
+
+name: Feature Pipeline
+
+on:
+  push:
+    branches:
+      - 'feature/**'
+      - 'bugfix/**'
+      - 'hotfix/**'
+
+concurrency:
+  group: feature-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: Build & Test
+    strategy:
+      matrix:
+        component: [backend, frontend]
+      fail-fast: false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # --- Backend: Java 21 + Maven ---
+      - name: Setup Java 21 (Temurin)
+        if: matrix.component == 'backend'
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: temurin
+          cache: maven
+
+      - name: Build & Test Backend
+        if: matrix.component == 'backend'
+        working-directory: master-gateway
+        run: mvn -B clean verify
+
+      # --- Frontend: Node 22 + npm ---
+      - name: Setup Node 22
+        if: matrix.component == 'frontend'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: master-gateway-front/package-lock.json
+
+      - name: Install Frontend Dependencies
+        if: matrix.component == 'frontend'
+        working-directory: master-gateway-front
+        run: npm ci --frozen-lockfile
+
+      - name: Build Frontend
+        if: matrix.component == 'frontend'
+        working-directory: master-gateway-front
+        run: npm run build
