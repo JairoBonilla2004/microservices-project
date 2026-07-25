@@ -1,31 +1,26 @@
 # =============================================================================
-#  CI/CD Pipeline — Master Gateway
+#  Deploy Pipeline — Despliegue real a dev
 #
-#  Arquitectura: DevSecOps + GitOps sobre Kubernetes
-#  Ramas:        dev (desarrollo) → test (QA) → main (producción)
-#  Tecnologías:  Spring Boot 4 / Java 21, React 19 / TS 6 / Vite 8,
-#                SonarCloud, SAST ML (XGBoost + Random Forest),
-#                Docker Hub, GitOps (Kustomize), Telegram
+#  Corre SOLO en push a "dev" (es decir, después de que un PR ya pasó por
+#  integration-pipeline.yml y fue aprobado y mergeado). Nunca corre desde
+#  un PR sin aprobar.
 #
-#  Reglas de protección de rama que este pipeline respeta:
-#    - dev, test, main: requieren PR + approvals + status checks + no bypass
-#    - dev y main además requieren "Require conversation resolution"
+#  Vuelve a correr build-and-test + SonarCloud + SAST ML sobre el merge
+#  commit (no solo confía en el resultado del PR, porque el merge commit
+#  es técnicamente un commit nuevo), y si todo pasa, construye la imagen,
+#  actualiza el repo GitOps y notifica por Telegram.
 #
-#  Consecuencia de diseño:
-#    - build-and-test / sonarcloud-scan / sast-ml-scan corren en PR y en push:
-#      son los jobs que aparecen como "Status checks" y bloquean el merge.
-#    - docker-build-push / gitops-deploy SOLO corren en push (post-merge),
-#      nunca en PR, porque publicar imágenes o desplegar desde una rama sin
-#      aprobar violaría la intención de las reglas de protección.
+#  "dev" es hoy el único ambiente real. Cuando exista un ambiente de
+#  producción, se duplica este archivo (ej. deploy-main-pipeline.yml)
+#  cambiando la rama disparadora y las rutas de
+#  projects/ms-gateway/*/<ambiente>/patch-image.yaml.
 # =============================================================================
 
-name: CI/CD Pipeline - Master Gateway
+name: Deploy Pipeline (dev)
 
 on:
   push:
-    branches: [dev, test, main]
-  pull_request:
-    branches: [dev, test, main]
+    branches: [dev]
 
 env:
   DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -34,15 +29,15 @@ env:
 permissions:
   contents: read
 
-# Cancela ejecuciones anteriores del mismo PR/rama cuando llega un nuevo push,
-# evita gastar minutos de CI en commits ya obsoletos.
+# No se cancela un deploy en curso aunque llegue otro push — evita dejar
+# una imagen a medio publicar o un manifiesto de GitOps a medio actualizar.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  group: deploy-dev
+  cancel-in-progress: false
 
 jobs:
   # ===========================================================================
-  #  FASE 1 — Build & Test  (status check requerido en PR y push)
+  #  FASE 1 — Build & Test (revalidación del merge commit)
   # ===========================================================================
   build-and-test:
     name: Build & Test
@@ -54,7 +49,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # --- Backend: Java 21 + Maven ---
       - name: Setup Java 21 (Temurin)
         if: matrix.component == 'backend'
         uses: actions/setup-java@v4
@@ -68,7 +62,14 @@ jobs:
         working-directory: master-gateway
         run: mvn -B clean verify
 
-      # --- Frontend: Node 22 + npm ---
+      - name: Upload Backend Build Output
+        if: matrix.component == 'backend'
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-target
+          path: master-gateway/target
+          retention-days: 1
+
       - name: Setup Node 22
         if: matrix.component == 'frontend'
         uses: actions/setup-node@v4
@@ -88,12 +89,12 @@ jobs:
         run: npm run build
 
   # ===========================================================================
-  #  FASE 2 — Análisis Shift-Left / Calidad (SonarCloud)
+  #  FASE 2 — SonarCloud Quality Gate
   #
-  #  CORRECCIÓN: se agrega -Dsonar.qualitygate.wait=true en ambos análisis
-  #  (backend y frontend). Sin este flag, el paso de Maven/scanner termina en
-  #  éxito aunque el Quality Gate de SonarCloud falle, y el pipeline nunca
-  #  se bloquea de verdad — que era justamente lo que se pretendía.
+  #  OPTIMIZACIÓN: reutiliza el target/ ya compilado en build-and-test en
+  #  vez de recompilar. Nota a futuro: si agregas DAST o pruebas E2E
+  #  completas, NO van aquí — van después de gitops-deploy, corriendo
+  #  contra el ambiente ya desplegado, no contra código sin desplegar.
   # ===========================================================================
   sonarcloud-scan:
     name: SonarCloud Quality Gate
@@ -104,17 +105,18 @@ jobs:
         with:
           fetch-depth: 0
 
-      # --- Backend: SonarCloud vía Maven ---
+      - name: Download Backend Build Output
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-target
+          path: master-gateway/target
+
       - name: Setup Java 21 (Temurin)
         uses: actions/setup-java@v4
         with:
           java-version: 21
           distribution: temurin
           cache: maven
-
-      - name: Compile Backend
-        working-directory: master-gateway
-        run: mvn -B compile -q
 
       - name: SonarCloud Backend
         working-directory: master-gateway
@@ -130,7 +132,6 @@ jobs:
             -Dsonar.exclusions=**/ci/**,**/modelo/** \
             -Dsonar.qualitygate.wait=true
 
-      # --- Frontend: SonarCloud vía sonar-scanner CLI ---
       - name: Setup Node 22
         uses: actions/setup-node@v4
         with:
@@ -154,12 +155,11 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   # ===========================================================================
-  #  FASE 3 — SAST Avanzado con ML  (status check requerido en PR y push)
+  #  FASE 3 — SAST Avanzado con ML
   #
-  #  CORRECCIÓN: el cálculo de BASE_BRANCH fallaba en el primer push de una
-  #  rama nueva, porque github.event.before viene como "000...000" (40 ceros),
-  #  un string no vacío, así que el "||" nunca caía a HEAD~1. Se resuelve con
-  #  un paso previo que decide el SHA base explícitamente.
+  #  En push, BASE_BRANCH se compara contra el commit inmediatamente
+  #  anterior en dev (github.event.before). En el primer push histórico a
+  #  dev ese valor viene en ceros, por eso el fallback explícito a HEAD~1.
   # ===========================================================================
   sast-ml-scan:
     name: SAST ML Security Scan
@@ -173,9 +173,7 @@ jobs:
       - name: Resolve base SHA for diff
         id: base
         run: |
-          if [ -n "${{ github.event.pull_request.base.sha }}" ]; then
-            echo "sha=${{ github.event.pull_request.base.sha }}" >> "$GITHUB_OUTPUT"
-          elif [ -n "${{ github.event.before }}" ] && [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
+          if [ -n "${{ github.event.before }}" ] && [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
             echo "sha=${{ github.event.before }}" >> "$GITHUB_OUTPUT"
           else
             echo "sha=$(git rev-parse HEAD~1 2>/dev/null || git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
@@ -198,8 +196,8 @@ jobs:
       - name: Run ML Security Pipeline
         env:
           BASE_BRANCH: ${{ steps.base.outputs.sha }}
-          HEAD_BRANCH: ${{ github.event.pull_request.head.sha || github.sha }}
-          GITHUB_PR_NUMBER: ${{ github.event.pull_request.number || '' }}
+          HEAD_BRANCH: ${{ github.sha }}
+          GITHUB_PR_NUMBER: ''
           GITHUB_SHA: ${{ github.sha }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           MODEL_PATH: modelo/model_artifacts
@@ -216,17 +214,10 @@ jobs:
 
   # ===========================================================================
   #  FASE 4 — Empaquetado y Publicación Docker
-  #
-  #  Solo corre en push a "dev" — es el único ambiente que existe hoy.
-  #  Un push a "test" o "main" sigue pasando por build-and-test, SonarCloud
-  #  y SAST (como status checks), pero no publica imagen ni despliega, para
-  #  no pisar el manifiesto de dev sin motivo. Cuando existan los ambientes
-  #  test/prod, se agrega su propia condición aquí.
   # ===========================================================================
   docker-build-push:
     name: Docker Build & Push
     needs: [sonarcloud-scan, sast-ml-scan]
-    if: github.event_name == 'push' && github.ref_name == 'dev'
     strategy:
       matrix:
         component: [backend, frontend]
@@ -244,7 +235,6 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # --- Backend image ---
       - name: Build & Push Backend
         if: matrix.component == 'backend'
         uses: docker/build-push-action@v6
@@ -255,7 +245,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # --- Frontend image ---
       - name: Build & Push Frontend
         if: matrix.component == 'frontend'
         uses: docker/build-push-action@v6
@@ -269,16 +258,11 @@ jobs:
   # ===========================================================================
   #  FASE 5 — Despliegue GitOps
   #
-  #  Solo corre en push a "dev" (único ambiente existente por ahora).
-  #  Las rutas quedan fijas a projects/ms-gateway/*/dev/patch-image.yaml,
-  #  igual que en el flujo original. Cuando se creen los ambientes test/prod
-  #  en el repo GitOps, este job (y docker-build-push) se pueden extender
-  #  con una condición por rama en lugar de estar fijos a "dev".
+  #  Rutas fijas a dev — es el único ambiente que existe hoy.
   # ===========================================================================
   gitops-deploy:
     name: GitOps Deploy
     needs: [docker-build-push]
-    if: github.event_name == 'push' && github.ref_name == 'dev'
     runs-on: ubuntu-latest
     steps:
       - name: Clone GitOps Repository
@@ -319,17 +303,10 @@ jobs:
 
   # ===========================================================================
   #  FASE 6 — Notificaciones Telegram
-  #
-  #  CORRECCIÓN: antes corría con if: always() para CUALQUIER evento,
-  #  incluyendo cada push a un PR abierto — es decir, spam de Telegram en
-  #  cada commit de una rama de feature todavía en revisión. GitHub ya
-  #  muestra el estado de los status checks directamente en el PR, así que
-  #  aquí se limita a los eventos "push" (los que de verdad representan un
-  #  intento de build/deploy en dev, test o main tras el merge).
   # ===========================================================================
   telegram-notify:
     name: Telegram Notifications
-    if: always() && github.event_name == 'push'
+    if: always()
     needs:
       - build-and-test
       - sonarcloud-scan
