@@ -32,7 +32,7 @@ public class AuditorAwareConfig {
     /**
      * Proporciona la implementación de {@link AuditorAware} utilizada por
      * Spring Data JPA para identificar al usuario que realiza operaciones
-     * de creación o modificación sobre las entidades.
+     * de creación o modificación sobre las entidades. ejercicio
      *
      * @return proveedor del nombre del usuario autenticado o {@code "SYSTEM"}
      *         cuando no existe autenticación activa.
