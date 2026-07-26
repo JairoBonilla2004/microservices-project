@@ -1,0 +1,25 @@
+2026-07-25 20:27:44,551 - diff_extractor - INFO - DiffExtractor initialized: HEAD~1 -> HEAD
+2026-07-25 20:27:44,552 - security_gate - WARNING - Model artifacts not found at ../modelo/model_artifacts. Pipeline will run without ML predictions.
+2026-07-25 20:27:44,552 - __main__ - WARNING - Telegram notifier not available (missing env vars)
+2026-07-25 20:27:44,552 - __main__ - INFO - SecurityPipeline initialized
+2026-07-25 20:27:44,552 - __main__ - INFO - ============================================================
+2026-07-25 20:27:44,552 - __main__ - INFO - SECURITY PIPELINE STARTED
+2026-07-25 20:27:44,552 - __main__ - INFO - ============================================================
+2026-07-25 20:27:44,552 - __main__ - INFO - Step 1: Extracting code fragments from diff
+2026-07-25 20:27:44,556 - diff_extractor - INFO - Extracted 5 code fragments
+2026-07-25 20:27:44,556 - __main__ - INFO - Extracted 5 code fragments
+2026-07-25 20:27:44,556 - __main__ - INFO - Step 3: Running ML security predictions
+2026-07-25 20:27:44,556 - security_gate - WARNING - Model not available, returning neutral prediction
+2026-07-25 20:27:44,556 - security_gate - WARNING - Model not available, returning neutral prediction
+2026-07-25 20:27:44,556 - security_gate - WARNING - Model not available, returning neutral prediction
+2026-07-25 20:27:44,556 - security_gate - WARNING - Model not available, returning neutral prediction
+2026-07-25 20:27:44,556 - security_gate - WARNING - Model not available, returning neutral prediction
+2026-07-25 20:27:44,557 - __main__ - INFO - Predictions generated for 5 fragments
+2026-07-25 20:27:44,557 - __main__ - INFO - Step 4: Generating security report
+2026-07-25 20:27:44,557 - security_gate - INFO - Security report generated: ../reports/security_report.json
+2026-07-25 20:27:44,557 - security_gate - INFO - Overall: 0 safe, 0 vulnerable, 5 no_model
+2026-07-25 20:27:44,557 - __main__ - INFO - Report generated: ../reports/security_report.json
+2026-07-25 20:27:44,557 - __main__ - WARNING - Telegram notifier not available, skipping notifications
+2026-07-25 20:27:44,557 - __main__ - INFO - ============================================================
+2026-07-25 20:27:44,558 - __main__ - INFO - ✓ SECURITY GATE PASSED
+2026-07-25 20:27:44,558 - __main__ - INFO - ============================================================

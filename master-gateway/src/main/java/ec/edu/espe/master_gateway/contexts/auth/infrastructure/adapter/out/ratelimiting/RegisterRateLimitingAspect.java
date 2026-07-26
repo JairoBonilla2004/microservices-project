@@ -15,7 +15,7 @@ package ec.edu.espe.master_gateway.contexts.auth.infrastructure.adapter.out.rate
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import ec.edu.espe.master_gateway.bootstrap.config.RegisterRateLimitProperties;
-import ec.edu.espe.master_gateway.contexts.auth.application.port.in.dto.RegisterUserRequest;
+
 import ec.edu.espe.master_gateway.shared.domain.RateLimitExceededException;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.aspectj.lang.ProceedingJoinPoint;

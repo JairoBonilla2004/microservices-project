@@ -15,7 +15,7 @@ package ec.edu.espe.master_gateway.shared.infrastructure.security;
 import ec.edu.espe.master_gateway.shared.domain.AuthorizationException;
 import ec.edu.espe.master_gateway.shared.domain.port.out.AuthorizationPort;
 import ec.edu.espe.master_gateway.shared.domain.permission.Permission;
-import java.util.Set;
+
 import java.util.UUID;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

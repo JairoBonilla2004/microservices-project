@@ -4,8 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ec.edu.espe.master_gateway.contexts.identity.application.port.in.AssignRoleUseCase;
 import ec.edu.espe.master_gateway.contexts.identity.application.port.in.dto.AssignRoleRequest;
-import ec.edu.espe.master_gateway.contexts.identity.domain.model.User;
-import ec.edu.espe.master_gateway.contexts.identity.domain.model.Role;
+
 import ec.edu.espe.master_gateway.contexts.identity.domain.model.UserRoleAssignment;
 import ec.edu.espe.master_gateway.contexts.identity.domain.port.out.RoleRepositoryPort;
 import ec.edu.espe.master_gateway.contexts.identity.domain.port.out.UserRepositoryPort;

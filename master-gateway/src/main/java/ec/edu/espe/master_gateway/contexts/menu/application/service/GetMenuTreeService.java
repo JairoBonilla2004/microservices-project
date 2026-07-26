@@ -7,7 +7,7 @@ import ec.edu.espe.master_gateway.contexts.menu.domain.model.MenuNode;
 import ec.edu.espe.master_gateway.contexts.menu.domain.port.out.MenuRepositoryPort;
 import ec.edu.espe.master_gateway.contexts.menu.domain.port.out.RoleMenuAssignmentRepositoryPort;
 import ec.edu.espe.master_gateway.contexts.module.domain.port.out.RoleModuleAssignmentRepositoryPort;
-import ec.edu.espe.master_gateway.shared.domain.AuthorizationException;
+
 import ec.edu.espe.master_gateway.shared.domain.permission.Permission;
 import ec.edu.espe.master_gateway.shared.domain.port.out.AuthorizationPort;
 import java.util.Collections;
