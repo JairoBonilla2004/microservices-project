@@ -82,7 +82,7 @@ class JwtAuthenticationFilterTest {
     @Test
     void should_returnUnauthorized_when_tokenIsInvalid() throws Exception {
         var token = "invalid-token";
-        when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
+        when(request.getHeader("Authorization")).thenReturn("Bearer %s".formatted(token));
         when(tokenValidationPort.validate(token)).thenThrow(new RuntimeException("Token inválido"));
         when(response.getOutputStream()).thenReturn(outputStream);
 
@@ -97,7 +97,8 @@ class JwtAuthenticationFilterTest {
         var userId = UUID.randomUUID();
         var token = "valid-token";
         var claims = createClaims(userId, null);
-        when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
+        var authHeader = "Bearer %s".formatted(token);
+        when(request.getHeader("Authorization")).thenReturn(authHeader);
         when(tokenValidationPort.validate(token)).thenReturn(claims);
         when(userRepositoryPort.findById(userId)).thenReturn(Optional.empty());
         when(response.getOutputStream()).thenReturn(outputStream);
@@ -114,7 +115,8 @@ class JwtAuthenticationFilterTest {
         var token = "valid-token";
         var claims = createClaims(userId, null);
         when(user.isActive()).thenReturn(false);
-        when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
+        var header = "Bearer %s".formatted(token);
+        when(request.getHeader("Authorization")).thenReturn(header);
         when(tokenValidationPort.validate(token)).thenReturn(claims);
         when(userRepositoryPort.findById(userId)).thenReturn(Optional.of(user));
         when(response.getOutputStream()).thenReturn(outputStream);
@@ -132,7 +134,8 @@ class JwtAuthenticationFilterTest {
         var token = "valid-token";
         var claims = createClaims(userId, "READ");
         when(user.isActive()).thenReturn(true);
-        when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
+        var auth = "Bearer %s".formatted(token);
+        when(request.getHeader("Authorization")).thenReturn(auth);
         when(tokenValidationPort.validate(token)).thenReturn(claims);
         when(userRepositoryPort.findById(userId)).thenReturn(Optional.of(user));
 

@@ -14,7 +14,6 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.Date;
 import java.util.UUID;
-import javax.crypto.SecretKey;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,14 +30,16 @@ class SymmetricJwtValidatorAdapterTest {
     private RevokedTokenRepositoryPort revokedTokenRepositoryPort;
 
     private SymmetricJwtValidatorAdapter adapter;
-    private SecretKey secretKey;
 
     @BeforeEach
     void setUp() {
         var encoded = Base64.getEncoder().encodeToString(new byte[32]);
         when(jwtProperties.getSecret()).thenReturn(encoded);
-        secretKey = Keys.hmacShaKeyFor(encoded.getBytes());
         adapter = new SymmetricJwtValidatorAdapter(jwtProperties, revokedTokenRepositoryPort);
+    }
+
+    private byte[] rawSecret() {
+        return Base64.getEncoder().encodeToString(new byte[32]).getBytes();
     }
 
     @Test
@@ -127,6 +128,7 @@ class SymmetricJwtValidatorAdapterTest {
     void should_returnPermissions_when_tokenHasPermissions() {
         var userId = UUID.randomUUID();
         var now = Instant.now();
+        var signingKey = Keys.hmacShaKeyFor(rawSecret());
         var token = Jwts.builder()
                 .id(UUID.randomUUID().toString())
                 .subject(userId.toString())
@@ -137,7 +139,7 @@ class SymmetricJwtValidatorAdapterTest {
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plus(Duration.ofMinutes(15))))
                 .issuer("master-gateway")
-                .signWith(secretKey, Jwts.SIG.HS256)
+                .signWith(signingKey, Jwts.SIG.HS256)
                 .compact();
 
         var claims = adapter.validate(token);
@@ -149,6 +151,7 @@ class SymmetricJwtValidatorAdapterTest {
     void should_returnEmptyPermissions_when_tokenHasNoPermissions() {
         var userId = UUID.randomUUID();
         var now = Instant.now();
+        var signingKey = Keys.hmacShaKeyFor(rawSecret());
         var token = Jwts.builder()
                 .id(UUID.randomUUID().toString())
                 .subject(userId.toString())
@@ -157,7 +160,7 @@ class SymmetricJwtValidatorAdapterTest {
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plus(Duration.ofMinutes(15))))
                 .issuer("master-gateway")
-                .signWith(secretKey, Jwts.SIG.HS256)
+                .signWith(signingKey, Jwts.SIG.HS256)
                 .compact();
 
         var claims = adapter.validate(token);
@@ -167,6 +170,7 @@ class SymmetricJwtValidatorAdapterTest {
 
     private String createToken(UUID userId, UUID roleId, String type) {
         var now = Instant.now();
+        var signingKey = Keys.hmacShaKeyFor(rawSecret());
         var builder = Jwts.builder()
                 .id(UUID.randomUUID().toString())
                 .subject(userId.toString())
@@ -175,7 +179,7 @@ class SymmetricJwtValidatorAdapterTest {
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plus(Duration.ofMinutes(15))))
                 .issuer("master-gateway")
-                .signWith(secretKey, Jwts.SIG.HS256);
+                .signWith(signingKey, Jwts.SIG.HS256);
         if (roleId != null) {
             builder.claim("role", roleId.toString());
         }
