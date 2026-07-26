@@ -1,7 +1,6 @@
 package ec.edu.espe.master_gateway.shared.infrastructure.security;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -39,6 +38,10 @@ class JwtAuthenticationFilterTest {
     private HttpServletResponse response;
     @Mock
     private FilterChain filterChain;
+    @Mock
+    private ServletOutputStream outputStream;
+    @Mock
+    private User user;
 
     private ObjectMapper objectMapper;
     private BearerTokenExtractor tokenExtractor;
@@ -50,6 +53,12 @@ class JwtAuthenticationFilterTest {
         objectMapper.registerModule(new JavaTimeModule());
         tokenExtractor = new BearerTokenExtractor();
         filter = new JwtAuthenticationFilter(tokenValidationPort, objectMapper, tokenExtractor, userRepositoryPort);
+    }
+
+    private TokenClaims createClaims(UUID userId, String permission) {
+        var perms = permission != null ? Set.of(permission) : Set.<String>of();
+        return new TokenClaims(userId, UUID.randomUUID(), "ADMIN", "ACCESS_TOKEN",
+                Instant.now(), Instant.now().plusSeconds(3600), "issuer", perms);
     }
 
     @Test
@@ -73,7 +82,6 @@ class JwtAuthenticationFilterTest {
     @Test
     void should_returnUnauthorized_when_tokenIsInvalid() throws Exception {
         var token = "invalid-token";
-        var outputStream = mock(ServletOutputStream.class);
         when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
         when(tokenValidationPort.validate(token)).thenThrow(new RuntimeException("Token inválido"));
         when(response.getOutputStream()).thenReturn(outputStream);
@@ -88,9 +96,7 @@ class JwtAuthenticationFilterTest {
     void should_returnUnauthorized_when_userNotFound() throws Exception {
         var userId = UUID.randomUUID();
         var token = "valid-token";
-        var outputStream = mock(ServletOutputStream.class);
-        var claims = new TokenClaims(userId, UUID.randomUUID(), "ADMIN", "ACCESS_TOKEN",
-                Instant.now(), Instant.now().plusSeconds(3600), "issuer", Set.of());
+        var claims = createClaims(userId, null);
         when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
         when(tokenValidationPort.validate(token)).thenReturn(claims);
         when(userRepositoryPort.findById(userId)).thenReturn(Optional.empty());
@@ -106,10 +112,7 @@ class JwtAuthenticationFilterTest {
     void should_returnUnauthorized_when_userIsInactive() throws Exception {
         var userId = UUID.randomUUID();
         var token = "valid-token";
-        var outputStream = mock(ServletOutputStream.class);
-        var claims = new TokenClaims(userId, UUID.randomUUID(), "ADMIN", "ACCESS_TOKEN",
-                Instant.now(), Instant.now().plusSeconds(3600), "issuer", Set.of());
-        var user = mock(User.class);
+        var claims = createClaims(userId, null);
         when(user.isActive()).thenReturn(false);
         when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
         when(tokenValidationPort.validate(token)).thenReturn(claims);
@@ -127,9 +130,7 @@ class JwtAuthenticationFilterTest {
         var userId = UUID.randomUUID();
         var roleId = UUID.randomUUID();
         var token = "valid-token";
-        var claims = new TokenClaims(userId, roleId, "ADMIN", "ACCESS_TOKEN",
-                Instant.now(), Instant.now().plusSeconds(3600), "issuer", Set.of("READ"));
-        var user = mock(User.class);
+        var claims = createClaims(userId, "READ");
         when(user.isActive()).thenReturn(true);
         when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
         when(tokenValidationPort.validate(token)).thenReturn(claims);
