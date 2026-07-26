@@ -32,10 +32,33 @@ concurrency:
 
 jobs:
   # ===========================================================================
+  #  FASE 0 — Validación de origen de rama
+  #
+  #  Garantiza que los PRs a main solo se acepten desde dev,
+  #  obligando a que el código pase primero por el ambiente dev
+  #  antes de llegar a producción.
+  # ===========================================================================
+  validate-branch-source:
+    name: Validate Branch Source
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR targets main from dev
+        if: github.base_ref == 'main' && github.head_ref != 'dev'
+        run: |
+          echo "❌ PRs a main solo se permiten desde dev."
+          echo "   Origen detectado: ${{ github.head_ref }}"
+          echo ""
+          echo "   Estrategia correcta:"
+          echo "     feature/*  →  PR a dev  →  merge a dev  →  PR de dev a main"
+          exit 1
+      - run: echo "✅ Branch source valid"
+
+  # ===========================================================================
   #  FASE 1 — Build & Test
   # ===========================================================================
   build-and-test:
     name: Build & Test
+    needs: validate-branch-source
     if: github.event.pull_request.draft == false
     strategy:
       matrix:
