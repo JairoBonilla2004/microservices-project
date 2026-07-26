@@ -9,9 +9,9 @@ import ec.edu.espe.master_gateway.contexts.auth.domain.port.out.RevokedTokenRepo
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Base64;
 import java.util.Date;
 import java.util.UUID;
 import javax.crypto.SecretKey;
@@ -24,8 +24,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class SymmetricJwtValidatorAdapterTest {
 
-    private static final String SECRET = "this-is-a-secret-key-that-is-long-enough-for-hmac";
-
     @Mock
     private JwtProperties jwtProperties;
 
@@ -37,8 +35,9 @@ class SymmetricJwtValidatorAdapterTest {
 
     @BeforeEach
     void setUp() {
-        when(jwtProperties.getSecret()).thenReturn(SECRET);
-        secretKey = Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
+        var encoded = Base64.getEncoder().encodeToString(new byte[32]);
+        when(jwtProperties.getSecret()).thenReturn(encoded);
+        secretKey = Keys.hmacShaKeyFor(encoded.getBytes());
         adapter = new SymmetricJwtValidatorAdapter(jwtProperties, revokedTokenRepositoryPort);
     }
 
