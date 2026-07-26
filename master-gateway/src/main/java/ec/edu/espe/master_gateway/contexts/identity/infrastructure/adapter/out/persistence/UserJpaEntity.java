@@ -5,7 +5,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
-import java.util.UUID;
+
 
 /**
  * Entidad JPA que representa un usuario en el sistema.
@@ -34,7 +34,9 @@ public class UserJpaEntity extends JpaAuditableEntity {
     @Column(name = "nombre_completo", nullable = false, length = 150)
     private String nombreCompleto;
 
-    public UserJpaEntity() {}
+    public UserJpaEntity() {
+        // Required by JPA
+    }
 
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }

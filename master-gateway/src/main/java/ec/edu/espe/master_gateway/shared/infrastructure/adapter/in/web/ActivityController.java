@@ -34,7 +34,7 @@ public class ActivityController {
     @GetMapping("/recent")
     public ResponseEntity<List<ActivityEntryResponse>> getRecentActivity(
             @RequestParam(defaultValue = "10") int limit) {
-        int safeLimit = Math.min(Math.max(limit, 1), MAX_LIMIT);
+        int safeLimit = Math.clamp(limit, 1, MAX_LIMIT);
         return ResponseEntity.ok(getRecentActivityUseCase.execute(safeLimit));
     }
 }

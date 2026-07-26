@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ec.edu.espe.master_gateway.contexts.identity.application.port.in.GetUserRolesUseCase;
 import ec.edu.espe.master_gateway.contexts.identity.application.port.in.dto.RoleResponse;
-import ec.edu.espe.master_gateway.contexts.identity.domain.model.Role;
+
 import ec.edu.espe.master_gateway.contexts.identity.domain.model.UserRoleAssignment;
 import ec.edu.espe.master_gateway.contexts.identity.domain.port.out.RoleRepositoryPort;
 import ec.edu.espe.master_gateway.contexts.identity.domain.port.out.UserRepositoryPort;
@@ -15,7 +15,7 @@ import ec.edu.espe.master_gateway.shared.domain.port.out.AuthorizationPort;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -70,6 +70,6 @@ public class GetUserRolesService implements GetUserRolesUseCase {
                 role.getEstado().name(),
                 role.getFechaCreacion()
             ))
-            .collect(Collectors.toList());
+            .toList();
     }
 }

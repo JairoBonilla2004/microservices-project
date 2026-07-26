@@ -42,7 +42,9 @@ public class MenuNodeJpaEntity extends JpaAuditableEntity {
     @Column(nullable = false)
     private int orden;
 
-    public MenuNodeJpaEntity() {}
+    public MenuNodeJpaEntity() {
+        // Required by JPA
+    }
 
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }

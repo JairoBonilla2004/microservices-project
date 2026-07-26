@@ -18,7 +18,7 @@ import java.util.Map;
 public abstract class DomainException extends RuntimeException {
 
     private final String codigoError;
-    private final Map<String, Object> detalles;
+    private final transient Map<String, Object> detalles;
 
     protected DomainException(String mensaje, String codigoError) {
         super(mensaje);

@@ -20,6 +20,8 @@ import org.springframework.stereotype.Component;
 @ConditionalOnProperty(name = "jwt.mode", havingValue = "asymmetric")
 public class AsymmetricJwtIssuerAdapter implements TokenIssuerPort {
 
+    private static final String ISSUER = "master-gateway";
+
     private final JwtProperties jwtProperties;
     private final KeyPair keyPair;
 
@@ -44,7 +46,7 @@ public class AsymmetricJwtIssuerAdapter implements TokenIssuerPort {
                 .claim("username", username)
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plus(jwtProperties.getAccessTokenExpiration())))
-                .issuer("master-gateway");
+                .issuer(ISSUER);
         if (roleId != null) {
             builder.claim("role", roleId.toString());
         }
@@ -64,7 +66,7 @@ public class AsymmetricJwtIssuerAdapter implements TokenIssuerPort {
                 .claim("roleName", roleName)
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plus(jwtProperties.getRefreshTokenExpiration())))
-                .issuer("master-gateway");
+                .issuer(ISSUER);
         if (roleId != null) {
             builder.claim("role", roleId.toString());
         }
@@ -79,7 +81,7 @@ public class AsymmetricJwtIssuerAdapter implements TokenIssuerPort {
                 .claim("type", type)
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plus(expiration)))
-                .issuer("master-gateway");
+                .issuer(ISSUER);
         if (roleId != null) {
             builder.claim("role", roleId.toString());
         }

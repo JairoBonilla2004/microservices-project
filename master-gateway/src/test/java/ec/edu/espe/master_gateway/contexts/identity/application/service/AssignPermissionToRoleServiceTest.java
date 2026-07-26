@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.mock;
 
 import ec.edu.espe.master_gateway.contexts.identity.application.port.in.dto.AssignPermissionToRoleRequest;
 import ec.edu.espe.master_gateway.contexts.identity.domain.model.Role;
@@ -14,7 +15,6 @@ import ec.edu.espe.master_gateway.contexts.identity.domain.port.out.RolePermissi
 import ec.edu.espe.master_gateway.contexts.identity.domain.port.out.RoleRepositoryPort;
 import ec.edu.espe.master_gateway.shared.domain.AuthorizationException;
 import ec.edu.espe.master_gateway.shared.domain.DuplicateException;
-import ec.edu.espe.master_gateway.shared.domain.NotFoundException;
 import ec.edu.espe.master_gateway.shared.domain.permission.Permission;
 import ec.edu.espe.master_gateway.shared.domain.port.out.AuthorizationPort;
 import ec.edu.espe.master_gateway.shared.infrastructure.persistence.EstadoRegistro;
@@ -63,7 +63,7 @@ class AssignPermissionToRoleServiceTest {
     @Test
     void should_persistNewAssignment_when_permissionIsNotYetAssigned() {
         when(authorizationPort.hasPermission(permission)).thenReturn(true);
-        when(roleRepository.findById(roleId)).thenReturn(Optional.of(org.mockito.Mockito.mock(Role.class)));
+        when(roleRepository.findById(roleId)).thenReturn(Optional.of(mock(Role.class)));
         when(assignmentRepository.findByRoleIdAndPermission(roleId, permission)).thenReturn(Optional.empty());
         when(assignmentRepository.findByRoleIdAndPermissionIncludingInactive(roleId, permission))
                 .thenReturn(Optional.empty());
@@ -83,9 +83,9 @@ class AssignPermissionToRoleServiceTest {
     @Test
     void should_throwDuplicateException_when_permissionAlreadyActive() {
         when(authorizationPort.hasPermission(permission)).thenReturn(true);
-        when(roleRepository.findById(roleId)).thenReturn(Optional.of(org.mockito.Mockito.mock(Role.class)));
+        when(roleRepository.findById(roleId)).thenReturn(Optional.of(mock(Role.class)));
         when(assignmentRepository.findByRoleIdAndPermission(roleId, permission))
-                .thenReturn(Optional.of(org.mockito.Mockito.mock(RolePermissionAssignment.class)));
+                .thenReturn(Optional.of(mock(RolePermissionAssignment.class)));
 
         assertThrows(DuplicateException.class, () -> service.execute(roleId, request));
 
@@ -95,7 +95,7 @@ class AssignPermissionToRoleServiceTest {
     @Test
     void should_reactivateExistingAssignment_when_permissionWasPreviouslyRevoked() {
         when(authorizationPort.hasPermission(permission)).thenReturn(true);
-        when(roleRepository.findById(roleId)).thenReturn(Optional.of(org.mockito.Mockito.mock(Role.class)));
+        when(roleRepository.findById(roleId)).thenReturn(Optional.of(mock(Role.class)));
         when(assignmentRepository.findByRoleIdAndPermission(roleId, permission)).thenReturn(Optional.empty());
 
         // Asignación previamente revocada (soft delete -> estado INACTIVO).

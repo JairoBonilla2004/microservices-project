@@ -47,6 +47,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/roles")
+@SuppressWarnings("java:S107")
 public class RoleController {
 
     private final ListRolesUseCase listRolesUseCase;

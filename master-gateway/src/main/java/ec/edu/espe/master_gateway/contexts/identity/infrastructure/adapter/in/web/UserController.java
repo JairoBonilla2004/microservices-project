@@ -45,6 +45,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/users")
+@SuppressWarnings("java:S107")
 public class UserController {
 
     private final ListUsersUseCase listUsersUseCase;

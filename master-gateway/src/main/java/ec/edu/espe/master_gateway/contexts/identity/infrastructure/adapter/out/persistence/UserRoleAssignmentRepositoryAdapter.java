@@ -4,7 +4,7 @@ import ec.edu.espe.master_gateway.contexts.identity.domain.model.UserRoleAssignm
 import ec.edu.espe.master_gateway.contexts.identity.domain.port.out.UserRoleAssignmentRepositoryPort;
 import ec.edu.espe.master_gateway.contexts.identity.infrastructure.mapper.IdentityMapper;
 import ec.edu.espe.master_gateway.shared.domain.DuplicateException;
-import ec.edu.espe.master_gateway.shared.domain.PersistenceException;
+
 import ec.edu.espe.master_gateway.shared.infrastructure.persistence.EstadoRegistro;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;

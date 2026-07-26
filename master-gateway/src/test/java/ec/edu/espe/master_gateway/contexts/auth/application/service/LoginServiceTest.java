@@ -3,6 +3,7 @@ package ec.edu.espe.master_gateway.contexts.auth.application.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -61,7 +62,7 @@ class LoginServiceTest {
     @BeforeEach
     void setUp() {
         userId = UUID.randomUUID();
-        user = org.mockito.Mockito.mock(User.class);
+        user = mock(User.class);
     }
 
     @Test
@@ -75,12 +76,12 @@ class LoginServiceTest {
         when(user.getPasswordHash()).thenReturn("hashed");
         when(passwordHasherPort.matches("secret", "hashed")).thenReturn(true);
 
-        UserRoleAssignment assignment = org.mockito.Mockito.mock(UserRoleAssignment.class);
+        UserRoleAssignment assignment = mock(UserRoleAssignment.class);
         when(assignment.isActive()).thenReturn(true);
         when(assignment.getRoleId()).thenReturn(roleId);
         when(userRoleAssignmentRepositoryPort.findByUserId(userId)).thenReturn(List.of(assignment));
 
-        Role role = org.mockito.Mockito.mock(Role.class);
+        Role role = mock(Role.class);
         when(role.getNombre()).thenReturn("ADMIN");
         when(roleRepositoryPort.findById(roleId)).thenReturn(Optional.of(role));
 

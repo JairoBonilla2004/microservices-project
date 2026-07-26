@@ -5,7 +5,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
-import java.util.UUID;
+
 
 /**
  * Entidad JPA que representa un módulo funcional del sistema.
@@ -36,6 +36,7 @@ public class ModuleJpaEntity extends JpaAuditableEntity {
     private int orden;
 
     public ModuleJpaEntity() {
+        // Required by JPA
     }
 
     public String getNombre() {

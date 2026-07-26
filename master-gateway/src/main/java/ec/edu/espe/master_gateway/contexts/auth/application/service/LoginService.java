@@ -11,9 +11,9 @@ import ec.edu.espe.master_gateway.contexts.identity.domain.port.out.UserReposito
 import ec.edu.espe.master_gateway.contexts.identity.domain.port.out.UserRoleAssignmentRepositoryPort;
 import ec.edu.espe.master_gateway.shared.domain.AuthenticationException;
 import ec.edu.espe.master_gateway.shared.domain.NotFoundException;
-import java.util.List;
+
 import java.util.Objects;
-import java.util.UUID;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

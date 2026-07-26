@@ -1,6 +1,7 @@
 package ec.edu.espe.master_gateway.contexts.menu.infrastructure.adapter.out.cycle_detection;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import ec.edu.espe.master_gateway.contexts.menu.infrastructure.adapter.out.persistence.MenuNodeJpaEntity;
@@ -32,7 +33,7 @@ class CycleDetectionAdapterTest {
     private MenuNodeJpaEntity entityWithId(UUID id) {
         // El stubbing de getId() se realiza fuera de cualquier when(...) en curso
         // para no provocar UnfinishedStubbingException por anidamiento.
-        MenuNodeJpaEntity entity = org.mockito.Mockito.mock(MenuNodeJpaEntity.class);
+        MenuNodeJpaEntity entity = mock(MenuNodeJpaEntity.class);
         org.mockito.Mockito.lenient().when(entity.getId()).thenReturn(id);
         return entity;
     }

@@ -7,7 +7,7 @@ import ec.edu.espe.master_gateway.shared.domain.PersistenceException;
 import ec.edu.espe.master_gateway.shared.infrastructure.persistence.EstadoRegistro;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 

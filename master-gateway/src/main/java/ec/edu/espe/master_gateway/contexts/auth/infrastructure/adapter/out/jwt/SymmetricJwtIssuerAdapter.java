@@ -35,6 +35,8 @@ import org.springframework.stereotype.Component;
 @ConditionalOnProperty(name = "jwt.mode", havingValue = "direct", matchIfMissing = true)
 public class SymmetricJwtIssuerAdapter implements TokenIssuerPort {
 
+    private static final String ISSUER = "master-gateway";
+
     private final JwtProperties jwtProperties;
     private final SecretKey secretKey;
 
@@ -61,7 +63,7 @@ public class SymmetricJwtIssuerAdapter implements TokenIssuerPort {
                 .claim("username", username)
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plus(jwtProperties.getAccessTokenExpiration())))
-                .issuer("master-gateway")
+                .issuer(ISSUER)
                 .signWith(secretKey, Jwts.SIG.HS256);
         if (roleId != null) {
             builder.claim("role", roleId.toString());
@@ -82,7 +84,7 @@ public class SymmetricJwtIssuerAdapter implements TokenIssuerPort {
                 .claim("roleName", roleName)
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plus(jwtProperties.getRefreshTokenExpiration())))
-                .issuer("master-gateway")
+                .issuer(ISSUER)
                 .signWith(secretKey, Jwts.SIG.HS256);
         if (roleId != null) {
             builder.claim("role", roleId.toString());
@@ -98,7 +100,7 @@ public class SymmetricJwtIssuerAdapter implements TokenIssuerPort {
                 .claim("type", type)
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plus(expiration)))
-                .issuer("master-gateway")
+                .issuer(ISSUER)
                 .signWith(secretKey, Jwts.SIG.HS256);
         if (roleId != null) {
             builder.claim("role", roleId.toString());

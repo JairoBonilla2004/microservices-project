@@ -81,6 +81,7 @@ public class SecurityConfig {
      *                   seguridad.
      */
     @Bean
+    @SuppressWarnings("java:S112")
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable) // NOSONAR — API REST stateless con JWT Bearer, no usa cookies de sesión; CSRF no aplica

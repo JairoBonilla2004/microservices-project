@@ -20,7 +20,7 @@ import io.jsonwebtoken.JwtException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Objects;
-import java.util.UUID;
+
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,7 +92,7 @@ public class SelectRoleService implements SelectRoleUseCase {
         }
         var userId = claims.getUserId();
 
-        var assignment = userRoleAssignmentRepositoryPort
+        userRoleAssignmentRepositoryPort
                 .findByUserIdAndRoleId(userId, request.roleId())
                 .orElseThrow(() -> new AuthorizationException("El usuario no tiene el rol solicitado"));
 

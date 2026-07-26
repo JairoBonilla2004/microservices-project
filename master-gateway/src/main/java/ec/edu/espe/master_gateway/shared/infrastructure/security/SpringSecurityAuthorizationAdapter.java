@@ -15,7 +15,7 @@ package ec.edu.espe.master_gateway.shared.infrastructure.security;
 import ec.edu.espe.master_gateway.shared.domain.AuthorizationException;
 import ec.edu.espe.master_gateway.shared.domain.port.out.AuthorizationPort;
 import ec.edu.espe.master_gateway.shared.domain.permission.Permission;
-import java.util.Set;
+
 import java.util.UUID;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,10 +29,14 @@ public class SpringSecurityAuthorizationAdapter implements AuthorizationPort {
     @Override
     public UUID getCurrentUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
+        if (auth == null || !auth.isAuthenticated()) {
             throw new AuthorizationException("Usuario no autenticado");
         }
-        return UUID.fromString(auth.getPrincipal().toString());
+        Object principal = auth.getPrincipal();
+        if (principal == null || "anonymousUser".equals(principal)) {
+            throw new AuthorizationException("Usuario no autenticado");
+        }
+        return UUID.fromString(principal.toString());
     }
 
     @Override

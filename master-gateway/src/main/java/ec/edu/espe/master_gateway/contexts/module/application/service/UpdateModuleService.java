@@ -3,7 +3,7 @@ package ec.edu.espe.master_gateway.contexts.module.application.service;
 import ec.edu.espe.master_gateway.contexts.module.application.port.in.UpdateModuleUseCase;
 import ec.edu.espe.master_gateway.contexts.module.application.port.in.dto.ModuleResponse;
 import ec.edu.espe.master_gateway.contexts.module.application.port.in.dto.UpdateModuleRequest;
-import ec.edu.espe.master_gateway.contexts.module.domain.model.Module;
+
 import ec.edu.espe.master_gateway.contexts.module.domain.port.out.ModuleRepositoryPort;
 import ec.edu.espe.master_gateway.shared.domain.NotFoundException;
 import ec.edu.espe.master_gateway.shared.domain.permission.Permission;
