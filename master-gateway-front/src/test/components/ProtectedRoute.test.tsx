@@ -10,10 +10,23 @@ vi.mock('../../context/AuthContext', () => ({
 import { useAuth } from '../../context/AuthContext'
 const mockUseAuth = vi.mocked(useAuth)
 
+const baseMock = {
+  user: null as null,
+  tokens: null as null,
+  login: vi.fn(),
+  selectRole: vi.fn(),
+  register: vi.fn(),
+  logout: vi.fn(),
+  hasPermission: vi.fn(),
+  menuTree: [],
+  menuTreeLoading: false,
+}
+
 describe('ProtectedRoute', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockUseAuth.mockReturnValue({
+      ...baseMock,
       isAuthenticated: false,
       loading: false,
       hasAnyPermission: vi.fn(),
@@ -22,6 +35,7 @@ describe('ProtectedRoute', () => {
 
   it('should show loading state while checking auth', () => {
     mockUseAuth.mockReturnValue({
+      ...baseMock,
       isAuthenticated: false,
       loading: true,
       hasAnyPermission: vi.fn(),
@@ -62,6 +76,7 @@ describe('ProtectedRoute', () => {
 
   it('should show "Acceso restringido" when missing required permissions', () => {
     mockUseAuth.mockReturnValue({
+      ...baseMock,
       isAuthenticated: true,
       loading: false,
       hasAnyPermission: vi.fn().mockReturnValue(false),
@@ -81,6 +96,7 @@ describe('ProtectedRoute', () => {
 
   it('should render children when authenticated and has required permission', () => {
     mockUseAuth.mockReturnValue({
+      ...baseMock,
       isAuthenticated: true,
       loading: false,
       hasAnyPermission: vi.fn().mockReturnValue(true),
@@ -99,6 +115,7 @@ describe('ProtectedRoute', () => {
 
   it('should render children when authenticated without permission guard', () => {
     mockUseAuth.mockReturnValue({
+      ...baseMock,
       isAuthenticated: true,
       loading: false,
       hasAnyPermission: vi.fn(),
