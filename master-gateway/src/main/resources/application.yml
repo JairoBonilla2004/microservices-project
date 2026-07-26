@@ -81,9 +81,6 @@ rate-limiting:
   select-role:
     max-attempts: 10
     window-duration: 1m
-  api:
-    max-requests: 100
-    window-duration: 1m
 
 # ---------------------------------------------------------------------------
 #  Admin Seed — Contraseña inicial del usuario boss_admin
