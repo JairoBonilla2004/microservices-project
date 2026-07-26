@@ -35,7 +35,7 @@ public class AuditorAwareConfig {
      * de creación o modificación sobre las entidades.
      *
      * @return proveedor del nombre del usuario autenticado o {@code "SYSTEM"}
-     *         cuando no existe autenticación activa.
+     *         cuando no existe autenticación activa. # esta es una prueba
      */
     @Bean
     public AuditorAware<String> auditorAware() {
