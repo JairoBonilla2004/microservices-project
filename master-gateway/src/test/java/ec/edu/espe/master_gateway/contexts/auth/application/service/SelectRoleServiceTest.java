@@ -3,7 +3,7 @@ package ec.edu.espe.master_gateway.contexts.auth.application.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -34,7 +34,6 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -91,15 +90,15 @@ class SelectRoleServiceTest {
     void should_issueTokensWithOnlyRolePermissions_andInvalidateTempToken() {
         SelectRoleRequest request = new SelectRoleRequest("temp-token", roleId);
 
-        TokenClaims claims = org.mockito.Mockito.mock(TokenClaims.class);
+        TokenClaims claims = mock(TokenClaims.class);
         when(claims.getUserId()).thenReturn(userId);
         when(tokenValidationPort.validateTempToken("temp-token")).thenReturn(claims);
 
-        UserRoleAssignment assignment = org.mockito.Mockito.mock(UserRoleAssignment.class);
+        UserRoleAssignment assignment = mock(UserRoleAssignment.class);
         when(userRoleAssignmentRepositoryPort.findByUserIdAndRoleId(userId, roleId))
                 .thenReturn(Optional.of(assignment));
 
-        Role role = org.mockito.Mockito.mock(Role.class);
+        Role role = mock(Role.class);
         when(role.getNombre()).thenReturn("EDITOR");
         when(roleRepositoryPort.findById(roleId)).thenReturn(Optional.of(role));
 
@@ -107,7 +106,7 @@ class SelectRoleServiceTest {
         Set<Permission> rolePermissions = Set.of(Permission.MENUS_READ, Permission.MENUS_UPDATE);
         when(permissionResolverPort.resolvePermissions("EDITOR")).thenReturn(rolePermissions);
 
-        User user = org.mockito.Mockito.mock(User.class);
+        User user = mock(User.class);
         when(user.getUsername()).thenReturn("editor.user");
         when(userRepositoryPort.findById(userId)).thenReturn(Optional.of(user));
 
@@ -123,7 +122,7 @@ class SelectRoleServiceTest {
 
         Set<String> expectedPermissions = Set.of("MENUS_READ", "MENUS_UPDATE");
         verify(tokenIssuerPort).issueAccessToken(
-                eq(userId), eq(roleId), eq(expectedPermissions), eq("EDITOR"), eq("editor.user"));
+                userId, roleId, expectedPermissions, "EDITOR", "editor.user");
 
         // El refresh token se persiste y el temp token de un solo uso se invalida.
         verify(refreshTokenRepositoryPort).save(any(RefreshToken.class));
@@ -148,7 +147,7 @@ class SelectRoleServiceTest {
     void should_throwAuthorizationException_when_userDoesNotHaveRequestedRole() {
         SelectRoleRequest request = new SelectRoleRequest("temp-token", roleId);
 
-        TokenClaims claims = org.mockito.Mockito.mock(TokenClaims.class);
+        TokenClaims claims = mock(TokenClaims.class);
         when(claims.getUserId()).thenReturn(userId);
         when(tokenValidationPort.validateTempToken("temp-token")).thenReturn(claims);
         when(userRoleAssignmentRepositoryPort.findByUserIdAndRoleId(userId, roleId))

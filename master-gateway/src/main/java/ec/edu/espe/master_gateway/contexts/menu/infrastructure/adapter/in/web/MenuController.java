@@ -45,6 +45,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/menus")
+@SuppressWarnings("java:S107")
 public class MenuController {
 
     private final GetMenuTreeUseCase getMenuTreeUseCase;

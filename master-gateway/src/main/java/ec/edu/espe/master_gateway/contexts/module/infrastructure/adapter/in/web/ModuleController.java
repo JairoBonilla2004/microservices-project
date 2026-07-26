@@ -42,6 +42,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/modules")
+@SuppressWarnings("java:S107")
 public class ModuleController {
 
     private final GetModuleUseCase getModuleUseCase;

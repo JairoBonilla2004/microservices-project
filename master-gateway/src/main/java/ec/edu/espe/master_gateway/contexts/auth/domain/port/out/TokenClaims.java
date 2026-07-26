@@ -31,6 +31,7 @@ public class TokenClaims {
     private final String issuer;
     private final Set<String> permissions;
 
+    @SuppressWarnings("java:S107")
     public TokenClaims(UUID userId, UUID roleId, String roleName, String tokenType,
                        Instant issuedAt, Instant expiresAt, String issuer,
                        Set<String> permissions) {

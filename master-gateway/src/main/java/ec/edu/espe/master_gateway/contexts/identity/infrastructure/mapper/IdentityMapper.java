@@ -8,7 +8,7 @@ import ec.edu.espe.master_gateway.contexts.identity.infrastructure.adapter.out.p
 import ec.edu.espe.master_gateway.contexts.identity.infrastructure.adapter.out.persistence.RolePermissionAssignmentJpaEntity;
 import ec.edu.espe.master_gateway.contexts.identity.infrastructure.adapter.out.persistence.UserJpaEntity;
 import ec.edu.espe.master_gateway.contexts.identity.infrastructure.adapter.out.persistence.UserRoleAssignmentJpaEntity;
-import ec.edu.espe.master_gateway.shared.infrastructure.persistence.EstadoRegistro;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;

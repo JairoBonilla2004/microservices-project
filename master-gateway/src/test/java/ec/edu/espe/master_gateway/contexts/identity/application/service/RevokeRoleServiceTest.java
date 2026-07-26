@@ -7,6 +7,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.mock;
 
 import ec.edu.espe.master_gateway.contexts.identity.domain.model.UserRoleAssignment;
 import ec.edu.espe.master_gateway.contexts.identity.domain.port.out.UserRoleAssignmentRepositoryPort;
@@ -56,7 +57,7 @@ class RevokeRoleServiceTest {
     @Test
     void should_hardDeleteAssignment_when_revocationIsValid() {
         when(authorizationPort.getCurrentUserId()).thenReturn(currentUserId);
-        UserRoleAssignment assignment = org.mockito.Mockito.mock(UserRoleAssignment.class);
+        UserRoleAssignment assignment = mock(UserRoleAssignment.class);
         when(assignmentRepository.findByUserIdAndRoleId(targetUserId, roleId))
                 .thenReturn(Optional.of(assignment));
 
