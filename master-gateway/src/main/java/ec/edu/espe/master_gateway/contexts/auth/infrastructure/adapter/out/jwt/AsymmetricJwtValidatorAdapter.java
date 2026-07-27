@@ -114,15 +114,25 @@ public class AsymmetricJwtValidatorAdapter implements TokenValidationPort {
 
     private static PublicKey parsePublicKey(String pem) {
         try {
-            var keyBytes = Base64.getDecoder().decode(
-                    pem.replace("-----BEGIN PUBLIC KEY-----", "")
-                            .replace("-----END PUBLIC KEY-----", "")
-                            .replaceAll("\\s", "")
-            );
+            var keyBytes = decodePem(pem, "PUBLIC KEY");
             var spec = new X509EncodedKeySpec(keyBytes);
             return KeyFactory.getInstance("RSA").generatePublic(spec);
         } catch (Exception e) {
             throw new IllegalArgumentException("Clave publica invalida", e);
         }
+    }
+
+    private static byte[] decodePem(String pem, String label) {
+        if (pem == null || pem.isBlank()) {
+            throw new IllegalArgumentException("PEM no puede estar vacio");
+        }
+        if (!pem.startsWith("-----")) {
+            pem = "-----BEGIN " + label + "-----\n" + pem + "\n-----END " + label + "-----";
+        }
+        return Base64.getDecoder().decode(
+                pem.replace("-----BEGIN " + label + "-----", "")
+                        .replace("-----END " + label + "-----", "")
+                        .replaceAll("\\s", "")
+        );
     }
 }
