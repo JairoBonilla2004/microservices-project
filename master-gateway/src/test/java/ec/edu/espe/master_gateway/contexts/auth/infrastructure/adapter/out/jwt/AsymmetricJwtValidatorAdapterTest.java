@@ -145,6 +145,35 @@ class AsymmetricJwtValidatorAdapterTest {
                 .hasMessageContaining("Clave publica invalida");
     }
 
+    @Test
+    void should_validateToken_withRawBase64PublicKey() throws Exception {
+        var generator = KeyPairGenerator.getInstance("RSA");
+        generator.initialize(2048);
+        var kp = generator.generateKeyPair();
+        var rawBase64 = java.util.Base64.getEncoder().encodeToString(
+                kp.getPublic().getEncoded());
+
+        var rawKeyAdapter = new AsymmetricJwtValidatorAdapter(rawBase64, revokedTokenRepositoryPort);
+
+        var userId = UUID.randomUUID();
+        var now = Instant.now();
+        var token = Jwts.builder()
+                .id(UUID.randomUUID().toString())
+                .subject(userId.toString())
+                .claim("type", "ACCESS_TOKEN")
+                .claim("roleName", "ADMIN")
+                .claim("role", UUID.randomUUID().toString())
+                .issuedAt(Date.from(now))
+                .expiration(Date.from(now.plus(Duration.ofMinutes(15))))
+                .issuer("master-gateway")
+                .signWith(kp.getPrivate())
+                .compact();
+
+        var claims = rawKeyAdapter.validate(token);
+
+        assertThat(claims.getUserId()).isEqualTo(userId);
+    }
+
     private String createToken(UUID userId, UUID roleId, String type) {
         var now = Instant.now();
         var builder = Jwts.builder()

@@ -6,8 +6,10 @@ import ec.edu.espe.master_gateway.shared.domain.AuthenticationException;
 import ec.edu.espe.master_gateway.shared.domain.DomainException;
 import ec.edu.espe.master_gateway.shared.domain.DuplicateException;
 import ec.edu.espe.master_gateway.shared.domain.InvalidInputException;
+import ec.edu.espe.master_gateway.shared.domain.MissingPermissionException;
 import ec.edu.espe.master_gateway.shared.domain.NotFoundException;
 import ec.edu.espe.master_gateway.shared.domain.RateLimitExceededException;
+import ec.edu.espe.master_gateway.shared.domain.permission.Permission;
 import io.jsonwebtoken.JwtException;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -68,6 +70,19 @@ class GlobalExceptionHandlerTest {
         var response = handler.handleAuthentication(ex);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+    }
+
+    @Test
+    void should_handleMissingPermission() {
+        var ex = new MissingPermissionException(Permission.ROLES_READ);
+
+        var response = handler.handleMissingPermission(ex);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().getMensaje()).contains("ROLES_READ");
+        assertThat(response.getBody().getDetalles()).containsKey("missingPermission");
+        assertThat(response.getBody().getDetalles().get("missingPermission")).isEqualTo("ROLES_READ");
     }
 
     @Test

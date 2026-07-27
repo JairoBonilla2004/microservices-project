@@ -35,4 +35,33 @@ class ErrorResponseTest {
 
         assertThat(response.getCodigo()).isEqualTo(500);
     }
+
+    @Test
+    void should_createErrorResponse_withDetalles() {
+        var detalles = Map.<String, Object>of("missingPermission", "ROLES_READ",
+                "suggestedPermissions", java.util.List.of("MODULES_READ", "ROLES_READ"));
+
+        var response = ErrorResponse.withDetalles(HttpStatus.FORBIDDEN, "Permiso requerido", detalles);
+
+        assertThat(response.getCodigo()).isEqualTo(403);
+        assertThat(response.getMensaje()).isEqualTo("Permiso requerido");
+        assertThat(response.getDetalles()).containsEntry("missingPermission", "ROLES_READ");
+        assertThat(response.getDetalles().get("suggestedPermissions"))
+                .isInstanceOf(java.util.List.class);
+    }
+
+    @Test
+    void should_createErrorResponse_withDetalles_whenNull() {
+        var response = ErrorResponse.withDetalles(HttpStatus.FORBIDDEN, "Acceso denegado", null);
+
+        assertThat(response.getCodigo()).isEqualTo(403);
+        assertThat(response.getDetalles()).isNull();
+    }
+
+    @Test
+    void should_returnNullDetalles_whenUsingOf() {
+        var response = ErrorResponse.of(HttpStatus.BAD_REQUEST, "Error");
+
+        assertThat(response.getDetalles()).isNull();
+    }
 }

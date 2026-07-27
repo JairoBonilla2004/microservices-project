@@ -19,7 +19,12 @@ public class JwtConfig {
     }
 
     @Bean
-    public TokenValidationPort asymmetricTokenValidator(AsymmetricJwtIssuerAdapter issuer) {
-        return new AsymmetricJwtValidatorAdapter(issuer.getPublicKeyPem(), revokedTokenRepositoryPort);
+    public TokenValidationPort asymmetricTokenValidator(AsymmetricJwtIssuerAdapter issuer,
+                                                         JwtProperties jwtProperties) {
+        var publicKeyPem = jwtProperties.getPublicKeyPem();
+        if (publicKeyPem == null || publicKeyPem.isBlank()) {
+            publicKeyPem = issuer.getPublicKeyPem();
+        }
+        return new AsymmetricJwtValidatorAdapter(publicKeyPem, revokedTokenRepositoryPort);
     }
 }

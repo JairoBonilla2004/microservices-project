@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import ec.edu.espe.master_gateway.shared.domain.AuthorizationException;
+import ec.edu.espe.master_gateway.shared.domain.MissingPermissionException;
 import ec.edu.espe.master_gateway.shared.domain.permission.Permission;
 import java.util.List;
 import java.util.UUID;
@@ -82,12 +83,34 @@ class SpringSecurityAuthorizationAdapterTest {
     }
 
     @Test
-    void should_throw_when_requirePermissionFails() {
+    void should_throwMissingPermission_when_requirePermissionFails() {
         var auth = new UsernamePasswordAuthenticationToken("user", null, List.of());
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        assertThatThrownBy(() -> adapter.requirePermission(Permission.USERS_DELETE))
-                .isInstanceOf(AuthorizationException.class);
+        assertThatThrownBy(() -> adapter.requirePermission(Permission.MODULES_ASSIGN))
+                .isInstanceOf(MissingPermissionException.class)
+                .hasMessageContaining("MODULES_ASSIGN")
+                .satisfies(e -> {
+                    var ex = (MissingPermissionException) e;
+                    assertThat(ex.getMissingPermission()).isEqualTo(Permission.MODULES_ASSIGN);
+                    assertThat(ex.getSuggestedPermissions())
+                            .contains(Permission.MODULES_READ, Permission.ROLES_READ);
+                });
+    }
+
+    @Test
+    void should_throwMissingPermission_withDependencies() {
+        var auth = new UsernamePasswordAuthenticationToken("user", null, List.of());
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        assertThatThrownBy(() -> adapter.requirePermission(Permission.MENUS_CREATE))
+                .isInstanceOf(MissingPermissionException.class)
+                .satisfies(e -> {
+                    var ex = (MissingPermissionException) e;
+                    assertThat(ex.getMissingPermission()).isEqualTo(Permission.MENUS_CREATE);
+                    assertThat(ex.getSuggestedPermissions())
+                            .contains(Permission.MENUS_READ, Permission.MODULES_READ);
+                });
     }
 
     @Test

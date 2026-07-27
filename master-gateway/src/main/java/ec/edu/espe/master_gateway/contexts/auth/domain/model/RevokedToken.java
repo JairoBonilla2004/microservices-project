@@ -1,6 +1,7 @@
 package ec.edu.espe.master_gateway.contexts.auth.domain.model;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -16,7 +17,7 @@ public class RevokedToken {
     public RevokedToken(String token, UUID userId) {
         this.token = Objects.requireNonNull(token, "token no puede ser null");
         this.userId = Objects.requireNonNull(userId, "userId no puede ser null");
-        this.revokedAt = LocalDateTime.now();
+        this.revokedAt = LocalDateTime.now(ZoneOffset.UTC);
     }
 
     public UUID getId() { return id; }

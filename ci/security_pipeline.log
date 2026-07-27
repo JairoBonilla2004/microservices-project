@@ -1,0 +1,130 @@
+2026-07-26 23:07:21,337 - diff_extractor - INFO - DiffExtractor initialized: HEAD~1 -> HEAD
+2026-07-26 23:07:22,359 - security_gate - INFO - Ensemble model loaded
+2026-07-26 23:07:22,412 - security_gate - INFO - TF-IDF vectorizer loaded
+2026-07-26 23:07:22,414 - security_gate - INFO - MinMaxScaler loaded
+2026-07-26 23:07:22,421 - security_gate - INFO - SelectKBest selector loaded
+2026-07-26 23:07:22,421 - __main__ - WARNING - Telegram notifier not available (missing env vars)
+2026-07-26 23:07:22,421 - __main__ - INFO - SecurityPipeline initialized
+2026-07-26 23:07:22,421 - __main__ - INFO - ============================================================
+2026-07-26 23:07:22,421 - __main__ - INFO - SECURITY PIPELINE STARTED
+2026-07-26 23:07:22,421 - __main__ - INFO - ============================================================
+2026-07-26 23:07:22,421 - __main__ - INFO - Step 1: Extracting code fragments from diff
+2026-07-26 23:07:22,443 - diff_extractor - INFO - Extracted 40 code fragments
+2026-07-26 23:07:22,443 - __main__ - INFO - Extracted 40 code fragments
+2026-07-26 23:07:22,443 - __main__ - INFO - Step 3: Running ML security predictions
+2026-07-26 23:07:22,445 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:07:22,445 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:07:22,446 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:07:22,446 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:07:22,446 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:07:22,447 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:07:22,447 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:07:22,447 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:07:22,547 - security_gate - INFO - Prediction: VULNERABLE (risk: 70%, type: Ninguno)
+2026-07-26 23:07:22,547 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:07:22,627 - security_gate - INFO - Prediction: VULNERABLE (risk: 71%, type: Ninguno)
+2026-07-26 23:07:22,713 - security_gate - INFO - Prediction: VULNERABLE (risk: 74%, type: Ninguno)
+2026-07-26 23:07:22,716 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:07:22,716 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:07:22,720 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:07:22,723 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:07:22,723 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:07:22,724 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:07:22,724 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:07:22,724 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:07:22,725 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:07:22,725 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:07:22,725 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:07:22,726 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:07:22,726 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:07:22,726 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:07:22,727 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:07:22,727 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:07:22,728 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:07:22,728 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:07:22,728 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:07:22,729 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:07:22,729 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:07:22,793 - security_gate - INFO - Prediction: VULNERABLE (risk: 70%, type: Ninguno)
+2026-07-26 23:07:22,796 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:07:22,796 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:07:22,799 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:07:22,799 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:07:22,799 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:07:22,801 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:07:22,801 - __main__ - INFO - Predictions generated for 40 fragments
+2026-07-26 23:07:22,801 - __main__ - INFO - Step 4: Generating security report
+2026-07-26 23:07:22,804 - security_gate - INFO - Security report generated: ../reports/security_report.json
+2026-07-26 23:07:22,804 - security_gate - INFO - Overall: 36 safe, 4 vulnerable, 0 no_model
+2026-07-26 23:07:22,804 - __main__ - INFO - Report generated: ../reports/security_report.json
+2026-07-26 23:07:22,804 - __main__ - WARNING - Telegram notifier not available, skipping notifications
+2026-07-26 23:07:22,804 - __main__ - INFO - ============================================================
+2026-07-26 23:07:22,804 - __main__ - INFO - ✗ SECURITY GATE FAILED
+2026-07-26 23:07:22,804 - __main__ - INFO - ============================================================
+2026-07-26 23:08:04,454 - diff_extractor - INFO - DiffExtractor initialized: HEAD~1 -> HEAD
+2026-07-26 23:08:05,807 - security_gate - INFO - Ensemble model loaded
+2026-07-26 23:08:05,853 - security_gate - INFO - TF-IDF vectorizer loaded
+2026-07-26 23:08:05,854 - security_gate - INFO - MinMaxScaler loaded
+2026-07-26 23:08:05,861 - security_gate - INFO - SelectKBest selector loaded
+2026-07-26 23:08:05,861 - __main__ - WARNING - Telegram notifier not available (missing env vars)
+2026-07-26 23:08:05,861 - __main__ - INFO - SecurityPipeline initialized
+2026-07-26 23:08:05,862 - __main__ - INFO - ============================================================
+2026-07-26 23:08:05,862 - __main__ - INFO - SECURITY PIPELINE STARTED
+2026-07-26 23:08:05,862 - __main__ - INFO - ============================================================
+2026-07-26 23:08:05,862 - __main__ - INFO - Step 1: Extracting code fragments from diff
+2026-07-26 23:08:05,875 - diff_extractor - INFO - Extracted 40 code fragments
+2026-07-26 23:08:05,875 - __main__ - INFO - Extracted 40 code fragments
+2026-07-26 23:08:05,876 - __main__ - INFO - Step 3: Running ML security predictions
+2026-07-26 23:08:05,876 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:08:05,877 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:08:05,877 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:08:05,877 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:08:05,877 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:08:05,878 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:08:05,878 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:08:05,878 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:08:05,996 - security_gate - INFO - Post-guard: VULNERABLE (risk: 70%, type: Ninguno) → SEGURO (falso positivo)
+2026-07-26 23:08:05,996 - security_gate - INFO - Prediction: SEGURO (risk: 70%, type: Ninguno)
+2026-07-26 23:08:05,996 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:08:06,074 - security_gate - INFO - Post-guard: VULNERABLE (risk: 71%, type: Ninguno) → SEGURO (falso positivo)
+2026-07-26 23:08:06,074 - security_gate - INFO - Prediction: SEGURO (risk: 71%, type: Ninguno)
+2026-07-26 23:08:06,140 - security_gate - INFO - Post-guard: VULNERABLE (risk: 74%, type: Ninguno) → SEGURO (falso positivo)
+2026-07-26 23:08:06,140 - security_gate - INFO - Prediction: SEGURO (risk: 74%, type: Ninguno)
+2026-07-26 23:08:06,140 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:08:06,140 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:08:06,144 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:08:06,147 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:08:06,148 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:08:06,148 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:08:06,148 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:08:06,149 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:08:06,149 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:08:06,149 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:08:06,150 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:08:06,150 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:08:06,151 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:08:06,151 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:08:06,151 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:08:06,152 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:08:06,152 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:08:06,152 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:08:06,152 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:08:06,152 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:08:06,152 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:08:06,219 - security_gate - INFO - Post-guard: VULNERABLE (risk: 70%, type: Ninguno) → SEGURO (falso positivo)
+2026-07-26 23:08:06,219 - security_gate - INFO - Prediction: SEGURO (risk: 70%, type: Ninguno)
+2026-07-26 23:08:06,220 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:08:06,220 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:08:06,223 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:08:06,223 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:08:06,224 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:08:06,225 - security_gate - INFO - Guard triggered: no dangerous patterns → SEGURO
+2026-07-26 23:08:06,225 - __main__ - INFO - Predictions generated for 40 fragments
+2026-07-26 23:08:06,225 - __main__ - INFO - Step 4: Generating security report
+2026-07-26 23:08:06,227 - security_gate - INFO - Security report generated: ../reports/security_report.json
+2026-07-26 23:08:06,227 - security_gate - INFO - Overall: 40 safe, 0 vulnerable, 0 no_model
+2026-07-26 23:08:06,227 - __main__ - INFO - Report generated: ../reports/security_report.json
+2026-07-26 23:08:06,228 - __main__ - WARNING - Telegram notifier not available, skipping notifications
+2026-07-26 23:08:06,228 - __main__ - INFO - ============================================================
+2026-07-26 23:08:06,228 - __main__ - INFO - ✓ SECURITY GATE PASSED
+2026-07-26 23:08:06,228 - __main__ - INFO - ============================================================

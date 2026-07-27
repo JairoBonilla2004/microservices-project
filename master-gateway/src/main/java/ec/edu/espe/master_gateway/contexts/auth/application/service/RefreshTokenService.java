@@ -14,6 +14,7 @@ import ec.edu.espe.master_gateway.shared.domain.AuthenticationException;
 import ec.edu.espe.master_gateway.shared.domain.port.out.PermissionResolverPort;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -99,7 +100,7 @@ public class RefreshTokenService implements RefreshTokenUseCase {
                 newRefreshTokenValue,
                 existing.getUserId(),
                 existing.getRoleId(),
-                LocalDateTime.now().plus(refreshTokenExpiration)
+                LocalDateTime.now(ZoneOffset.UTC).plus(refreshTokenExpiration)
         );
         refreshTokenRepositoryPort.save(newRefreshToken);
 

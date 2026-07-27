@@ -76,6 +76,8 @@ services:
       # --- JWT --------------------------------------------------------------
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET es obligatorio}
       JWT_MODE: ${JWT_MODE:-direct}
+      JWT_PRIVATE_KEY_PEM: ${JWT_PRIVATE_KEY_PEM:-}
+      JWT_PUBLIC_KEY_PEM: ${JWT_PUBLIC_KEY_PEM:-}
 
       # --- Admin seed -------------------------------------------------------
       ADMIN_SEED_PASSWORD: ${ADMIN_SEED_PASSWORD:-}

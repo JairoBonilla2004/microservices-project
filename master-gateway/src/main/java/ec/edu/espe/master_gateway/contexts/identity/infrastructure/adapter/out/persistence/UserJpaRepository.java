@@ -23,8 +23,6 @@ public interface UserJpaRepository extends SoftDeleteRepository<UserJpaEntity, U
 
     Optional<UserJpaEntity> findByUsername(String username);
 
-    Optional<UserJpaEntity> findByUsernameAndEstado(String username, EstadoRegistro estado);
-
     List<UserJpaEntity> findByEstado(EstadoRegistro estado);
 
     Page<UserJpaEntity> findByEstado(EstadoRegistro estado, Pageable pageable);
@@ -33,9 +31,5 @@ public interface UserJpaRepository extends SoftDeleteRepository<UserJpaEntity, U
 
     boolean existsByUsername(String username);
 
-    boolean existsByUsernameAndEstado(String username, EstadoRegistro estado);
-
     boolean existsByEmail(String email);
-
-    boolean existsByEmailAndEstado(String email, EstadoRegistro estado);
 }

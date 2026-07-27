@@ -193,7 +193,24 @@ class SecurityGate:
                 "vulnerability_types": vuln_info['all_types'],
             }
 
-            logger.info(f"Prediction: {prediction_label} (risk: {risk_level}%, type: {vuln_info['primary_type']})")
+            # Post-model guard: si el modelo predice VULNERABLE pero no identifica
+            # ningún tipo de vulnerabilidad específico y el riesgo es bajo (< 80%),
+            # es casi seguro un falso positivo — lo rebajamos a SEGURO.
+            if prediction == 1 and vuln_info['primary_type'] == 'Ninguno' and risk_level < 80:
+                logger.info(f"Post-guard: VULNERABLE (risk: {risk_level}%, type: Ninguno) → SEGURO (falso positivo)")
+                result = {
+                    "prediction": "SEGURO",
+                    "probability_safe": round(1.0 - prob_vulnerable, 4),
+                    "probability_vulnerable": round(prob_vulnerable, 4),
+                    "risk_level": risk_level,
+                    "decision": "ACEPTAR",
+                    "guard_triggered": True,
+                    "features_criticas": result["features_criticas"],
+                    "vulnerability_type": "Ninguno",
+                    "vulnerability_types": [],
+                }
+
+            logger.info(f"Prediction: {result['prediction']} (risk: {result['risk_level']}%, type: {result['vulnerability_type']})")
             return result
 
         except Exception as e:

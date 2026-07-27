@@ -1,12 +1,22 @@
 import { type AxiosError } from 'axios'
 
+interface BackendErrorBody {
+  mensaje?: string
+  message?: string
+  error?: string
+  detalles?: {
+    missingPermission?: string
+    suggestedPermissions?: string[]
+  }
+}
+
 /**
  * Extrae un mensaje legible de un error de Axios.
  * El backend devuelve { codigo, mensaje, timestamp }.
  * Nunca exponemos el JSON crudo al usuario.
  */
 export function extractError(err: unknown, fallback = 'Operación fallida'): string {
-  const axiosErr = err as AxiosError<{ mensaje?: string; message?: string; error?: string }>
+  const axiosErr = err as AxiosError<BackendErrorBody>
   const status = axiosErr?.response?.status
   const data = axiosErr?.response?.data
 
@@ -26,4 +36,20 @@ export function extractError(err: unknown, fallback = 'Operación fallida'): str
 export function isForbidden(err: unknown): boolean {
   const axiosErr = err as AxiosError
   return axiosErr?.response?.status === 403
+}
+
+/** Extrae información estructurada de un 403 enriquecido del backend */
+export function extractForbiddenDetails(err: unknown): {
+  mensaje: string
+  missingPermission?: string
+  suggestedPermissions?: string[]
+} {
+  const axiosErr = err as AxiosError<BackendErrorBody>
+  const data = axiosErr?.response?.data
+  const detalles = data?.detalles
+  return {
+    mensaje: data?.mensaje || 'No tienes permiso para realizar esta acción.',
+    missingPermission: detalles?.missingPermission,
+    suggestedPermissions: detalles?.suggestedPermissions,
+  }
 }
