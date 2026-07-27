@@ -19,6 +19,7 @@ import ec.edu.espe.master_gateway.shared.domain.port.out.PermissionResolverPort;
 import io.jsonwebtoken.JwtException;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Objects;
 
 import java.util.stream.Collectors;
@@ -115,7 +116,7 @@ public class SelectRoleService implements SelectRoleUseCase {
                 refreshTokenValue,
                 userId,
                 request.roleId(),
-                LocalDateTime.now().plus(refreshTokenExpiration)
+                LocalDateTime.now(ZoneOffset.UTC).plus(refreshTokenExpiration)
         );
         refreshTokenRepositoryPort.save(refreshToken);
 

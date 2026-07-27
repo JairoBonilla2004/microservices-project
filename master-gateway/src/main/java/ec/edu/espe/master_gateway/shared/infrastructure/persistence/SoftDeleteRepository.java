@@ -12,17 +12,17 @@ import org.springframework.data.repository.NoRepositoryBean;
  * eliminarla físicamente de la base de datos.</p>
  *
  * @param <T> tipo de la entidad auditable.
- * @param <ID> tipo del identificador de la entidad.
+ * @param <I> tipo del identificador de la entidad.
  *
  * @author Jairo Bonilla
  * @author Reishel Tipan
  * @author Julio Viche
  */
 @NoRepositoryBean // Indica a Spring Data que esta interfaz no debe ser instanciada directamente como un bean de repositorio, es decir, no se creará un bean de Spring para esta interfaz, sino que se utilizará como base para otros repositorios.
-public interface SoftDeleteRepository<T extends JpaAuditableEntity, ID> extends JpaRepository<T, ID> {
+public interface SoftDeleteRepository<T extends JpaAuditableEntity, I> extends JpaRepository<T, I> {
 
     @Override
-    default void deleteById(ID id) {
+    default void deleteById(I id) {
         findById(id).ifPresent(entity -> {
             entity.setEstado(EstadoRegistro.INACTIVO);
             save(entity);
@@ -44,7 +44,7 @@ public interface SoftDeleteRepository<T extends JpaAuditableEntity, ID> extends 
     }
 
     @Override
-    default void deleteAllById(Iterable<? extends ID> ids) {
+    default void deleteAllById(Iterable<? extends I> ids) {
         ids.forEach(this::deleteById);
     }
 }

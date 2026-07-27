@@ -225,3 +225,40 @@ jobs:
           name: security-report
           path: reports/security_report.json
           retention-days: 30
+
+  # ===========================================================================
+  #  FASE 4 — Notificaciones Telegram
+  # ===========================================================================
+  telegram-notify:
+    name: Telegram Notifications
+    if: always()
+    needs:
+      - build-and-test
+      - sonarcloud-scan
+      - sast-ml-scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install requests
+        run: pip install requests -q
+
+      - name: Send Pipeline Result Notification
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          _BUILD: ${{ needs.build-and-test.result }}
+          _SONAR: ${{ needs.sonarcloud-scan.result }}
+          _SAST: ${{ needs.sast-ml-scan.result }}
+          _BRANCH: ${{ github.head_ref }}
+          _COMMIT: ${{ github.sha }}
+          _EVENT: pr-${{ github.event.pull_request.number }}
+          _REPO: ${{ github.repository }}
+          _RUN_ID: ${{ github.run_id }}
+          _SERVER_URL: ${{ github.server_url }}
+        run: python ci/notify.py

@@ -1,6 +1,7 @@
 package ec.edu.espe.master_gateway.contexts.auth.domain.model;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -64,7 +65,7 @@ public class RefreshToken {
         this.roleId = Objects.requireNonNull(roleId, "roleId no puede ser null");
         this.expiresAt = Objects.requireNonNull(expiresAt, "expiresAt no puede ser null");
         this.revoked = false;
-        this.createdAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now(ZoneOffset.UTC);
     }
 
     /**
@@ -86,7 +87,7 @@ public class RefreshToken {
      *         {@code false}.
      */
     public boolean isValid() {
-        return !revoked && LocalDateTime.now().isBefore(expiresAt);
+        return !revoked && LocalDateTime.now(ZoneOffset.UTC).isBefore(expiresAt);
     }
 
     /**
@@ -96,7 +97,7 @@ public class RefreshToken {
      *         expiración; en caso contrario, {@code false}.
      */
     public boolean isExpired() {
-        return LocalDateTime.now().isAfter(expiresAt);
+        return LocalDateTime.now(ZoneOffset.UTC).isAfter(expiresAt);
     }
 
     /**

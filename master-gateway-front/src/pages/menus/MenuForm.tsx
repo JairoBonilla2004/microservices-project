@@ -7,6 +7,7 @@ import { Button } from '../../components/ui/Button'
 import { Card, CardBody } from '../../components/ui/Card'
 import { Skeleton } from '../../components/ui/Skeleton'
 import { useToast } from '../../components/ui/ToastProvider'
+import { useAuth } from '../../context/AuthContext'
 
 const inputClass =
   'w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-400'
@@ -16,6 +17,7 @@ export function MenuForm() {
   const navigate = useNavigate()
   const isEdit = !!id
   const { showToast } = useToast()
+  const { hasPermission } = useAuth()
 
   const [form, setForm] = useState({
     nombre: '',
@@ -33,12 +35,20 @@ export function MenuForm() {
   useEffect(() => {
     const init = async () => {
       try {
-        const [mods, items] = await Promise.all([modulesApi.list(), menusApi.listAll()])
-        setModules(mods)
-        setAllItems(items)
+        const promises: Promise<unknown>[] = []
+        if (hasPermission('MENUS_READ')) promises.push(menusApi.listAll())
+        if (!isEdit && hasPermission('MODULES_READ')) promises.push(modulesApi.list())
 
-        if (isEdit && id) {
-          const found = items.find(n => n.id === id)
+        const [items, mods] = await Promise.all(promises)
+
+        const menuItems = items as MenuItemResponse[] | undefined
+        const moduleList = mods as ModuleResponse[] | undefined
+
+        if (menuItems) setAllItems(menuItems)
+        if (moduleList) setModules(moduleList)
+
+        if (isEdit && id && menuItems) {
+          const found = menuItems.find(n => n.id === id)
           if (found) {
             setForm({
               nombre: found.nombre,

@@ -64,6 +64,8 @@ jwt:
   access-token-expiration: ${JWT_ACCESS_EXPIRATION:15m}
   refresh-token-expiration: ${JWT_REFRESH_EXPIRATION:7d}
   secret: "${JWT_SECRET:es_obligatorio_genera_uno_con_openssl}"
+  private-key-pem: ${JWT_PRIVATE_KEY_PEM:}
+  public-key-pem: ${JWT_PUBLIC_KEY_PEM:}
 # ---------------------------------------------------------------------------
 #  Rate Limiting — Prevención de abusos
 # ---------------------------------------------------------------------------

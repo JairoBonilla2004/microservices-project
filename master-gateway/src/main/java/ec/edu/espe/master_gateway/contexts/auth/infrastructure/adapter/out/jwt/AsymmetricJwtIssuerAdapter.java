@@ -7,6 +7,9 @@ import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.RSAPrivateCrtKey;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.RSAPublicKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.time.Instant;
 import java.util.Base64;
@@ -21,13 +24,14 @@ import org.springframework.stereotype.Component;
 public class AsymmetricJwtIssuerAdapter implements TokenIssuerPort {
 
     private static final String ISSUER = "master-gateway";
+    private static final String PEM_DELIMITER = "-----";
 
     private final JwtProperties jwtProperties;
     private final KeyPair keyPair;
 
     public AsymmetricJwtIssuerAdapter(JwtProperties jwtProperties) {
         this.jwtProperties = jwtProperties;
-        this.keyPair = generateKeyPair();
+        this.keyPair = loadOrGenerateKeyPair(jwtProperties.getPrivateKeyPem());
     }
 
     @Override
@@ -106,6 +110,44 @@ public class AsymmetricJwtIssuerAdapter implements TokenIssuerPort {
         } catch (Exception e) {
             throw new IllegalStateException("No se pudo exportar la clave publica RSA", e);
         }
+    }
+
+    private static KeyPair loadOrGenerateKeyPair(String privateKeyPem) {
+        if (privateKeyPem != null && !privateKeyPem.isBlank()) {
+            return loadKeyPairFromPem(privateKeyPem);
+        }
+        return generateKeyPair();
+    }
+
+    private static KeyPair loadKeyPairFromPem(String pem) {
+        try {
+            var keyBytes = decodePem(pem, "PRIVATE KEY");
+            var keySpec = new PKCS8EncodedKeySpec(keyBytes);
+            var keyFactory = KeyFactory.getInstance("RSA");
+            var privateKey = keyFactory.generatePrivate(keySpec);
+            var rsaPrivateKey = (RSAPrivateCrtKey) privateKey;
+            var publicKeySpec = new RSAPublicKeySpec(
+                    rsaPrivateKey.getModulus(), rsaPrivateKey.getPublicExponent());
+            var publicKey = keyFactory.generatePublic(publicKeySpec);
+            return new KeyPair(publicKey, privateKey);
+        } catch (Exception e) {
+            throw new IllegalStateException(
+                    "No se pudo cargar el par de llaves RSA desde el PEM configurado", e);
+        }
+    }
+
+    private static byte[] decodePem(String pem, String label) {
+        if (pem == null || pem.isBlank()) {
+            throw new IllegalArgumentException("PEM no puede estar vacio");
+        }
+        if (!pem.startsWith(PEM_DELIMITER)) {
+            pem = PEM_DELIMITER + "BEGIN " + label + PEM_DELIMITER + "\n" + pem + "\n" + PEM_DELIMITER + "END " + label + PEM_DELIMITER;
+        }
+        return Base64.getDecoder().decode(
+                pem.replace(PEM_DELIMITER + "BEGIN " + label + PEM_DELIMITER, "")
+                        .replace(PEM_DELIMITER + "END " + label + PEM_DELIMITER, "")
+                        .replaceAll("\\s", "")
+        );
     }
 
     private static KeyPair generateKeyPair() {

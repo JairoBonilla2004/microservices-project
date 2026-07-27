@@ -13,6 +13,7 @@ package ec.edu.espe.master_gateway.shared.infrastructure.security;
  * @author Julio Viche
  */
 import ec.edu.espe.master_gateway.shared.domain.AuthorizationException;
+import ec.edu.espe.master_gateway.shared.domain.MissingPermissionException;
 import ec.edu.espe.master_gateway.shared.domain.port.out.AuthorizationPort;
 import ec.edu.espe.master_gateway.shared.domain.permission.Permission;
 
@@ -52,9 +53,7 @@ public class SpringSecurityAuthorizationAdapter implements AuthorizationPort {
     @Override
     public void requirePermission(Permission requiredPermission) {
         if (!hasPermission(requiredPermission)) {
-            throw new AuthorizationException(
-                "Permiso requerido: " + requiredPermission.name()
-            );
+            throw new MissingPermissionException(requiredPermission);
         }
     }
 

@@ -3,6 +3,7 @@ package ec.edu.espe.master_gateway.shared.infrastructure.web;
 import ec.edu.espe.master_gateway.shared.domain.AuthenticationException;
 import ec.edu.espe.master_gateway.shared.domain.DomainException;
 import ec.edu.espe.master_gateway.shared.domain.DuplicateException;
+import ec.edu.espe.master_gateway.shared.domain.MissingPermissionException;
 import ec.edu.espe.master_gateway.shared.domain.NotFoundException;
 import ec.edu.espe.master_gateway.shared.domain.RateLimitExceededException;
 import io.jsonwebtoken.JwtException;
@@ -67,6 +68,15 @@ public class GlobalExceptionHandler {
                 .body(ErrorResponse.of(HttpStatus.UNAUTHORIZED, ex.getMessage()));
     }
 
+    @ExceptionHandler(MissingPermissionException.class)
+    public ResponseEntity<ErrorResponse> handleMissingPermission(MissingPermissionException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(ErrorResponse.withDetalles(
+                        HttpStatus.FORBIDDEN,
+                        ex.getMessage(),
+                        ex.getDetalles()));
+    }
+
     @ExceptionHandler(DomainException.class)
     public ResponseEntity<ErrorResponse> handleDomain(DomainException ex) {
         HttpStatus status = switch (ex.getCodigoError()) {
@@ -75,8 +85,13 @@ public class GlobalExceptionHandler {
             case "VALIDATION_ERROR" -> HttpStatus.BAD_REQUEST;
             default -> HttpStatus.INTERNAL_SERVER_ERROR;
         };
+        Map<String, Object> detalles = ex.getDetalles();
+        if (detalles == null || detalles.isEmpty()) {
+            return ResponseEntity.status(status)
+                    .body(ErrorResponse.of(status, ex.getMessage()));
+        }
         return ResponseEntity.status(status)
-                .body(ErrorResponse.of(status, ex.getMessage()));
+                .body(ErrorResponse.withDetalles(status, ex.getMessage(), detalles));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

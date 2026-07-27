@@ -130,7 +130,6 @@ class JwtAuthenticationFilterTest {
     @Test
     void should_authenticateAndContinue_when_tokenIsValid() throws Exception {
         var userId = UUID.randomUUID();
-        var roleId = UUID.randomUUID();
         var token = "valid-token";
         var claims = createClaims(userId, "READ");
         when(user.isActive()).thenReturn(true);

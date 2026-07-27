@@ -11,7 +11,7 @@ import { EmptyState } from '../../components/ui/EmptyState'
 import { Skeleton } from '../../components/ui/Skeleton'
 import { useToast } from '../../components/ui/ToastProvider'
 import { useConfirm } from '../../components/ui/ConfirmDialog'
-import { ALL_SYSTEM_PERMISSIONS, PERMISSION_GROUPS } from '../../constants/permissions'
+import { ALL_SYSTEM_PERMISSIONS, PERMISSION_GROUPS, getDependencies, getDependents } from '../../constants/permissions'
 
 export function RoleDetail() {
   const { id } = useParams<{ id: string }>()
@@ -63,13 +63,27 @@ export function RoleDetail() {
     setActionError('')
     try {
       if (hasIt) {
+        const dependents = getDependents(perm).filter(d => assignedPerms.includes(d) && d !== perm)
+        if (dependents.length > 0) {
+          const ok = await confirm({
+            title: `¿Remover ${perm}?`,
+            description: `Este permiso es requerido por: ${dependents.join(', ')}. Si lo remueves, esas operaciones podrian fallar.`,
+            confirmLabel: 'Remover de todas formas',
+            variant: 'danger',
+          })
+          if (!ok) return
+        }
         await rolesApi.removePermission(id, perm)
+        setAssignedPerms(prev => prev.filter(p => p !== perm))
       } else {
+        const deps = getDependencies(perm)
         await rolesApi.addPermission(id, perm)
+        const depsToAdd = deps.filter(d => !assignedPerms.includes(d))
+        for (const dep of depsToAdd) {
+          await rolesApi.addPermission(id, dep)
+        }
+        setAssignedPerms(prev => [...prev, perm, ...depsToAdd])
       }
-      setAssignedPerms(prev =>
-        hasIt ? prev.filter(p => p !== perm) : [...prev, perm]
-      )
       showToast(hasIt ? 'Permiso removido correctamente' : 'Permiso asignado correctamente', 'success')
     } catch (e) {
       setActionError(extractError(e, `No se pudo ${hasIt ? 'remover' : 'asignar'} el permiso`))
@@ -154,11 +168,14 @@ export function RoleDetail() {
                   <div className="flex flex-wrap gap-2">
                     {group.perms.map(perm => {
                       const hasIt = assignedPerms.includes(perm)
+                      const deps = getDependencies(perm)
+                      const missingDeps = deps.filter(d => !assignedPerms.includes(d))
                       return (
                         <button
                           key={perm}
                           disabled={!canUpdateRole}
                           onClick={() => togglePermission(perm, hasIt)}
+                          title={deps.length > 0 ? `Requiere: ${deps.join(', ')}` : undefined}
                           className={`text-xs px-2.5 py-1 rounded-full border font-mono transition ${
                             hasIt
                               ? 'bg-brand-600 border-brand-600 text-white'
@@ -166,6 +183,9 @@ export function RoleDetail() {
                           } disabled:cursor-default`}
                         >
                           {perm}
+                          {!hasIt && missingDeps.length > 0 && (
+                            <span className="ml-1 text-[10px] opacity-60">+{missingDeps.length}</span>
+                          )}
                         </button>
                       )
                     })}

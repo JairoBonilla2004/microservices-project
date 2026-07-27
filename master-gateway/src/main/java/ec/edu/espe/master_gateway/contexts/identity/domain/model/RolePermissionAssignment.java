@@ -3,6 +3,7 @@ package ec.edu.espe.master_gateway.contexts.identity.domain.model;
 import ec.edu.espe.master_gateway.shared.domain.permission.Permission;
 import ec.edu.espe.master_gateway.shared.infrastructure.persistence.EstadoRegistro;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -31,7 +32,7 @@ public class RolePermissionAssignment {
         this.roleId = Objects.requireNonNull(roleId, "roleId no puede ser null");
         this.permission = Objects.requireNonNull(permission, "permission no puede ser null");
         this.assignedBy = Objects.requireNonNull(assignedBy, "assignedBy no puede ser null");
-        this.assignedAt = LocalDateTime.now();
+        this.assignedAt = LocalDateTime.now(ZoneOffset.UTC);
         this.estado = EstadoRegistro.ACTIVO;
     }
 

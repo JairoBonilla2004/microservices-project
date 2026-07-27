@@ -31,8 +31,14 @@ export function ModuleList() {
   const load = () => {
     setLoading(true)
     setError('')
-    Promise.all([modulesApi.list(), rolesApi.list()])
-      .then(([m, r]) => { setModules(m); setRoles(r) })
+    const promises: Promise<unknown>[] = [modulesApi.list()]
+    if (canAssign) promises.push(rolesApi.list())
+
+    Promise.all(promises)
+      .then(([m, r]) => {
+        setModules(m as ModuleResponse[])
+        if (r) setRoles(r as RoleResponse[])
+      })
       .catch(e => setError(extractError(e, 'Error al cargar módulos')))
       .finally(() => setLoading(false))
   }
