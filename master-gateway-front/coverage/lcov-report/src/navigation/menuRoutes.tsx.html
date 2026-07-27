@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/12</span>
+                <span class='fraction'>12/12</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/8</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/10</span>
+                <span class='fraction'>10/10</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -174,7 +174,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -198,36 +198,36 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">21x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import type { ReactNode } from 'react'
 import type { MenuNodeResponse } from '../api/menus'
@@ -257,7 +257,7 @@ export interface RouteDefinition {
  * porque son las pantallas que gestionan usuarios/roles/módulos/menús en sí.
  * Se registran siempre; su visibilidad la sigue controlando el permiso.
  */
-export const ADMIN_ROUTES: RouteDefinition[] = <span class="cstat-no" title="statement not covered" >[</span>
+export const ADMIN_ROUTES: RouteDefinition[] = [
   { path: '/users', element: &lt;UserList /&gt;, requireAnyPermission: ['USERS_READ'] },
   { path: '/users/new', element: &lt;UserForm /&gt;, requireAnyPermission: ['USERS_CREATE'] },
   { path: '/users/:id', element: &lt;UserDetail /&gt;, requireAnyPermission: ['USERS_READ'] },
@@ -281,11 +281,11 @@ export const ADMIN_ROUTES: RouteDefinition[] = <span class="cstat-no" title="sta
   { path: '/services/:code/edit', element: &lt;ServiceForm /&gt;, requireAnyPermission: ['SERVICES_UPDATE'] },
 ]
 &nbsp;
-const ADMIN_PATH_PREFIXES = <span class="cstat-no" title="statement not covered" >['/users', '/roles', '/modules', '/menus', '/services']</span>
+const ADMIN_PATH_PREFIXES = ['/users', '/roles', '/modules', '/menus', '/services']
 &nbsp;
 /** Un item del árbol de menú "administra" al SPA si su url coincide con una ruta interna conocida. */
-function <span class="fstat-no" title="function not covered" >isInternalAdminUrl(u</span>rl: string): boolean {
-<span class="cstat-no" title="statement not covered" >  return ADMIN_PATH_PREFIXES.<span class="fstat-no" title="function not covered" >some(p</span>refix =&gt; <span class="cstat-no" title="statement not covered" >url === prefix || url.startsWith(`${prefix}/`))</span></span>
+function isInternalAdminUrl(url: string): boolean {
+  return ADMIN_PATH_PREFIXES.some(prefix =&gt; url === prefix || url.startsWith(`${prefix}/`))
 }
 &nbsp;
 /**
@@ -294,23 +294,23 @@ function <span class="fstat-no" title="function not covered" >isInternalAdminUrl
  * el visor genérico de módulo externo (futuro microservicio hijo). Así el frontend nunca
  * hardcodea rutas de negocio: nacen del menú del rol seleccionado.
  */
-export function <span class="fstat-no" title="function not covered" >buildExternalRoutesFromMenu(n</span>odes: MenuNodeResponse[]): RouteDefinition[] {
-  const routes: RouteDefinition[] = <span class="cstat-no" title="statement not covered" >[]</span>
+export function buildExternalRoutesFromMenu(nodes: MenuNodeResponse[]): RouteDefinition[] {
+  const routes: RouteDefinition[] = []
 &nbsp;
-  function <span class="fstat-no" title="function not covered" >walk(l</span>ist: MenuNodeResponse[]) {
-<span class="cstat-no" title="statement not covered" >    for (const node of list) {</span>
-<span class="cstat-no" title="statement not covered" >      if (node.url &amp;&amp; !isInternalAdminUrl(node.url)) {</span>
-<span class="cstat-no" title="statement not covered" >        routes.push({</span>
+  function walk(list: MenuNodeResponse[]) {
+    for (const node of list) {
+      if (node.url &amp;&amp; !isInternalAdminUrl(node.url)) {
+        routes.push({
           path: node.url,
           element: &lt;ExternalModuleView title={node.nombre} url={node.url} /&gt;,
         })
       }
-<span class="cstat-no" title="statement not covered" >      if (node.children?.length) <span class="cstat-no" title="statement not covered" >walk(node.children)</span></span>
+      if (node.children?.length) walk(node.children)
     }
   }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  walk(nodes)</span>
-<span class="cstat-no" title="statement not covered" >  return routes</span>
+  walk(nodes)
+  return routes
 }
 &nbsp;</pre></td></tr></table></pre>
 
@@ -319,7 +319,7 @@ export function <span class="fstat-no" title="function not covered" >buildExtern
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-27T04:37:03.270Z
+                at 2026-07-27T05:17:43.738Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

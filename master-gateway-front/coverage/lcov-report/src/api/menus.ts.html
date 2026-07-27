@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/15</span>
+                <span class='fraction'>15/15</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/14</span>
+                <span class='fraction'>14/14</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/9</span>
+                <span class='fraction'>9/9</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -178,36 +178,36 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { client } from './client'
 &nbsp;
@@ -251,36 +251,36 @@ export interface MenuItemResponse {
   estado: string
 }
 &nbsp;
-export const menusApi = <span class="cstat-no" title="statement not covered" >{</span>
+export const menusApi = {
   /** GET /api/menus — catálogo completo de ítems activos, sin filtrar por rol */
-<span class="fstat-no" title="function not covered" >  listAll: () =&gt; <span class="cstat-no" title="statement not covered" >c</span>lient.get&lt;MenuItemResponse[]&gt;('/menus').<span class="fstat-no" title="function not covered" >then(r</span> =&gt; <span class="cstat-no" title="statement not covered" >r.data)</span>,</span>
+  listAll: () =&gt; client.get&lt;MenuItemResponse[]&gt;('/menus').then(r =&gt; r.data),
 &nbsp;
   /** GET /api/menus/tree?roleId={roleId} */
-<span class="fstat-no" title="function not covered" >  getTree: (r</span>oleId: string) =&gt;
-<span class="cstat-no" title="statement not covered" >    client.get&lt;MenuNodeResponse[]&gt;('/menus/tree', { params: { roleId } }).<span class="fstat-no" title="function not covered" >then(r</span> =&gt; <span class="cstat-no" title="statement not covered" >r.data)</span>,</span>
+  getTree: (roleId: string) =&gt;
+    client.get&lt;MenuNodeResponse[]&gt;('/menus/tree', { params: { roleId } }).then(r =&gt; r.data),
 &nbsp;
   /** POST /api/menus */
-<span class="fstat-no" title="function not covered" >  create: (d</span>ata: CreateMenuItemRequest) =&gt;
-<span class="cstat-no" title="statement not covered" >    client.post&lt;MenuNodeResponse&gt;('/menus', data).<span class="fstat-no" title="function not covered" >then(r</span> =&gt; <span class="cstat-no" title="statement not covered" >r.data)</span>,</span>
+  create: (data: CreateMenuItemRequest) =&gt;
+    client.post&lt;MenuNodeResponse&gt;('/menus', data).then(r =&gt; r.data),
 &nbsp;
   /** PUT /api/menus/{id} */
-<span class="fstat-no" title="function not covered" >  update: (i</span>d: string, data: UpdateMenuItemRequest) =&gt;
-<span class="cstat-no" title="statement not covered" >    client.put&lt;MenuNodeResponse&gt;(`/menus/${id}`, data).<span class="fstat-no" title="function not covered" >then(r</span> =&gt; <span class="cstat-no" title="statement not covered" >r.data)</span>,</span>
+  update: (id: string, data: UpdateMenuItemRequest) =&gt;
+    client.put&lt;MenuNodeResponse&gt;(`/menus/${id}`, data).then(r =&gt; r.data),
 &nbsp;
   /** DELETE /api/menus/{id} */
-<span class="fstat-no" title="function not covered" >  delete: (i</span>d: string) =&gt; <span class="cstat-no" title="statement not covered" >client.delete(`/menus/${id}`),</span>
+  delete: (id: string) =&gt; client.delete(`/menus/${id}`),
 &nbsp;
   /** PATCH /api/menus/{id}/move */
-<span class="fstat-no" title="function not covered" >  move: (i</span>d: string, data: MoveMenuItemRequest) =&gt;
-<span class="cstat-no" title="statement not covered" >    client.patch(`/menus/${id}/move`, data).<span class="fstat-no" title="function not covered" >then(r</span> =&gt; <span class="cstat-no" title="statement not covered" >r.data)</span>,</span>
+  move: (id: string, data: MoveMenuItemRequest) =&gt;
+    client.patch(`/menus/${id}/move`, data).then(r =&gt; r.data),
 &nbsp;
   /** POST /api/menus/roles/{roleId}/menus */
-<span class="fstat-no" title="function not covered" >  assignToRole: (r</span>oleId: string, menuNodeId: string) =&gt;
-<span class="cstat-no" title="statement not covered" >    client.post(`/menus/roles/${roleId}/menus`, { menuNodeId }).<span class="fstat-no" title="function not covered" >then(r</span> =&gt; <span class="cstat-no" title="statement not covered" >r.data)</span>,</span>
+  assignToRole: (roleId: string, menuNodeId: string) =&gt;
+    client.post(`/menus/roles/${roleId}/menus`, { menuNodeId }).then(r =&gt; r.data),
 &nbsp;
   /** DELETE /api/menus/roles/{roleId}/menus/{menuId} */
-<span class="fstat-no" title="function not covered" >  removeFromRole: (r</span>oleId: string, menuId: string) =&gt;
-<span class="cstat-no" title="statement not covered" >    client.delete(`/menus/roles/${roleId}/menus/${menuId}`),</span>
+  removeFromRole: (roleId: string, menuId: string) =&gt;
+    client.delete(`/menus/roles/${roleId}/menus/${menuId}`),
 }
 &nbsp;</pre></td></tr></table></pre>
 
@@ -289,7 +289,7 @@ export const menusApi = <span class="cstat-no" title="statement not covered" >{<
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-27T04:37:03.270Z
+                at 2026-07-27T05:17:43.738Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

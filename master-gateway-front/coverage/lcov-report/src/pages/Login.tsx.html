@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">42.85% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/21</span>
+                <span class='fraction'>9/21</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">50% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/8</span>
+                <span class='fraction'>4/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">16.66% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/6</span>
+                <span class='fraction'>1/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">45% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/20</span>
+                <span class='fraction'>9/20</span>
             </div>
         
             
@@ -177,7 +177,15 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -186,20 +194,12 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -280,16 +280,16 @@ import { Button } from '../components/ui/Button'
 import { BrandMark } from '../components/ui/BrandMark'
 import { AuthBackground } from '../components/ui/AuthBackground'
 &nbsp;
-export function <span class="fstat-no" title="function not covered" >Login() {</span>
-  const { login } = <span class="cstat-no" title="statement not covered" >useAuth()</span>
-  const navigate = <span class="cstat-no" title="statement not covered" >useNavigate()</span>
-  const [username, setUsername] = <span class="cstat-no" title="statement not covered" >useState('')</span>
-  const [password, setPassword] = <span class="cstat-no" title="statement not covered" >useState('')</span>
-  const [showPassword, setShowPassword] = <span class="cstat-no" title="statement not covered" >useState(false)</span>
-  const [error, setError] = <span class="cstat-no" title="statement not covered" >useState('')</span>
-  const [loading, setLoading] = <span class="cstat-no" title="statement not covered" >useState(false)</span>
+export function Login() {
+  const { login } = useAuth()
+  const navigate = useNavigate()
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 &nbsp;
-  const handleLogin = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async (e</span>: React.FormEvent) =&gt; {</span>
+  const handleLogin = <span class="fstat-no" title="function not covered" >async (e</span>: React.FormEvent) =&gt; {
 <span class="cstat-no" title="statement not covered" >    e.preventDefault()</span>
 <span class="cstat-no" title="statement not covered" >    setError('')</span>
 <span class="cstat-no" title="statement not covered" >    setLoading(true)</span>
@@ -303,7 +303,7 @@ export function <span class="fstat-no" title="function not covered" >Login() {</
     }
   }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return (</span>
+  return (
     &lt;AuthBackground&gt;
       &lt;div className="w-full max-w-sm relative animate-fade-up"&gt;
         &lt;div className="flex flex-col items-center mb-8"&gt;
@@ -316,7 +316,7 @@ export function <span class="fstat-no" title="function not covered" >Login() {</
 &nbsp;
         &lt;div className="bg-white p-7 rounded-2xl shadow-2xl shadow-black/30 border border-white/40"&gt;
           {error &amp;&amp; (
-            &lt;div className="flex items-start gap-2 bg-red-50 border border-red-200 text-red-700 px-3 py-2.5 rounded-lg mb-4 text-sm animate-fade-down"&gt;
+<span class="branch-1 cbranch-no" title="branch not covered" >            &lt;div className="flex items-start gap-2 bg-red-50 border border-red-200 text-red-700 px-3 py-2.5 rounded-lg mb-4 text-sm animate-fade-down"&gt;</span>
               &lt;AlertCircle size={16} className="mt-0.5 shrink-0" /&gt;
               &lt;span&gt;{error}&lt;/span&gt;
             &lt;/div&gt;
@@ -341,7 +341,7 @@ export function <span class="fstat-no" title="function not covered" >Login() {</
               &lt;div className="relative"&gt;
                 &lt;Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" /&gt;
                 &lt;input
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? <span class="branch-0 cbranch-no" title="branch not covered" >'text' : '</span>password'}
                   value={password}
 <span class="fstat-no" title="function not covered" >                  onChange={e</span> =&gt; <span class="cstat-no" title="statement not covered" >setPassword(e.target.value)}</span>
                   required
@@ -352,10 +352,10 @@ export function <span class="fstat-no" title="function not covered" >Login() {</
                   type="button"
 <span class="fstat-no" title="function not covered" >                  onClick={() =&gt; <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >s</span>etShowPassword(v</span> =&gt; <span class="cstat-no" title="statement not covered" >!v)</span>}</span>
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
-                  aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  aria-label={showPassword ? <span class="branch-0 cbranch-no" title="branch not covered" >'Ocultar contraseña' : '</span>Mostrar contraseña'}
                   tabIndex={-1}
                 &gt;
-                  {showPassword ? &lt;EyeOff size={16} /&gt; : &lt;Eye size={16} /&gt;}
+                  {showPassword ? <span class="branch-0 cbranch-no" title="branch not covered" >&lt;EyeOff size={16} /&gt; : &lt;E</span>ye size={16} /&gt;}
                 &lt;/button&gt;
               &lt;/div&gt;
             &lt;/div&gt;
@@ -382,7 +382,7 @@ export function <span class="fstat-no" title="function not covered" >Login() {</
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-27T04:37:03.270Z
+                at 2026-07-27T05:17:43.738Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

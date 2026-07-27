@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/8</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/7</span>
+                <span class='fraction'>7/7</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/5</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -132,20 +132,20 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { client } from './client'
 &nbsp;
@@ -174,20 +174,20 @@ export interface UpdateServiceRequest {
   baseUrl?: string
 }
 &nbsp;
-export const servicesApi = <span class="cstat-no" title="statement not covered" >{</span>
+export const servicesApi = {
   /** GET /api/service-registry */
-<span class="fstat-no" title="function not covered" >  list: () =&gt; <span class="cstat-no" title="statement not covered" >c</span>lient.get&lt;ServiceResponse[]&gt;('/service-registry').<span class="fstat-no" title="function not covered" >then(r</span> =&gt; <span class="cstat-no" title="statement not covered" >r.data)</span>,</span>
+  list: () =&gt; client.get&lt;ServiceResponse[]&gt;('/service-registry').then(r =&gt; r.data),
 &nbsp;
   /** POST /api/service-registry */
-<span class="fstat-no" title="function not covered" >  create: (d</span>ata: CreateServiceRequest) =&gt;
-<span class="cstat-no" title="statement not covered" >    client.post&lt;ServiceResponse&gt;('/service-registry', data).<span class="fstat-no" title="function not covered" >then(r</span> =&gt; <span class="cstat-no" title="statement not covered" >r.data)</span>,</span>
+  create: (data: CreateServiceRequest) =&gt;
+    client.post&lt;ServiceResponse&gt;('/service-registry', data).then(r =&gt; r.data),
 &nbsp;
   /** PUT /api/service-registry/{code} */
-<span class="fstat-no" title="function not covered" >  update: (c</span>ode: string, data: UpdateServiceRequest) =&gt;
-<span class="cstat-no" title="statement not covered" >    client.put&lt;ServiceResponse&gt;(`/service-registry/${code}`, data).<span class="fstat-no" title="function not covered" >then(r</span> =&gt; <span class="cstat-no" title="statement not covered" >r.data)</span>,</span>
+  update: (code: string, data: UpdateServiceRequest) =&gt;
+    client.put&lt;ServiceResponse&gt;(`/service-registry/${code}`, data).then(r =&gt; r.data),
 &nbsp;
   /** DELETE /api/service-registry/{code} */
-<span class="fstat-no" title="function not covered" >  delete: (c</span>ode: string) =&gt; <span class="cstat-no" title="statement not covered" >client.delete(`/service-registry/${code}`),</span>
+  delete: (code: string) =&gt; client.delete(`/service-registry/${code}`),
 }
 &nbsp;</pre></td></tr></table></pre>
 
@@ -196,7 +196,7 @@ export const servicesApi = <span class="cstat-no" title="statement not covered" 
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-27T04:37:03.270Z
+                at 2026-07-27T05:17:43.738Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
