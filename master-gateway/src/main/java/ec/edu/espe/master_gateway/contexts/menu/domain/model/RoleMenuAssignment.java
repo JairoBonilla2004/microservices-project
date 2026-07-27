@@ -2,6 +2,7 @@ package ec.edu.espe.master_gateway.contexts.menu.domain.model;
 
 import ec.edu.espe.master_gateway.shared.infrastructure.persistence.EstadoRegistro;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -29,7 +30,7 @@ public class RoleMenuAssignment {
         this.roleId = Objects.requireNonNull(roleId, "roleId no puede ser null");
         this.menuNodeId = Objects.requireNonNull(menuNodeId, "menuNodeId no puede ser null");
         this.assignedBy = Objects.requireNonNull(assignedBy, "assignedBy no puede ser null");
-        this.assignedAt = LocalDateTime.now();
+        this.assignedAt = LocalDateTime.now(ZoneOffset.UTC);
         this.estado = EstadoRegistro.ACTIVO;
     }
 

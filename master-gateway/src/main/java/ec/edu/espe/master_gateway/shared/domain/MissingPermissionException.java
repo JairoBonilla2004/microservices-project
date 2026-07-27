@@ -16,6 +16,7 @@ import java.util.Set;
  * @author Reishel Tipan
  * @author Julio Viche
  */
+@SuppressWarnings("java:S110")
 public class MissingPermissionException extends AuthorizationException {
 
     private final Permission missingPermission;

@@ -2,6 +2,7 @@ package ec.edu.espe.master_gateway.contexts.identity.domain.model;
 
 import ec.edu.espe.master_gateway.shared.infrastructure.persistence.EstadoRegistro;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -25,7 +26,7 @@ public class UserRoleAssignment {
         this.userId = Objects.requireNonNull(userId, "userId no puede ser null");
         this.roleId = Objects.requireNonNull(roleId, "roleId no puede ser null");
         this.assignedBy = assignedBy;
-        this.assignedAt = LocalDateTime.now();
+        this.assignedAt = LocalDateTime.now(ZoneOffset.UTC);
         this.estado = EstadoRegistro.ACTIVO;
     }
 

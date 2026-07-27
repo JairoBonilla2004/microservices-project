@@ -1,6 +1,6 @@
 package ec.edu.espe.master_gateway.shared.domain.permission;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -54,7 +54,7 @@ public enum Permission {
     private static final Map<Permission, Permission[]> DEPENDENCIES = buildDependencies();
 
     private static Map<Permission, Permission[]> buildDependencies() {
-        Map<Permission, Permission[]> deps = new HashMap<>();
+        Map<Permission, Permission[]> deps = new EnumMap<>(Permission.class);
         deps.put(USERS_CREATE,       new Permission[]{USERS_READ});
         deps.put(USERS_UPDATE,       new Permission[]{USERS_READ});
         deps.put(USERS_DELETE,       new Permission[]{USERS_READ});

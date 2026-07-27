@@ -35,7 +35,7 @@ public class PermissionController {
         return ResponseEntity.ok(metadata);
     }
 
-    private record PermissionMetadata(
+    record PermissionMetadata(
             String permission,
             List<String> dependencies,
             List<String> allDependencies) {

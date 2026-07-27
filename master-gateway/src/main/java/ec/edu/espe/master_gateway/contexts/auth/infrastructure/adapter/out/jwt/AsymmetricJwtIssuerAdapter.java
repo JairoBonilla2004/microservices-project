@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 public class AsymmetricJwtIssuerAdapter implements TokenIssuerPort {
 
     private static final String ISSUER = "master-gateway";
+    private static final String PEM_DELIMITER = "-----";
 
     private final JwtProperties jwtProperties;
     private final KeyPair keyPair;
@@ -139,12 +140,12 @@ public class AsymmetricJwtIssuerAdapter implements TokenIssuerPort {
         if (pem == null || pem.isBlank()) {
             throw new IllegalArgumentException("PEM no puede estar vacio");
         }
-        if (!pem.startsWith("-----")) {
-            pem = "-----BEGIN " + label + "-----\n" + pem + "\n-----END " + label + "-----";
+        if (!pem.startsWith(PEM_DELIMITER)) {
+            pem = PEM_DELIMITER + "BEGIN " + label + PEM_DELIMITER + "\n" + pem + "\n" + PEM_DELIMITER + "END " + label + PEM_DELIMITER;
         }
         return Base64.getDecoder().decode(
-                pem.replace("-----BEGIN " + label + "-----", "")
-                        .replace("-----END " + label + "-----", "")
+                pem.replace(PEM_DELIMITER + "BEGIN " + label + PEM_DELIMITER, "")
+                        .replace(PEM_DELIMITER + "END " + label + PEM_DELIMITER, "")
                         .replaceAll("\\s", "")
         );
     }

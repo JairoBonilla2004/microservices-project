@@ -1,6 +1,7 @@
 package ec.edu.espe.master_gateway.shared.infrastructure.web;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
@@ -33,7 +34,7 @@ public class ErrorResponse {
                           Map<String, Object> detalles) {
         this.codigo = codigo;
         this.mensaje = mensaje;
-        this.timestamp = LocalDateTime.now();
+        this.timestamp = LocalDateTime.now(ZoneOffset.UTC);
         this.errores = errores;
         this.detalles = detalles;
     }
