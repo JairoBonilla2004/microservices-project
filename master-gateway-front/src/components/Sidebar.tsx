@@ -65,7 +65,7 @@ function MenuNodeItem({ node, depth }: { node: MenuNodeResponse; depth: number }
       </button>
       {expanded && (
         <div className="space-y-0.5">
-          {node.children.map(child => (
+          {[...node.children].sort((a, b) => a.orden - b.orden).map(child => (
             <MenuNodeItem key={child.id} node={child} depth={depth + 1} />
           ))}
         </div>
@@ -127,7 +127,7 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
             <p className="text-xs text-slate-500 px-3 py-2">Cargando menú...</p>
           ) : menuTree.length > 0 ? (
             <div className="pt-3 mt-2 border-t border-white/10 space-y-0.5">
-              {menuTree.map(node => (
+              {[...menuTree].sort((a, b) => a.orden - b.orden).map(node => (
                 <MenuNodeItem key={node.id} node={node} depth={0} />
               ))}
             </div>

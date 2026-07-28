@@ -30,6 +30,8 @@ interface AuthContextType {
   /** Árbol de navegación del rol activo, devuelto por /api/menus/tree. Base del enrutamiento dinámico. */
   menuTree: MenuNodeResponse[]
   menuTreeLoading: boolean
+  /** Recarga el árbol de menú del rol activo desde el backend */
+  refreshMenuTree: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
@@ -84,6 +86,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setMenuTreeLoading(false)
     }
   }, [])
+
+  const refreshMenuTree = useCallback(async () => {
+    if (!user?.roleId) return
+    await loadMenuTree(user.roleId)
+  }, [user?.roleId, loadMenuTree])
 
   // Al montar, reconstruye el usuario y su árbol de navegación desde el token almacenado
   useEffect(() => {
@@ -155,6 +162,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         hasAnyPermission,
         menuTree,
         menuTreeLoading,
+        refreshMenuTree,
       }}
     >
       {children}

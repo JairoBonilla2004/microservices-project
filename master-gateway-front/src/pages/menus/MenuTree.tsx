@@ -79,7 +79,7 @@ function TreeNode({
       </div>
       {hasChildren && expanded && (
         <ul>
-          {node.children.map(child => (
+          {[...node.children].sort((a, b) => a.orden - b.orden).map(child => (
             <TreeNode
               key={child.id}
               node={child}
@@ -99,7 +99,7 @@ function TreeNode({
 }
 
 export function MenuTree() {
-  const { hasPermission } = useAuth()
+  const { hasPermission, refreshMenuTree } = useAuth()
   const { showToast } = useToast()
   const confirm = useConfirm()
   const [tree, setTree] = useState<MenuNodeResponse[]>([])
@@ -152,7 +152,10 @@ export function MenuTree() {
     if (!ok) return
     try {
       await menusApi.delete(menuId)
-      if (selectedRoleId) loadTree(selectedRoleId)
+      if (selectedRoleId) {
+        loadTree(selectedRoleId)
+        refreshMenuTree()
+      }
       showToast('Ítem de menú eliminado correctamente.', 'success')
     } catch (e) {
       showToast(extractError(e, 'No se pudo eliminar el ítem de menú'), 'error')
@@ -170,6 +173,7 @@ export function MenuTree() {
     try {
       await menusApi.removeFromRole(roleId, menuId)
       loadTree(roleId)
+      refreshMenuTree()
       showToast('Menú quitado del rol correctamente.', 'success')
     } catch (e) {
       showToast(extractError(e, 'No se pudo quitar el menú del rol'), 'error')
@@ -184,6 +188,7 @@ export function MenuTree() {
       setAssignMessage('Menú asignado al rol correctamente.')
       setAssignMenuNodeId('')
       if (selectedRoleId === assignRoleId) loadTree(assignRoleId)
+      refreshMenuTree()
       showToast('Menú asignado al rol correctamente.', 'success')
     } catch (e) {
       setAssignMessage(extractError(e, 'No se pudo asignar el menú'))
@@ -269,7 +274,7 @@ export function MenuTree() {
               <EmptyState icon={<ListTree size={22} />} title="Este rol no tiene menús asignados." />
             ) : (
               <ul className="mt-2">
-                {tree.map(node => (
+                {[...tree].sort((a, b) => a.orden - b.orden).map(node => (
                   <TreeNode
                     key={node.id}
                     node={node}

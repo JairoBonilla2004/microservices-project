@@ -61,7 +61,7 @@ public interface MenuNodeJpaRepository extends SoftDeleteRepository<MenuNodeJpaE
             FROM menus
             WHERE id IN (:nodeIds)
               AND estado = 'ACTIVO'
-            UNION ALL
+            UNION
             SELECT m.id, m.nombre, m.url, m.modulo_id, m.parent_id, m.orden, m.estado,
                    m.creado_por, m.fecha_creacion, m.actualizado_por, m.fecha_actualizacion
             FROM menus m
