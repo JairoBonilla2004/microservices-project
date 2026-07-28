@@ -11,6 +11,7 @@ import ec.edu.espe.master_gateway.contexts.module.domain.port.out.RoleModuleAssi
 import ec.edu.espe.master_gateway.shared.domain.permission.Permission;
 import ec.edu.espe.master_gateway.shared.domain.port.out.AuthorizationPort;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -98,15 +99,25 @@ public class GetMenuTreeService implements GetMenuTreeUseCase {
             childrenByParent.computeIfAbsent(node.getParentId(), k -> new java.util.ArrayList<>()).add(node);
         }
 
-        return rootIds.stream()
+        var topLevelIds = rootIds.stream()
+                .filter(id -> {
+                    var node = nodesById.get(id);
+                    if (node == null) return false;
+                    return node.getParentId() == null || !rootIds.contains(node.getParentId());
+                })
+                .toList();
+
+        return topLevelIds.stream()
                 .map(nodesById::get)
                 .filter(Objects::nonNull)
+                .sorted(Comparator.comparingInt(MenuNode::getOrden))
                 .map(root -> toResponse(root, childrenByParent))
                 .toList();
     }
 
     private MenuNodeResponse toResponse(MenuNode node, Map<UUID, List<MenuNode>> childrenByParent) {
         var children = childrenByParent.getOrDefault(node.getId(), List.of()).stream()
+                .sorted(Comparator.comparingInt(MenuNode::getOrden))
                 .map(child -> toResponse(child, childrenByParent))
                 .toList();
         return new MenuNodeResponse(

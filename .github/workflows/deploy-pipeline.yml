@@ -133,7 +133,7 @@ jobs:
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.projectKey=master-gateway_backend \
             -Dsonar.organization=${{ env.SONAR_ORG }} \
-            -Dsonar.exclusions=**/ci/**,**/modelo/** \
+            -Dsonar.exclusions=**/ci/**,**/modelo/**,**/*MapperImpl.java \
             -Dsonar.qualitygate.wait=true
 
       - name: Setup Node 22

@@ -12,7 +12,7 @@ import { useToast } from '../../components/ui/ToastProvider'
 import { useConfirm } from '../../components/ui/ConfirmDialog'
 
 export function ModuleList() {
-  const { hasPermission } = useAuth()
+  const { hasPermission, refreshMenuTree } = useAuth()
   const { showToast } = useToast()
   const confirm = useConfirm()
   const [modules, setModules] = useState<ModuleResponse[]>([])
@@ -83,6 +83,7 @@ export function ModuleList() {
       await modulesApi.assignToRole(assignRoleId, assignModuleId)
       setAssignMessage('Módulo asignado al rol correctamente.')
       setAssignModuleId('')
+      refreshMenuTree()
       showToast('Módulo asignado al rol correctamente.', 'success')
     } catch (e) {
       setAssignMessage(extractError(e, 'No se pudo asignar el módulo'))
@@ -147,7 +148,7 @@ export function ModuleList() {
               </tr>
             </thead>
             <tbody>
-              {modules.map(m => (
+              {[...modules].sort((a, b) => a.orden - b.orden).map(m => (
                 <tr key={m.id} className="border-t border-slate-100 hover:bg-slate-50">
                   <td className="px-4 py-3 font-medium text-slate-800">{m.nombre}</td>
                   <td className="px-4 py-3 text-slate-500">{m.descripcion}</td>

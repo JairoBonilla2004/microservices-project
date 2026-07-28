@@ -65,7 +65,7 @@ function TreeNode({ node, depth }: { node: MenuNodeResponse; depth: number }) {
       </div>
       {hasChildren && expanded && (
         <div>
-          {node.children.map(child => (
+          {[...node.children].sort((a, b) => a.orden - b.orden).map(child => (
             <TreeNode key={child.id} node={child} depth={depth + 1} />
           ))}
         </div>
@@ -270,7 +270,7 @@ export function Dashboard() {
                     />
                   ) : (
                     <div>
-                      {menuTree.map(node => (
+                      {[...menuTree].sort((a, b) => a.orden - b.orden).map(node => (
                         <TreeNode key={node.id} node={node} depth={0} />
                       ))}
                     </div>
@@ -323,6 +323,7 @@ export function Dashboard() {
                 <CardBody className="space-y-1">
                   {flattenTree(menuTree)
                     .filter(n => n.url)
+                    .sort((a, b) => a.orden - b.orden)
                     .slice(0, 10)
                     .map(n => (
                       <button

@@ -21,6 +21,7 @@ vi.mock('../../context/AuthContext', () => ({
     user: { username: 'admin', roleName: 'ADMIN' },
     logout: vi.fn(),
     hasAnyPermission: vi.fn(() => true),
+    refreshMenuTree: vi.fn(),
     menuTree: [],
     menuTreeLoading: false,
   })),
