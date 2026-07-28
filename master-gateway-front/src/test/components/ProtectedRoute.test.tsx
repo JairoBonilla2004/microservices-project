@@ -18,6 +18,7 @@ const baseMock = {
   register: vi.fn(),
   logout: vi.fn(),
   hasPermission: vi.fn(),
+  refreshMenuTree: vi.fn(),
   menuTree: [],
   menuTreeLoading: false,
 }
