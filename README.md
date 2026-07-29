@@ -269,3 +269,192 @@ Se ejecuta en push a `dev` (despues de un merge aprobado). Despliega el codigo a
 
 ---
 
+## 7. Como Ejecutar
+
+### Requisitos
+
+- Docker y Docker Compose instalados
+- Puertos 80 y 8080 disponibles (o configurar alternativos en `.env`)
+
+### Pasos
+
+**1. Clonar y configurar**
+
+```bash
+git clone <url-del-repositorio>
+cd microservices-project
+cp .env.example .env
+```
+
+Editar `.env` y completar al menos `JWT_SECRET`. Para generar un valor seguro:
+
+```bash
+openssl rand -base64 48
+```
+
+**2. Iniciar servicios**
+
+```bash
+docker compose up -d
+```
+
+Esto construye las imagenes (si es primera vez) e inicia los tres contenedores en orden:
+
+| Servicio | Contenedor | Puerto | Depende de |
+|----------|-----------|--------|-----------|
+| PostgreSQL | `master-gateway-db` | 5432 | — |
+| Backend | `master-gateway-api` | 8080 | PostgreSQL saludable |
+| Frontend | `master-gateway-front` | 80 | Backend saludable |
+
+**3. Acceder**
+
+- **Frontend:** `http://localhost:80`
+- **API:** `http://localhost:8080`
+
+### Primer inicio
+
+Con BD vacia, el sistema crea automaticamente:
+- Rol **ADMIN** con los 25 permisos del sistema
+- Usuario **boss_admin** con credenciales predefinidas
+
+### Detener
+
+```bash
+docker compose down
+```
+
+Para eliminar tambien los volumenes (datos de BD):
+
+```bash
+docker compose down -v
+```
+
+---
+
+## 8. Variables de Entorno
+
+El archivo `.env` en la raiz contiene todas las variables necesarias. Se agrupan en cuatro categorias.
+
+### 🔐 Seguridad y Autenticacion
+
+| Variable | Obligatorio | Descripcion |
+|----------|-------------|-------------|
+| `JWT_SECRET` | Si | Clave HMAC-SHA256. Minimo 32 caracteres. Generar con `openssl rand -base64 48` |
+| `JWT_PRIVATE_KEY_PEM` | Solo si `JWT_MODE=asymmetric` | Llave privada RSA en PEM |
+| `JWT_PUBLIC_KEY_PEM` | Solo si `JWT_MODE=asymmetric` | Llave publica RSA en PEM |
+| `JWT_MODE` | No | `direct` (simetrico) o `asymmetric` (por defecto `direct`) |
+| `HASH_ALGORITHM` | No | `argon2` o `bcrypt` (por defecto `argon2`) |
+
+### 🗄️ Base de Datos
+
+| Variable | Default | Descripcion |
+|----------|---------|-------------|
+| `DB_NAME` | `master_gateway` | Nombre de la BD |
+| `DB_USER` | `postgres` | Usuario |
+| `DB_PASSWORD` | `changeme` | Contrasena |
+| `DB_PORT` | `5432` | Puerto |
+| `DDL_AUTO` | `validate` | En produccion usar `validate`. En desarrollo `update` |
+
+### ⚙️ Aplicacion y Logging
+
+| Variable | Default | Descripcion |
+|----------|---------|-------------|
+| `SPRING_PROFILES_ACTIVE` | `prod` | Perfil (`prod` o `dev`) |
+| `LOG_LEVEL` | `WARN` | Nivel de logging raiz |
+| `GATEWAY_LOG_LEVEL` | `INFO` | Nivel del paquete del proyecto |
+| `SHOW_SQL` | `false` | Mostrar SQL en consola |
+| `ADMIN_SEED_PASSWORD` | (vacio) | Contrasena del admin inicial. Si se omite, se genera aleatoria |
+
+### 🖥️ Frontend
+
+| Variable | Default | Descripcion |
+|----------|---------|-------------|
+| `FRONT_PORT` | `80` | Puerto del contenedor frontend |
+| `VITE_API_URL` | `/api` | URL base de la API. Si frontend y API estan en mismo dominio, usar `/api` |
+
+---
+
+## 9. Seguridad
+
+### Autenticacion en dos fases
+
+El login se divide en dos pasos para limitar el impacto de un token comprometido:
+
+1. El usuario ingresa credenciales y recibe un `TEMP_TOKEN` (5 minutos). Solo permite seleccionar rol.
+2. Al seleccionar el rol, se emite `ACCESS_TOKEN` (15 minutos) + `REFRESH_TOKEN` (7 dias). El access token contiene los permisos del usuario.
+
+### Rate Limiting
+
+Los endpoints de login y registro tienen un limite de **5 intentos por minuto por IP**. Al superarlo, el servidor responde **HTTP 429** con encabezado `Retry-After`.
+
+### Proteccion de contraseñas
+
+- Se almacenan con **BCrypt** (costo 12) o **Argon2**
+- Nunca se devuelven en respuestas de la API
+- El mensaje de error es generico ("Credenciales invalidas") para usuarios inexistentes y contrasenas incorrectas (recomendacion OWASP)
+
+### Control de acceso
+
+El sistema tiene **25 permisos** en 5 dominios:
+
+| Dominio | Permisos |
+|---------|----------|
+| USERS | CREATE, READ, UPDATE, DELETE, ASSIGN_ROLE, REVOKE_ROLE |
+| ROLES | CREATE, READ, UPDATE, DELETE, ASSIGN_USERS |
+| MODULES | CREATE, READ, UPDATE, DELETE, ASSIGN |
+| MENUS | CREATE, READ, UPDATE, DELETE, ASSIGN |
+| SERVICES | CREATE, READ, UPDATE, DELETE |
+
+Cada endpoint verifica el permiso requerido de forma programatica en el servicio, no con anotaciones. Esto centraliza la autorizacion y facilita el mantenimiento.
+
+### Soporte para microservicios externos
+
+Los microservicios hijos pueden validar tokens JWT sin compartir la clave secreta del gateway. Se registran en el Service Registry con su modo de validacion:
+
+- **DIRECT** — Misma clave HMAC que el gateway
+- **ASYMMETRIC** — RSA-2048: el gateway firma con su llave privada, el microservicio valida con la llave publica registrada
+
+Los microservicios llaman a `POST /api/internals/validate-token` del gateway para validar tokens.
+
+### Refresh Token Rotation
+
+Cada vez que se usa un refresh token, el anterior se revoca en BD. Si un atacante obtiene un refresh token, solo puede usarlo una vez antes de que el usuario legitimo lo invalide.
+
+### Borrado logico (Soft Delete)
+
+Todas las eliminaciones cambian el estado a `INACTIVO` en lugar de borrar la fila. Las consultas filtran por `estado = 'ACTIVO'`. Esto preserva integridad referencial y permite auditoria.
+
+### Cabeceras de seguridad HTTP
+
+El frontend (Nginx) incluye:
+
+- `X-Content-Type-Options: nosniff` — Evita MIME sniffing
+- `X-Frame-Options: DENY` — Protege contra clickjacking
+- `X-XSS-Protection: 1; mode=block` — Filtro anti-XSS
+- `Content-Security-Policy` — Restringe recursos que puede cargar la pagina
+
+### Pipeline de seguridad con Machine Learning
+
+Cada PR se analiza automaticamente:
+
+1. **DiffExtractor** — Extrae fragmentos de codigo modificados del diff
+2. **FeatureExtractor** — Calcula metricas: lineas, densidad de cambios, complejidad estructural
+3. **SecurityGate** — Clasificador entrenado con dataset CVEfixes (miles de vulnerabilidades reales) que predice si cada fragmento introduce una vulnerabilidad
+4. **Reporte** — Se genera JSON con resultados y se sube como artefacto del workflow
+
+El modelo se entrena localmente con `python modelo/train_model.py` y los artefactos quedan en `modelo/model_artifacts/`.
+
+---
+
+## Secretos Requeridos en GitHub
+
+Configurar en `Settings > Secrets and variables > Actions` del repositorio:
+
+| Secreto | Proposito |
+|---------|-----------|
+| `SONAR_TOKEN` | Autenticacion SonarCloud |
+| `TELEGRAM_BOT_TOKEN` | Token del bot de Telegram |
+| `TELEGRAM_CHAT_ID` | ID del chat para notificaciones |
+| `DOCKERHUB_USERNAME` | Usuario de Docker Hub |
+| `DOCKERHUB_TOKEN` | Token de Docker Hub |
+| `GITOPS_GITHUB_TOKEN` | Token con acceso de escritura al repositorio GitOps |
