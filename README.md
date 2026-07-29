@@ -225,7 +225,7 @@ Se ejecuta en cada push a ramas `feature/*`, `bugfix/*` o `hotfix/*`. Proporcion
 - `build-and-test` — Compila backend (Maven + Java 21) y construye frontend (Node 22 + npm). Corre en paralelo.
 
 **Evidencia:**
-*(Insertar aqui captura del Feature Pipeline ejecutandose en GitHub Actions)*
+![Feature Pipeline ejecutandose en GitHub Actions](img/feature-pipeline.png)
 
 ---
 
@@ -243,8 +243,8 @@ Se ejecuta en Pull Requests hacia `dev` o `main`. Es el gate obligatorio para me
 5. `telegram-notify` — Notifica el resultado de cada fase por Telegram.
 
 **Evidencias:**
-*(Insertar aqui captura del Integration Pipeline mostrando los jobs completados)*
-*(Insertar aqui captura del escaneo SAST ML)*
+![Integration Pipeline mostrando los jobs completados](img/integration-pipeline.png)
+![Escaneo SAST ML](img/sast-ml.png)
 
 ---
 
