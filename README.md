@@ -263,9 +263,9 @@ Se ejecuta en push a `dev` (despues de un merge aprobado). Despliega el codigo a
 6. `telegram-notify` — Notifica el resultado completo
 
 **Evidencias:**
-*(Insertar aqui captura del Deploy Pipeline completo)*
-*(Insertar aqui captura de la actualizacion en ArgoCD)*
-*(Insertar aqui captura de la notificacion de Telegram)*
+![Deploy Pipeline completo](img/deploy-pipeline.png)
+![Actualizacion en ArgoCD](img/argocd.png)
+![Notificacion de Telegram](img/telegram-notifications.png)
 
 ---
 
