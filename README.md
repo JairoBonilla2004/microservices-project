@@ -4,6 +4,8 @@
 
 **Autores:** Jairo Bonilla, Julio Viche, Reishel Tipán
 
+![Frontend de Master Gateway (pantalla de acceso)](img/frontend-login.png)
+
 ---
 
 ## ⚠️ Importante
@@ -92,8 +94,6 @@ El sistema sigue una arquitectura de microservicios donde el Master Gateway es e
 
 **Despliegue:** Las imagenes Docker se publican en Docker Hub y ArgoCD sincroniza automaticamente los manifiestos del repositorio GitOps para desplegar los cambios en el cluster.
 
-*(Insertar aqui imagen del diagrama de arquitectura)*
-
 ### Arquitectura Hexagonal (Ports & Adapters)
 
 El backend implementa el patron de arquitectura hexagonal. El nucleo del negocio no sabe nada sobre la base de datos, ni sobre HTTP, ni sobre JWT. Esas son decisiones de infraestructura que se conectan a traves de interfaces llamadas puertos.
@@ -113,6 +113,8 @@ El backend implementa el patron de arquitectura hexagonal. El nucleo del negocio
 5. El **adaptador** `UserRepositoryAdapter` (en infraestructura) ejecuta la consulta JPA
 
 **Beneficio:** cada capa se prueba de forma aislada. Los servicios se prueban con mocks de los puertos, sin base de datos ni HTTP.
+
+![Diagrama de arquitectura hexagonal del Master Gateway](img/arch-diagram.png)
 
 ---
 
@@ -265,7 +267,16 @@ Se ejecuta en push a `dev` (despues de un merge aprobado). Despliega el codigo a
 **Evidencias:**
 ![Deploy Pipeline completo](img/deploy-pipeline.png)
 ![Actualizacion en ArgoCD](img/argocd.png)
-![Notificacion de Telegram](img/telegram-notifications.png)
+<p align="center">
+       <img src="img/telegram-notifications.png" alt="Notificacion de Telegram" width="200">
+</p>
+
+**Evidencias complementarias del despliegue:**
+![Tags publicados en Docker Hub](img/dockerhub-tags.png)
+*Publicación de la imagen del backend con el SHA del commit como tag en Docker Hub.*
+
+![Vista de aplicaciones en ArgoCD](img/argocd-applications.png)
+*Vista general de las aplicaciones gestionadas por ArgoCD en el clúster.*
 
 ---
 
@@ -310,6 +321,10 @@ Esto construye las imagenes (si es primera vez) e inicia los tres contenedores e
 
 - **Frontend:** `http://localhost:80`
 - **API:** `http://localhost:8080`
+
+**Verificacion operativa (complementaria):**
+![Pods del namespace ms-gateway-dev en estado Running](img/k8s-pods-running.png)
+*Confirmación de que los pods del entorno de desarrollo quedaron en estado Running después del despliegue.*
 
 ### Primer inicio
 
