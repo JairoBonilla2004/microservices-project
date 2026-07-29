@@ -133,3 +133,139 @@ El backend implementa el patron de arquitectura hexagonal. El nucleo del negocio
 
 ---
 
+## 4. Estructura del Proyecto
+
+```
+microservices-project/
+│
+├── master-gateway/                   Backend Spring Boot
+│   ├── src/main/java/.../
+│   │   ├── contexts/                 Modulos del negocio
+│   │   │   ├── auth/                 Autenticacion
+│   │   │   ├── identity/             Usuarios y roles
+│   │   │   ├── menu/                 Arbol de menus
+│   │   │   ├── module/               Modulos
+│   │   │   └── service-registry/     Registro de microservicios
+│   │   └── shared/                   Codigo compartido
+│   ├── Dockerfile
+│   ├── pom.xml
+│   └── endpoints.md                  Documentacion detallada de la API
+│
+├── master-gateway-front/             Frontend React
+│   ├── src/
+│   │   ├── pages/                    Pantallas del panel
+│   │   ├── components/               Componentes reutilizables
+│   │   ├── navigation/               Rutas y navegacion
+│   │   ├── api/                      Clientes HTTP
+│   │   └── context/                  Contextos de React
+│   ├── Dockerfile
+│   ├── nginx.conf
+│   └── package.json
+│
+├── ci/                               Pipeline de seguridad con ML
+│   ├── security_pipeline.py          Orquestador
+│   ├── diff_extractor.py             Extrae fragmentos del diff
+│   ├── feature_extractor.py          Calcula caracteristicas
+│   ├── security_gate.py              Clasificador ML
+│   ├── notify.py                     Notificaciones Telegram
+│   └── tests.py                      Pruebas del pipeline
+│
+├── modelo/                           Modelo de ML
+│   ├── train_model.py                Entrenamiento
+│   ├── extract_juliet.py             Procesamiento del dataset
+│   └── model_artifacts/              Artefactos del modelo entrenado
+│
+├── .github/workflows/                Pipelines CI/CD
+│   ├── feature-pipeline.yml
+│   ├── integration-pipeline.yml
+│   └── deploy-pipeline.yml
+│
+├── docker-compose.yml                Orquestacion de contenedores
+└── .env.example                      Plantilla de variables de entorno
+```
+
+---
+
+## 5. Convencion de Ramas
+
+Para que los pipelines se ejecuten correctamente, las ramas deben seguir esta convencion de nombres. Cualquier rama que no cumpla con estos prefijos no disparara ningun workflow.
+
+| Prefijo | Se ejecuta pipeline | Uso |
+|---------|-------------------|-----|
+| `feature/*` | ✅ Si, en cada push | Nuevas funcionalidades |
+| `bugfix/*` | ✅ Si, en cada push | Correccion de errores |
+| `hotfix/*` | ✅ Si, en cada push | Parches urgentes |
+| `dev` | ✅ Si, en cada push | Integracion continua + deploy automatico |
+| `main` | ❌ No por push | Solo recibe PRs desde dev |
+| Cualquier otra | ❌ Sin pipeline | No dispara nada |
+
+**Regla de oro:** `feature/*` o `bugfix/*` o `hotfix/*` → PR a `dev` → merge a `dev` → PR de `dev` a `main`
+
+### Flujo paso a paso
+
+1. El desarrollador crea una rama desde `dev`: `git checkout -b feature/mi-funcionalidad dev`
+2. Desarrolla y hace push → se dispara el **Feature Pipeline** (build y tests rapidos)
+3. Abre un Pull Request hacia `dev` → se dispara el **Integration Pipeline** (SonarCloud + escaneo ML + Telegram)
+4. Si el PR esta en Draft, el pipeline se salta build y test para ahorrar recursos
+5. Tras aprobacion y merge a `dev` → se dispara el **Deploy Pipeline** completo
+6. Para llevar a `main`: abrir PR desde `dev` hacia `main`. El pipeline valida que el origen sea `dev`
+7. Tras merge a `main`, no hay deploy automatico
+
+---
+
+## 6. Pipelines CI/CD
+
+### Feature Pipeline
+
+**Archivo:** `.github/workflows/feature-pipeline.yml`
+
+Se ejecuta en cada push a ramas `feature/*`, `bugfix/*` o `hotfix/*`. Proporciona retroalimentacion rapida al desarrollador: saber en minutos si el codigo compila y las pruebas pasan, antes de abrir el Pull Request.
+
+**Jobs:**
+- `build-and-test` — Compila backend (Maven + Java 21) y construye frontend (Node 22 + npm). Corre en paralelo.
+
+**Evidencia:**
+*(Insertar aqui captura del Feature Pipeline ejecutandose en GitHub Actions)*
+
+---
+
+### Integration Pipeline
+
+**Archivo:** `.github/workflows/integration-pipeline.yml`
+
+Se ejecuta en Pull Requests hacia `dev` o `main`. Es el gate obligatorio para mergear. No despliega nada, solo valida.
+
+**Jobs:**
+1. `validate-branch-source` — Verifica que los PRs a `main` solo vengan de `dev`. Si alguien intenta un PR desde `feature/xyz` a `main`, falla con un mensaje claro.
+2. `build-and-test` — Compila y ejecuta pruebas. Se salta si el PR es Draft.
+3. `sonarcloud-scan` — Analiza calidad con SonarCloud. Verifica el Quality Gate.
+4. `sast-ml-scan` — Pipeline de seguridad con ML: extrae fragmentos del diff, calcula caracteristicas y clasifica con modelo entrenado en CVEfixes.
+5. `telegram-notify` — Notifica el resultado de cada fase por Telegram.
+
+**Evidencias:**
+*(Insertar aqui captura del Integration Pipeline mostrando los jobs completados)*
+*(Insertar aqui captura del escaneo SAST ML)*
+
+---
+
+### Deploy Pipeline
+
+**Archivo:** `.github/workflows/deploy-pipeline.yml`
+
+Se ejecuta en push a `dev` (despues de un merge aprobado). Despliega el codigo al ambiente de desarrollo.
+
+**Jobs:**
+1. `build-and-test` — Revalida el merge commit
+2. `sonarcloud-scan` — Calidad + cobertura
+3. `sast-ml-scan` — Escaneo de seguridad
+4. `docker-build-push` — Construye imagenes Docker y las publica en Docker Hub con el SHA del commit como tag
+5. `gitops-deploy` — Actualiza los archivos `patch-image.yaml` en el repositorio GitOps. ArgoCD detecta el cambio y sincroniza automaticamente el nuevo manifiesto en el cluster
+6. `telegram-notify` — Notifica el resultado completo
+
+**Evidencias:**
+*(Insertar aqui captura del Deploy Pipeline completo)*
+*(Insertar aqui captura de la actualizacion en ArgoCD)*
+*(Insertar aqui captura de la notificacion de Telegram)*
+
+---
+
